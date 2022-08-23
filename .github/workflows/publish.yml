@@ -37,8 +37,9 @@ jobs:
         APPLE_CERTIFICATE_PASSWORD: ${{ secrets.OSX_CSC_PASSWORD }}
         APPLE_ID: ${{ secrets.APPLE_ID }}
         APPLE_PASSWORD: ${{ secrets.APPLE_PASS }}
-        APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
-        APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+        #APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+        #APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+        APPLE_SIGNING_IDENTITY: "Developer ID Application: Formidable Labs, Inc (556XY2Y2X4)"
       with:
         tagName: app-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version
         releaseName: "GUI4Comby v__VERSION__"
