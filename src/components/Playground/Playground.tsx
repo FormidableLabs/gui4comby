@@ -1,6 +1,10 @@
 import {Button, Container, Form} from "react-bootstrap";
+import {useEffect} from "react";
 
 const Playground = () => {
+  useEffect(() => {
+    console.log('playground mount');
+  }, []);
   return <div style={{padding: '1em 1em'}}>
     <Form>
       <Form.Group className="mb-3" controlId="sourceSample">

@@ -2,13 +2,14 @@ import {Nav, Tab} from "react-bootstrap";
 import TabIcon, {TabType} from "../TabIcon/TabIcon";
 import {useRecoilState, useSetRecoilState} from "recoil";
 import {activeTabState, getId, tabsState} from "../../App.recoil";
+import {useNavigate} from "react-router-dom";
 
 type Props = {
   type: TabType;
 }
 const NewTabButton = ({type}:Props) => {
   const [tabs, setTabs] = useRecoilState(tabsState);
-  const setActiveTab = useSetRecoilState(activeTabState);
+  const navigate = useNavigate();
 
   function add() {
     const id = getId();
@@ -21,12 +22,11 @@ const NewTabButton = ({type}:Props) => {
       case TabType.Settings: title = 'Settings'; break;
     }
 
-    setActiveTab(id);
     setTabs((oldState) => [
       ...oldState,
       {id, type, title}
     ]);
-
+    navigate(`/tab/${id}`);
   }
 
   return (

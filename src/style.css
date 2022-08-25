@@ -2,3 +2,5 @@ html, body, #root {
   width: 100vw;
   height: 100vh;
 }
+/* https://github.com/twbs/icons/issues/82#issuecomment-841772780 */
+svg, svg.bi {vertical-align: -0.125em;}

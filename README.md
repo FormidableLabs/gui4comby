@@ -13,7 +13,7 @@ This template should help get you started developing with Tauri, React and Types
 * using css to theme https://blog.bitsrc.io/theming-react-components-with-css-variables-ee52d1bb3d90
 * ace theme css sample https://github.com/ajaxorg/ace/blob/master/src/theme/github.css.js
 * ace diff example https://securingsincity.github.io/react-ace/diff.html
-
+* rust docker library https://crates.io/crates/bollard
 
 ## Todo
 - [x] App: Support tabs to accommodate multiple work streams
@@ -36,3 +36,4 @@ This template should help get you started developing with Tauri, React and Types
 - [ ] Themes: Map vscode themes to css variable overrides
 - [ ] Themes: Ability to switch between available themes
 - [ ] Themes: Support any theme from https://vscodethemes.com/
+- [ ] App Tabs: Close all tabs shows Getting Started splash

@@ -3,33 +3,35 @@ import HorizontalExpander from "../HorizontalExpander/HorizontalExpander";
 import './TabBar.css';
 import NewTabButton from "../NewTabButton/NewTabButton";
 import TabIcon, {TabType} from "../TabIcon/TabIcon";
-import {activeTabState, getId, tabsState} from "../../App.recoil";
+import {getId, tabsState} from "../../App.recoil";
 import {AiOutlineClose} from "react-icons/all";
 import {useRecoilState, useSetRecoilState} from "recoil";
+import {useNavigate, useParams} from "react-router-dom";
 import {useEffect, useState} from "react";
 
 type Props = {
-    active?: string
 }
 
-
-const TabBar = ({active}: Props) => {
+const TabBar = ({}: Props) => {
     const [tabs, setTabs] = useRecoilState(tabsState);
-    const [activeTab, setActiveTab] = useRecoilState(activeTabState);
-    const [position, setPosition] = useState(tabs.findIndex(tab => tab.id === activeTab));
+    const params = useParams();
+    const navigate = useNavigate();
+    const [position, setPosition] = useState(tabs.findIndex(tab => tab.id === params.tabId));
+
+    useEffect(() => console.log('TabBar mount'), []);
 
     useEffect(() => {
-      if(!tabs.find(tab => tab.id === activeTab)){
+      if(!tabs.find(tab => tab.id === params.tabId)){
         let newPosition = Math.max(position-1, 0);
         setPosition(newPosition);
-        setActiveTab(tabs[newPosition].id);
+        navigate(`/tab/${tabs[newPosition].id}`);
       } else {
-        setPosition(tabs.findIndex(tab => tab.id === activeTab))
+        setPosition(tabs.findIndex(tab => tab.id === params.tabId))
       }
-    }, [tabs, activeTab, position, setActiveTab])
+    }, [tabs, params.tabId, position, navigate])
+
 
     const close = (id: string) => {
-
       setTabs((oldState) => {
         let newState = oldState.filter(tab => tab.id !== id);
         if(newState.length < 1) {
@@ -37,7 +39,6 @@ const TabBar = ({active}: Props) => {
         }
         return newState;
       });
-
     }
 
 
@@ -58,14 +59,16 @@ const TabBar = ({active}: Props) => {
           </Nav.Item>
       </Nav>}>
         <Nav className={'nav-tabs buttons'} style={{overflowX: 'scroll', flex: 'none', flexWrap: 'nowrap'}}>
-            {tabs.map(tab => (
-                <Nav.Item key={tab.id} style={{flexShrink: 0}}>
-                    <Nav.Link eventKey={tab.id} className={active == tab.id ? 'active':''}>
+            {tabs.map((tab, idx) => {
+              return (
+                <Nav.Item key={idx + '-' + tab.id} style={{flexShrink: 0}}>
+                    <Nav.Link className={params.tabId === tab.id ? 'active':''} onClick={() => navigate(`/tab/${tab.id}`)}>
                       <TabIcon type={tab.type}/>{' '}{tab.title}
                       <AiOutlineClose size={14} style={{marginLeft: '0.5em'}} onClick={(e) => {close(tab.id); e.stopPropagation()}}/>
                     </Nav.Link>
                 </Nav.Item>
-            ))}
+              )
+            })}
         </Nav>
       </HorizontalExpander>
 
