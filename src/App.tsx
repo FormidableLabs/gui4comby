@@ -1,51 +1,48 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import { invoke } from "@tauri-apps/api/tauri";
-import "./App.css";
+import {AiOutlineExperiment, AiOutlineFileSearch, AiOutlineRead} from "react-icons/ai";
+import {Tab} from "react-bootstrap";
+import VerticalExpander from "./components/VerticalExpander/verticalExpander";
+import TabBar from "./components/TabBar/TabBar";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import Greeter from "./components/Greeter/Greeter";
+import './themes.css';
+import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
+import {activeTabState, tabsState} from "./App.recoil";
+import TabContent from "./components/TabContent/TabContent";
+import {useEffect} from "react";
+
+const tabsMock = [
+    {id: 'tab-0', icon: AiOutlineExperiment, title: 'Getting Started', path: '/getting-started', component: Greeter},
+    {id: 'tab-1', icon: AiOutlineExperiment, title: 'Playground', path: '/playground'},
+    {id: 'tab-2', icon: AiOutlineFileSearch, title: 'Filesystem', path: '/filesystem'},
+    {id: 'tab-3', icon: AiOutlineRead, title: 'docs', path: '/docs'},
+    {id: 'tab-4', icon: AiOutlineRead, title: 'docs: Rewrite Properties', path: '/docs/rewrite'},
+    {id: 'tab-5', icon: AiOutlineRead, title: 'docs: Syntax Reference', path: '/docs/syntax'}
+]
 
 function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
+  const tabs = useRecoilValue(tabsState);
+  const [activeTab, setActiveTab] = useRecoilState(activeTabState);
 
-  async function greet() {
-    setGreetMsg(await invoke("greet", { name }));
+  const onSelect = (id:string) => {
+    setActiveTab(id)
   }
 
   return (
-    <div className="container">
-      <h1>Welcome to Tauri!</h1>
-
-      <div className="row">
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-
-      <p>
-        Click on the Tauri, Vite, and React logos to learn more about each
-        framework.
-      </p>
-
-      <div className="row">
-        <div>
-          <input
-            id="greet-input"
-            onChange={(e) => setName(e.currentTarget.value)}
-            placeholder="Enter a name..."
-          />
-          <button type="button" onClick={() => greet()}>
-            Greet
-          </button>
-        </div>
-      </div>
-      <p>{greetMsg}</p>
+    <div className={'ayu-light-bordered'} style={{width: '100vw', height: '100vh'}}>
+      <Tab.Container id="editor-tabs" activeKey={activeTab}
+      onSelect={(k) => onSelect(k || '')}>
+          <VerticalExpander header={<TabBar/>}>
+            <Tab.Content>
+                {tabs.map(tab => (
+                    <Tab.Pane key={tab.id} eventKey={tab.id}>
+                      <TabContent type={tab.type}/>
+                    </Tab.Pane>
+                ))}
+          </Tab.Content>
+          </VerticalExpander>
+      </Tab.Container>
     </div>
+
   );
 }
 
