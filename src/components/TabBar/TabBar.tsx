@@ -45,18 +45,18 @@ const TabBar = ({}: Props) => {
 
     return (
       <HorizontalExpander right={<Nav className={'nav-tabs tabbar'}>
-          <Nav.Item>
-            <NewTabButton type={TabType.Playground}/>
-          </Nav.Item>
-          <Nav.Item>
-            <NewTabButton type={TabType.Filesystem}/>
-          </Nav.Item>
-          <Nav.Item>
-            <NewTabButton type={TabType.Docs}/>
-          </Nav.Item>
-          <Nav.Item>
-              <NewTabButton type={TabType.Settings}/>
-          </Nav.Item>
+        <Nav.Item>
+          <NewTabButton type={TabType.Playground}/>
+        </Nav.Item>
+        <Nav.Item>
+          <NewTabButton type={TabType.Filesystem}/>
+        </Nav.Item>
+        <Nav.Item>
+          <NewTabButton type={TabType.Docs}/>
+        </Nav.Item>
+        <Nav.Item>
+            <NewTabButton type={TabType.Settings}/>
+        </Nav.Item>
       </Nav>}>
         <Nav className={'nav-tabs buttons'} style={{overflowX: 'scroll', flex: 'none', flexWrap: 'nowrap'}}>
             {tabs.map((tab, idx) => {

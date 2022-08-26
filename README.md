@@ -37,3 +37,7 @@ This template should help get you started developing with Tauri, React and Types
 - [ ] Themes: Ability to switch between available themes
 - [ ] Themes: Support any theme from https://vscodethemes.com/
 - [ ] App Tabs: Close all tabs shows Getting Started splash
+- [x] App Toaster: Provide Feedback on success/failure messages using toasts
+- [ ] App Event Log: History of time, action, success or failure messages
+- 
+- [ ] Bug: Too many tabs pushes new tab buttons off the screen

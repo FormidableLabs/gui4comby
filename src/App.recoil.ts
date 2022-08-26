@@ -1,10 +1,9 @@
 import {atom, selector} from "recoil";
 import {TabType} from "./components/TabIcon/TabIcon";
 
-// TODO based this on persisted state
 let id = 0;
 export function getId() {
-  return `${id++}`;
+  return `${Date.now()}-${id++}`;
 }
 
 export type Tab = {
