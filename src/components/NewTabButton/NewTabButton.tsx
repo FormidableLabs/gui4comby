@@ -1,7 +1,7 @@
 import {Nav, Tab} from "react-bootstrap";
 import TabIcon, {TabType} from "../TabIcon/TabIcon";
-import {useRecoilState, useSetRecoilState} from "recoil";
-import {activeTabState, getId, tabsState} from "../../App.recoil";
+import {useRecoilState} from "recoil";
+import {getId, tabsState} from "../../App.recoil";
 import {useNavigate} from "react-router-dom";
 
 type Props = {

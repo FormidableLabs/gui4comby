@@ -14,9 +14,11 @@ This template should help get you started developing with Tauri, React and Types
 * ace theme css sample https://github.com/ajaxorg/ace/blob/master/src/theme/github.css.js
 * ace diff example https://securingsincity.github.io/react-ace/diff.html
 * rust docker library https://crates.io/crates/bollard
+* Docker credentials - application passwords: [Manage access tokens | Docker Documentation](https://docs.docker.com/docker-hub/access-tokens/)
 
 ## Todo
 - [x] App: Support tabs to accommodate multiple work streams
+- [ ] App: Docker credentials
 - [ ] Playground: Functional
 - [ ] Playground: Language selection
 - [ ] Playground: Ace editor for source code
@@ -41,3 +43,8 @@ This template should help get you started developing with Tauri, React and Types
 - [ ] App Event Log: History of time, action, success or failure messages
 - 
 - [ ] Bug: Too many tabs pushes new tab buttons off the screen
+
+## Todo Edge Cases
+### Edge Case: comby/comby image not available locally, and not signed into docker
+Results in Error: toomanyrequests: You have reached your pull rate limit
+App should suggest to user they should sign into docker desktop (osx) or (nix/win solution)

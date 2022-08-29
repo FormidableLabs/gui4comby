@@ -8,6 +8,8 @@ import {AiOutlineClose} from "react-icons/all";
 import {useRecoilState, useSetRecoilState} from "recoil";
 import {useNavigate, useParams} from "react-router-dom";
 import {useEffect, useState} from "react";
+import {AiOutlineSetting} from "react-icons/ai";
+import PreserveBackgroundLocationLink from "../PreserveBackgroundLocationLink/PreserveBackgroundLocationLink";
 
 type Props = {
 }
@@ -55,7 +57,7 @@ const TabBar = ({}: Props) => {
           <NewTabButton type={TabType.Docs}/>
         </Nav.Item>
         <Nav.Item>
-            <NewTabButton type={TabType.Settings}/>
+          <PreserveBackgroundLocationLink to={'/settings'}><AiOutlineSetting/> Settings</PreserveBackgroundLocationLink>
         </Nav.Item>
       </Nav>}>
         <Nav className={'nav-tabs buttons'} style={{overflowX: 'scroll', flex: 'none', flexWrap: 'nowrap'}}>

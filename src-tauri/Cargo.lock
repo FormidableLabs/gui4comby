@@ -1112,6 +1112,7 @@ name = "gui4comby"
 version = "0.0.0"
 dependencies = [
  "bollard",
+ "futures-util",
  "serde",
  "serde_json",
  "tauri",

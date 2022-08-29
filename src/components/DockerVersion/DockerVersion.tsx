@@ -10,10 +10,8 @@ const DockerVersion = () => {
   const [hint, setHint] = useState<string>();
 
   useEffect(() => {
-    console.log('mount effect');
     (async () => {
       try {
-        console.log('fetching docker version');
         let v: string = await invoke("docker_version");
         setLoading(false);
         setVersion(v);
@@ -30,9 +28,7 @@ const DockerVersion = () => {
     })();
   }, []);
 
-  console.log({loading, error, version});
-
-  return <div style={{display: 'flex', alignItems: 'center', alignContent: 'space-between'}}>
+  return <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
     <small><strong>Docker Version:</strong></small>
     <span style={{paddingLeft: '1em'}}>
       {loading && <Spinner animation="border" role="status" size={'sm'}>
