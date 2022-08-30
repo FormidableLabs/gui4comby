@@ -20,7 +20,7 @@ This template should help get you started developing with Tauri, React and Types
 ## Todo
 - [x] App: Support tabs to accommodate multiple work streams
 - [ ] App: Docker credentials
-- [ ] Playground: Functional
+- [x] Playground: Functional
 - [ ] Playground: Language selection
 - [ ] Playground: Ace editor for source code
 - [ ] Playground: Matched/Rewritten color highlighting or diff 
@@ -44,7 +44,8 @@ This template should help get you started developing with Tauri, React and Types
 - [ ] App Event Log: History of time, action, success or failure messages
 - 
 - [ ] Bug: Too many tabs pushes new tab buttons off the screen
-- [ ] Bug: Execing docker: Docker Container Error: Docker responded with status code 409: Conflict. The container name "/gui4comby-server" is already in use by container
+- [x] Bug: Execing docker: Docker Container Error: Docker responded with status code 409: Conflict. The container name "/gui4comby-server" is already in use by container
+- [ ] Bug: If no matches from comby, stdOut is empty resulting in JSON Parse error: Unexpected EOF on the frontend
 
 ## Todo Edge Cases
 ### Edge Case: comby/comby image not available locally, and not signed into docker

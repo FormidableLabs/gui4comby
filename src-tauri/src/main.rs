@@ -113,7 +113,7 @@ async fn download_comby_image(state: tauri::State<'_, DockerState>, credentials:
         Ok(docker) => docker,
         Err(error) => return Err(format!("Docker Error: {}", error.to_string())),
     };
-
+    // TODO: use credentials to download image
     let result = match docker.create_image(
         Some(CreateImageOptions {
             from_image: IMAGE,

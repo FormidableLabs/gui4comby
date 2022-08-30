@@ -1,7 +1,7 @@
-import {Button, Container, Form} from "react-bootstrap";
+import {Button, Form} from "react-bootstrap";
 import {useEffect, useState} from "react";
-import { invoke } from "@tauri-apps/api/tauri";
-import useToaster, { ToastVariant } from "../Toaster/useToaster";
+import {invoke} from "@tauri-apps/api/tauri";
+import useToaster, {ToastVariant} from "../Toaster/useToaster";
 
 type PlaygroundResult = {
   result: string;
@@ -58,7 +58,8 @@ const Playground = () => {
       setMatched(match_results.matches.map((match: Record<string, unknown>) => match.matched).join("\n"));
       setRewritten(rewrite_results.rewritten_source);
     } catch (error) {
-      console.error(error);
+      // @ts-ignore
+      push('App Error', error.message || error, ToastVariant.danger);
     }
     setLoading(false);
   }
