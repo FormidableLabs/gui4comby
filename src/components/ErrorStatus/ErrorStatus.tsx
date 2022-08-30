@@ -11,7 +11,7 @@ type ErrorStatusProps = {
   [x: string]: unknown;
 }
 export const ErrorStatus = ({error, hint, fixElement, onFixClick, ...rest}: ErrorStatusProps) => {
-  const [title, message] = error.split(': ');
+  const [title, message] = error.indexOf(': ') !== -1 ? error.split(': ') : ['Error' ,error];
   const handleFixClick = () => {
     if(onFixClick) {
       onFixClick();

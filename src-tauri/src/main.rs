@@ -141,11 +141,7 @@ async fn download_comby_image(state: tauri::State<'_, DockerState>, credentials:
 
 #[tauri::command]
 async fn playground_match(state: tauri::State<'_, DockerState>, app_handle: tauri::AppHandle, source: String, matcher: String, language: String) -> Result<PlaygroundResult, String> {
-    let docker = match &state.docker {
-        Ok(docker) => docker,
-        Err(error) => return Err(format!("Docker Error: {}", error.to_string())),
-    };
-
+    let docker = maybe_ref(&state.docker)?;
     let image = get_latest_downloaded_comby_image(docker).await?;
 
     let container_config = Config {
@@ -157,26 +153,20 @@ async fn playground_match(state: tauri::State<'_, DockerState>, app_handle: taur
         ..Default::default()
     };
     println!("checking for existing container");
-    let existingContainer = match docker.list_containers(Some(ListContainersOptions::<String> {
+    let existingContainer = maybe(docker.list_containers(Some(ListContainersOptions::<String> {
         all: true,
         filters: HashMap::from([
             ("name".to_string(), vec!["/gui4comby-server".to_string()])
         ]),
         ..Default::default()
-    })).await {
-        Ok(result) => result,
-        Err(err) => return Err(format!("List Containers Error: {}", err.to_string()))
-    };
+    })).await)?;
 
     let id = match existingContainer.len() {
         0 => {
             println!("creating a container for use");
-            match docker
+            maybe(docker
                 .create_container::<&str, &str>(Some(CreateContainerOptions { name: "gui4comby-server" }), container_config)
-                .await {
-                Ok(container) => container.id,
-                Err(error) => return Err(format!("Docker Container Error: {}", error.to_string()))
-            }
+                .await)?.id
         },
         _ => {
             println!("found an existing container for use");
@@ -185,13 +175,11 @@ async fn playground_match(state: tauri::State<'_, DockerState>, app_handle: taur
     };
 
     println!("starting container");
-    match docker.start_container::<String>(&id, None).await {
-        Ok(_) => {}
-        Err(error) => return Err(format!("Docker Container Error: {}", error.to_string()))
-    }
+    maybe(docker.start_container::<String>(&id, None).await)?;
+
 
     println!("execing container");
-    let exec = match docker
+    let exec = maybe(docker
         .create_exec(
             &id,
             CreateExecOptions {
@@ -202,15 +190,9 @@ async fn playground_match(state: tauri::State<'_, DockerState>, app_handle: taur
                 ..Default::default()
             },
         )
-        .await {
-        Ok(results) => results.id,
-        Err(error) => return Err(format!("Docker Exec Error: {}", error.to_string()))
-    };
+        .await)?.id;
 
-    let start_result = match docker.start_exec(&exec, None).await {
-        Ok(result) => result,
-        Err(error) => return Err(format!("Docker Exec Start Error: {}", error.to_string()))
-    };
+    let start_result = maybe(docker.start_exec(&exec, None).await)?;
 
     println!("start_exec_result: {:?}", &start_result);
     let mut stdOut: String = "".to_string();
@@ -218,18 +200,9 @@ async fn playground_match(state: tauri::State<'_, DockerState>, app_handle: taur
 
     if let StartExecResults::Attached { mut output, mut input } = start_result {
         println!("Attached");
-        match input.write_all(format!("{}", source).as_bytes()).await {
-            Ok(_) => println!("wrote source to stdin"),
-            Err(err) => return Err(format!("Playground Write StdIn Error: {:?}", err.to_string()))
-        };
-        match input.flush().await {
-            Ok(r) => println!("flushed stdin"),
-            Err(err) => return Err(format!("Playground Flush StdIn Error: {:?}", err.to_string()))
-        }
-        match input.shutdown().await {
-            Ok(r) => println!("closed stdin"),
-            Err(err) => return Err(format!("Playground Shutdown StdIn Error: {:?}", err.to_string()))
-        }
+        maybe(input.write_all(format!("{}", source).as_bytes()).await)?;
+        maybe(input.flush().await )?;
+        maybe(input.shutdown().await )?;
 
         while let Some(Ok(msg)) = output.next().await {
             // TODO differentiate LogOutput::StdOut and LogOutput::StdErr
@@ -261,6 +234,19 @@ async fn playground_match(state: tauri::State<'_, DockerState>, app_handle: taur
 #[tauri::command]
 async fn playground_rewrite() -> Result<String, String> {
     Ok("success".to_string())
+}
+
+fn maybe<S,F>(result: Result<S, F>) -> Result<S, String> where F: std::fmt::Display {
+    return match result {
+        Ok(success) => Ok(success),
+        Err(err) => Err(format!("{:?}", err.to_string()))
+    }
+}
+fn maybe_ref<S,F>(result: &Result<S, F>) -> Result<&S, String> where F: std::fmt::Display {
+    return match result {
+        Ok(success) => Ok(success),
+        Err(err) => Err(format!("{:?}", err.to_string()))
+    }
 }
 
 fn main() {

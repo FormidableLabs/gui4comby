@@ -24,7 +24,7 @@ const useToaster = ()=> {
         title,
         message,
         id: `toast-${getId()}`,
-        variant: variant || 'default',
+        variant: variant || ToastVariant.default,
         time: Date.now(),
       };
     setToasts(oldState => [
