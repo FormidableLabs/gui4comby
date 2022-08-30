@@ -43,6 +43,7 @@ This template should help get you started developing with Tauri, React and Types
 - [ ] App Event Log: History of time, action, success or failure messages
 - 
 - [ ] Bug: Too many tabs pushes new tab buttons off the screen
+- [ ] Bug: Execing docker: Docker Container Error: Docker responded with status code 409: Conflict. The container name "/gui4comby-server" is already in use by container
 
 ## Todo Edge Cases
 ### Edge Case: comby/comby image not available locally, and not signed into docker

@@ -8,7 +8,7 @@ const DockerCredentials = () => {
   const [secret, setSecret] = useState('');
 
   return (<div style={{display: 'flex', alignItems: 'top', justifyContent: 'space-between'}}>
-    <small><strong>Docker Credentials:</strong></small>
+    <strong><small>Docker Credentials:</small></strong>
     <span>
       {loading && <Spinner animation="border" role="status" size={'sm'}>
           <span className="visually-hidden">Loading...</span>
@@ -29,7 +29,7 @@ const DockerCredentials = () => {
           </Form.Label>
           <Form.Control type="password" placeholder="secret" />
         </Form.Group>
-        <Form.Group className="mb-3" controlId="formBasicCheckbox">
+        <Form.Group className="mb-3" controlId="formBasicCheckbox" style={{alignItems: 'flex-end'}}>
           <Button variant="primary" type="submit">
             Save
           </Button>
