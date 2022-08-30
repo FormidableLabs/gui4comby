@@ -2,6 +2,8 @@ import {useRecoilState} from "recoil";
 import {toasterState, ToastInfo, ToastVariant} from "./Toaster.recoil";
 import {getId} from "../../App.recoil";
 
+export { ToastVariant } from './Toaster.recoil';
+
 const useToaster = ()=> {
   const [toasts, setToasts] = useRecoilState(toasterState);
 

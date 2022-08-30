@@ -1,14 +1,19 @@
 import {Button, Container, Form} from "react-bootstrap";
 import {useEffect, useState} from "react";
 import { invoke } from "@tauri-apps/api/tauri";
+import useToaster, { ToastVariant } from "../Toaster/useToaster";
 
 const Playground = () => {
-  const [source, setSource] = useState('');
-  const [matchTemplate, setMatchTemplate] = useState('');
-  const [rewriteTemplate, setRewriteTemplate] = useState('');
+  const {push} = useToaster();
+  const [source, setSource] = useState(`func main() {
+      fmt.Println("hello world")
+  }`);
+  const [matchTemplate, setMatchTemplate] = useState(`fmt.Println(:[arguments])`);
+  const [rewriteTemplate, setRewriteTemplate] = useState(`fmt.Println(fmt.Sprintf("comby says %s", :[arguments]))`);
   const [rule, setRule] = useState('where true');
   const [matched, setMatched] = useState('');
   const [rewritten, setRewritten] = useState('');
+  const [language, setLanguage] = useState('.generic');
 
   useEffect(() => {
     console.log('playground mount');
@@ -17,8 +22,17 @@ const Playground = () => {
   const run = async () => {
     console.log('invoking rpc');
     try {
-      let v: string = await invoke("playground_match");
+      let v: {result: string, warning: string} = await invoke("playground_match", {
+        source,
+        language,
+        "matcher": matchTemplate
+      });
+      if(v.warning) {
+        push('Matcher Warning', v.warning, ToastVariant.warning)
+      }
       console.log('playground match', v);
+      const result = JSON.parse(v.result);
+      setMatched(result.matches.map((match: Record<string, unknown>) => match.matched).join("\n"));
     } catch (error) {
       console.error(error);
     }

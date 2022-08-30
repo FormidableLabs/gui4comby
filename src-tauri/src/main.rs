@@ -3,10 +3,12 @@
     windows_subsystem = "windows"
 )]
 
+use std::cmp::Ordering;
 use std::collections::HashMap;
+use std::fmt::format;
 use std::future::Future;
 use std::sync::Mutex;
-use bollard::container::{Config, CreateContainerOptions, ListContainersOptions};
+use bollard::container::{Config, CreateContainerOptions, ListContainersOptions, LogOutput};
 use bollard::Docker;
 use bollard::errors::Error;
 use bollard::exec::{CreateExecOptions, StartExecResults};
@@ -15,6 +17,7 @@ use futures_util::{TryStreamExt, StreamExt, future};
 use std::time::{SystemTime, UNIX_EPOCH};
 use bollard::models::{ContainerSummary, ImageSearchResponseItem, ImageSummary};
 use tauri::{Manager};
+use tokio::io::AsyncWriteExt;
 
 struct DockerState {
     docker: Result<Docker, Error>,
@@ -23,6 +26,7 @@ struct DockerState {
 
 #[derive(Clone, serde::Serialize)]
 struct Payload {
+    // type for source: stdout, stderr, debug?
     message: String,
     time: u128
 }
@@ -31,6 +35,12 @@ struct Payload {
 struct Credentials {
     username: String,
     secret: String
+}
+
+#[derive(Clone, serde::Serialize)]
+struct PlaygroundResult {
+    result: String,
+    warning: Option<String>
 }
 
 
@@ -130,7 +140,7 @@ async fn download_comby_image(state: tauri::State<'_, DockerState>, credentials:
 }
 
 #[tauri::command]
-async fn playground_match(state: tauri::State<'_, DockerState>, app_handle: tauri::AppHandle) -> Result<String, String> {
+async fn playground_match(state: tauri::State<'_, DockerState>, app_handle: tauri::AppHandle, source: String, matcher: String, language: String) -> Result<PlaygroundResult, String> {
     let docker = match &state.docker {
         Ok(docker) => docker,
         Err(error) => return Err(format!("Docker Error: {}", error.to_string())),
@@ -140,7 +150,10 @@ async fn playground_match(state: tauri::State<'_, DockerState>, app_handle: taur
 
     let container_config = Config {
         image: Some(image.as_str()),
-        tty: Some(true),
+        tty: Some(false),
+        attach_stderr: Some(false),
+        attach_stdout: Some(false),
+        entrypoint: Some(vec!["tail", "-f", "/dev/null"]), // keep container running
         ..Default::default()
     };
     println!("checking for existing container");
@@ -170,12 +183,6 @@ async fn playground_match(state: tauri::State<'_, DockerState>, app_handle: taur
             existingContainer.get(0).unwrap().id.as_ref().unwrap().to_string()
         }
     };
-    // let id = match docker
-    //     .create_container::<&str, &str>(Some(CreateContainerOptions { name: "gui4comby-server" }), container_config)
-    //     .await {
-    //     Ok(container) => container.id,
-    //     Err(error) => return Err(format!("Docker Container Error: {}", error.to_string()))
-    // };
 
     println!("starting container");
     match docker.start_container::<String>(&id, None).await {
@@ -190,7 +197,8 @@ async fn playground_match(state: tauri::State<'_, DockerState>, app_handle: taur
             CreateExecOptions {
                 attach_stdout: Some(true),
                 attach_stderr: Some(true),
-                cmd: Some(vec!["comby", "-h"]),
+                attach_stdin: Some(true),
+                cmd: Some(vec!["comby", matcher.as_str(), "", "-matcher", language.as_str(), "-stdin", "-match-only", "-json-lines"]),
                 ..Default::default()
             },
         )
@@ -205,35 +213,49 @@ async fn playground_match(state: tauri::State<'_, DockerState>, app_handle: taur
     };
 
     println!("start_exec_result: {:?}", &start_result);
-    match start_result {
-        StartExecResults::Attached { mut output, .. } => {
-            output.and_then(|s| {
-                println!("exec: {:?}", s);
-                return future::ok(Some(s))
-            }).try_collect::<Vec<_>>().await;
+    let mut stdOut: String = "".to_string();
+    let mut stdErr: String = "".to_string();
+
+    if let StartExecResults::Attached { mut output, mut input } = start_result {
+        println!("Attached");
+        match input.write_all(format!("{}", source).as_bytes()).await {
+            Ok(_) => println!("wrote source to stdin"),
+            Err(err) => return Err(format!("Playground Write StdIn Error: {:?}", err.to_string()))
+        };
+        match input.flush().await {
+            Ok(r) => println!("flushed stdin"),
+            Err(err) => return Err(format!("Playground Flush StdIn Error: {:?}", err.to_string()))
         }
-        StartExecResults::Detached => {}
+        match input.shutdown().await {
+            Ok(r) => println!("closed stdin"),
+            Err(err) => return Err(format!("Playground Shutdown StdIn Error: {:?}", err.to_string()))
+        }
+
+        while let Some(Ok(msg)) = output.next().await {
+            // TODO differentiate LogOutput::StdOut and LogOutput::StdErr
+            let emit_result = app_handle.emit_all("server-log", Payload { message: format!("{:?}", &msg).into(), time: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis() });
+            if emit_result.is_err() {
+                println!("event error {:?}", &emit_result.err());
+            }
+            println!("msg: {:?}", &msg);
+            match msg {
+                LogOutput::StdOut { message } => stdOut.push_str( String::from_utf8_lossy(&message ).as_ref() ),
+                LogOutput::StdErr { message } => stdErr.push_str( String::from_utf8_lossy(&message ).as_ref() ),
+                LogOutput::Console { message } => println!("console: {:?}", String::from_utf8_lossy(&message)),
+                _ => ()
+            }
+        }
+    } else {
+        println!("... 'unreachable' :(");
+        unreachable!();
     }
-//    let mut result_output: String = "".to_owned();
-//     if let StartExecResults::Attached { mut output, .. } = start_result {
-//         println!("Attached");
-//         let r = output.next().await;
-//
-//         // while let Some(Ok(msg)) = output.next().await {
-//         //     let emit_result = app_handle.emit_all("server-log", Payload { message: format!("{:?}", &msg).into(), time: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis() });
-//         //     if emit_result.is_err() {
-//         //         println!("event error {:?}", &emit_result.err());
-//         //     }
-//         //     println!("msg: {:?}", &msg);
-//         // }
-//     } else {
-//         println!("... 'unreachable' :(");
-//         unreachable!();
-//     }
     println!("exec done");
 
-
-    Ok("success".to_string())
+    let empty = "".to_string();
+    Ok(PlaygroundResult { result: stdOut, warning: match stdErr.cmp(&empty) != Ordering::Equal {
+        true => Some(stdErr),
+        false => None
+    } })
 }
 
 #[tauri::command]

@@ -15,6 +15,7 @@ This template should help get you started developing with Tauri, React and Types
 * ace diff example https://securingsincity.github.io/react-ace/diff.html
 * rust docker library https://crates.io/crates/bollard
 * Docker credentials - application passwords: [Manage access tokens | Docker Documentation](https://docs.docker.com/docker-hub/access-tokens/)
+* https://github.com/ydeshayes/react-highlight for highlighting matches/rewrites
 
 ## Todo
 - [x] App: Support tabs to accommodate multiple work streams
