@@ -3,6 +3,11 @@ import {useEffect, useState} from "react";
 import { invoke } from "@tauri-apps/api/tauri";
 import useToaster, { ToastVariant } from "../Toaster/useToaster";
 
+type PlaygroundResult = {
+  result: string;
+  warning?: string;
+}
+
 const Playground = () => {
   const {push} = useToaster();
   const [source, setSource] = useState(`func main() {
@@ -13,7 +18,8 @@ const Playground = () => {
   const [rule, setRule] = useState('where true');
   const [matched, setMatched] = useState('');
   const [rewritten, setRewritten] = useState('');
-  const [language, setLanguage] = useState('.generic');
+  const [language, setLanguage] = useState('.go');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     console.log('playground mount');
@@ -22,21 +28,39 @@ const Playground = () => {
   const run = async () => {
     console.log('invoking rpc');
     try {
-      let v: {result: string, warning: string} = await invoke("playground_match", {
-        source,
-        language,
-        "matcher": matchTemplate
-      });
-      if(v.warning) {
-        push('Matcher Warning', v.warning, ToastVariant.warning)
+      setLoading(true);
+      let results = (await Promise.all([
+        invoke<PlaygroundResult>("playground_match", {
+          source,
+          matchTemplate,
+          language
+        }),
+        invoke<PlaygroundResult>("playground_rewrite", {
+          source,
+          language,
+          matchTemplate,
+          rewriteTemplate
+        }),
+      ])).map((r) => ({...(JSON.parse(r.result as string)), warning: r.warning}));
+
+      //[match_results, rewrite_results]
+      const match_results = results.find(result => typeof result.matches !== 'undefined');
+      const rewrite_results = results.find(result => typeof result.rewritten_source !== 'undefined');
+
+      if(match_results.warning) {
+        push('Matcher Warning', match_results.warning, ToastVariant.warning)
       }
-      console.log('playground match', v);
-      const result = JSON.parse(v.result);
-      setMatched(result.matches.map((match: Record<string, unknown>) => match.matched).join("\n"));
+      if(rewrite_results.warning) {
+        push('Rewriter Warning', rewrite_results.warning, ToastVariant.warning)
+      }
+      console.log('playground', JSON.stringify({match_results, rewrite_results}));
+
+      setMatched(match_results.matches.map((match: Record<string, unknown>) => match.matched).join("\n"));
+      setRewritten(rewrite_results.rewritten_source);
     } catch (error) {
       console.error(error);
     }
-
+    setLoading(false);
   }
 
   return <div style={{padding: '1em 1em'}}>
@@ -66,7 +90,7 @@ const Playground = () => {
           <Form.Label><strong><small>Rewritten</small></strong></Form.Label>
           <Form.Control as="textarea" rows={3} placeholder="" value={rewritten}/>
         </Form.Group>
-        <Button onClick={() => run()}>Run</Button>
+        <Button onClick={() => run()} disabled={loading} variant={loading ? 'disabled' : 'primary'}>Run</Button>
       </div>
     </Form>
   </div>

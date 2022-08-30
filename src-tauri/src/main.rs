@@ -16,6 +16,7 @@ use bollard::image::{CreateImageOptions, ListImagesOptions, SearchImagesOptions}
 use futures_util::{TryStreamExt, StreamExt, future};
 use std::time::{SystemTime, UNIX_EPOCH};
 use bollard::models::{ContainerSummary, ImageSearchResponseItem, ImageSummary};
+use serde::Serialize;
 use tauri::{Manager};
 use tokio::io::AsyncWriteExt;
 
@@ -139,9 +140,12 @@ async fn download_comby_image(state: tauri::State<'_, DockerState>, credentials:
     return Ok("Downloaded newer image for comby/comby:latest".to_string());
 }
 
-#[tauri::command]
-async fn playground_match(state: tauri::State<'_, DockerState>, app_handle: tauri::AppHandle, source: String, matcher: String, language: String) -> Result<PlaygroundResult, String> {
-    let docker = maybe_ref(&state.docker)?;
+struct DockerRunResult {
+    std_out: String,
+    std_err: Option<String>,
+}
+
+async fn docker_run(docker: &Docker, cmd: Vec<&str>, std_in: Option<String>, app_handle: tauri::AppHandle) -> Result<DockerRunResult, String> {
     let image = get_latest_downloaded_comby_image(docker).await?;
 
     let container_config = Config {
@@ -186,7 +190,7 @@ async fn playground_match(state: tauri::State<'_, DockerState>, app_handle: taur
                 attach_stdout: Some(true),
                 attach_stderr: Some(true),
                 attach_stdin: Some(true),
-                cmd: Some(vec!["comby", matcher.as_str(), "", "-matcher", language.as_str(), "-stdin", "-match-only", "-json-lines"]),
+                cmd: Some(cmd),
                 ..Default::default()
             },
         )
@@ -195,14 +199,17 @@ async fn playground_match(state: tauri::State<'_, DockerState>, app_handle: taur
     let start_result = maybe(docker.start_exec(&exec, None).await)?;
 
     println!("start_exec_result: {:?}", &start_result);
-    let mut stdOut: String = "".to_string();
-    let mut stdErr: String = "".to_string();
+    let mut std_out: String = "".to_string();
+    let mut std_err: String = "".to_string();
 
     if let StartExecResults::Attached { mut output, mut input } = start_result {
         println!("Attached");
-        maybe(input.write_all(format!("{}", source).as_bytes()).await)?;
-        maybe(input.flush().await )?;
-        maybe(input.shutdown().await )?;
+        if std_in.is_some() {
+            println!("Writing stdin");
+            maybe(input.write_all(format!("{}", std_in.unwrap()).as_bytes()).await)?;
+            maybe(input.flush().await)?;
+            maybe(input.shutdown().await)?;
+        }
 
         while let Some(Ok(msg)) = output.next().await {
             // TODO differentiate LogOutput::StdOut and LogOutput::StdErr
@@ -212,8 +219,8 @@ async fn playground_match(state: tauri::State<'_, DockerState>, app_handle: taur
             }
             println!("msg: {:?}", &msg);
             match msg {
-                LogOutput::StdOut { message } => stdOut.push_str( String::from_utf8_lossy(&message ).as_ref() ),
-                LogOutput::StdErr { message } => stdErr.push_str( String::from_utf8_lossy(&message ).as_ref() ),
+                LogOutput::StdOut { message } => std_out.push_str( String::from_utf8_lossy(&message ).as_ref() ),
+                LogOutput::StdErr { message } => std_err.push_str( String::from_utf8_lossy(&message ).as_ref() ),
                 LogOutput::Console { message } => println!("console: {:?}", String::from_utf8_lossy(&message)),
                 _ => ()
             }
@@ -225,15 +232,30 @@ async fn playground_match(state: tauri::State<'_, DockerState>, app_handle: taur
     println!("exec done");
 
     let empty = "".to_string();
-    Ok(PlaygroundResult { result: stdOut, warning: match stdErr.cmp(&empty) != Ordering::Equal {
-        true => Some(stdErr),
+    Ok(DockerRunResult { std_out, std_err: match std_err.cmp(&empty) != Ordering::Equal {
+        true => Some(std_err),
         false => None
     } })
 }
 
 #[tauri::command]
-async fn playground_rewrite() -> Result<String, String> {
-    Ok("success".to_string())
+async fn playground_match(state: tauri::State<'_, DockerState>, app_handle: tauri::AppHandle, source: String, match_template: String, language: String) -> Result<PlaygroundResult, String> {
+    let docker = maybe_ref(&state.docker)?;
+    let result = docker_run(docker, vec![
+        "comby", match_template.as_str(), "", "-matcher", language.as_str(), "-stdin", "-match-only", "-json-lines"
+    ], Some(source), app_handle).await?;
+
+    Ok(PlaygroundResult { result: result.std_out, warning: result.std_err })
+}
+
+#[tauri::command]
+async fn playground_rewrite(state: tauri::State<'_, DockerState>, app_handle: tauri::AppHandle, source: String, match_template: String, rewrite_template: String, language: String) -> Result<PlaygroundResult, String> {
+    let docker = maybe_ref(&state.docker)?;
+    let result = docker_run(docker, vec![
+        "comby", match_template.as_str(), rewrite_template.as_str(), "-matcher", language.as_str(), "-stdin", "-json-lines"
+    ], Some(source), app_handle).await?;
+
+    Ok(PlaygroundResult { result: result.std_out, warning: result.std_err })
 }
 
 fn maybe<S,F>(result: Result<S, F>) -> Result<S, String> where F: std::fmt::Display {
@@ -259,7 +281,8 @@ fn main() {
             docker_version,
             comby_image,
             download_comby_image,
-            playground_match
+            playground_match,
+            playground_rewrite
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
