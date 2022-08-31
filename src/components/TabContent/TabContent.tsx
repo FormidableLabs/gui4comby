@@ -26,7 +26,7 @@ const TabContent = ({}:Props) => {
   let Component  = <div>Todo</div>;
   switch(tab.type){
     case TabType.Index: Component = <div>Getting Started Placeholder <Greeter/></div>; break;
-    case TabType.Playground: Component = <Playground/>; break;
+    case TabType.Playground: Component = <Playground id={params.tabId!}/>; break;
     case TabType.Filesystem: Component = <div>Filesystem Placeholder</div>; break;
     case TabType.Docs: Component = <div>Docs Placeholder</div>; break;
     case TabType.Settings: Component = <div>Settings Placeholder <DockerVersion/></div>; break;

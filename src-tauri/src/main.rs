@@ -39,8 +39,15 @@ struct Credentials {
 }
 
 #[derive(Clone, serde::Serialize)]
+enum PlaygroundResultType {
+    Match,
+    Rewrite
+}
+
+#[derive(Clone, serde::Serialize)]
 struct PlaygroundResult {
-    result: String,
+    result_type: PlaygroundResultType,
+    result: Option<String>,
     warning: Option<String>
 }
 
@@ -141,7 +148,7 @@ async fn download_comby_image(state: tauri::State<'_, DockerState>, credentials:
 }
 
 struct DockerRunResult {
-    std_out: String,
+    std_out: Option<String>,
     std_err: Option<String>,
 }
 
@@ -232,10 +239,16 @@ async fn docker_run(docker: &Docker, cmd: Vec<&str>, std_in: Option<String>, app
     println!("exec done");
 
     let empty = "".to_string();
-    Ok(DockerRunResult { std_out, std_err: match std_err.cmp(&empty) != Ordering::Equal {
-        true => Some(std_err),
-        false => None
-    } })
+    Ok(DockerRunResult {
+        std_out: match std_out.cmp(&empty) != Ordering::Equal {
+            true => Some(std_out),
+            false => None
+        },
+        std_err: match std_err.cmp(&empty) != Ordering::Equal {
+            true => Some(std_err),
+            false => None
+        }
+    })
 }
 
 #[tauri::command]
@@ -245,7 +258,7 @@ async fn playground_match(state: tauri::State<'_, DockerState>, app_handle: taur
         "comby", match_template.as_str(), "", "-matcher", language.as_str(), "-stdin", "-match-only", "-json-lines"
     ], Some(source), app_handle).await?;
 
-    Ok(PlaygroundResult { result: result.std_out, warning: result.std_err })
+    Ok(PlaygroundResult { result_type: PlaygroundResultType::Match, result: result.std_out, warning: result.std_err })
 }
 
 #[tauri::command]
@@ -255,7 +268,7 @@ async fn playground_rewrite(state: tauri::State<'_, DockerState>, app_handle: ta
         "comby", match_template.as_str(), rewrite_template.as_str(), "-matcher", language.as_str(), "-stdin", "-json-lines"
     ], Some(source), app_handle).await?;
 
-    Ok(PlaygroundResult { result: result.std_out, warning: result.std_err })
+    Ok(PlaygroundResult { result_type: PlaygroundResultType::Rewrite, result: result.std_out, warning: result.std_err })
 }
 
 fn maybe<S,F>(result: Result<S, F>) -> Result<S, String> where F: std::fmt::Display {
