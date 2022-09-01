@@ -10,12 +10,14 @@ This template should help get you started developing with Tauri, React and Types
 ## References
 * Design https://github.com/ayu-theme/vscode-ayu/blob/master/assets/light-bordered.png
 * Lite Theme in VSCode https://vscode.dev/theme/teabyii.ayu/Ayu%20Light%20Bordered
+  * ace editor version of theme could provide a mapping reference https://github.com/ayu-theme/ayu-ace
 * using css to theme https://blog.bitsrc.io/theming-react-components-with-css-variables-ee52d1bb3d90
 * ace theme css sample https://github.com/ajaxorg/ace/blob/master/src/theme/github.css.js
 * ace diff example https://securingsincity.github.io/react-ace/diff.html
 * rust docker library https://crates.io/crates/bollard
 * Docker credentials - application passwords: [Manage access tokens | Docker Documentation](https://docs.docker.com/docker-hub/access-tokens/)
 * https://github.com/ydeshayes/react-highlight for highlighting matches/rewrites
+* VSCode theme reference https://code.visualstudio.com/api/references/theme-color
 
 ## Todo
 - [x] App: Support tabs to accommodate multiple work streams

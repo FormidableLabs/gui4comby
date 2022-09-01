@@ -10,13 +10,12 @@ export type Tab = {
   id: string;
   type: TabType;
   title: string;
+  path: string;
 }
 
 export const tabsState = atom<Tab[]>({
   key: 'appTabs',
-  default: [
-    {id: getId(), type: TabType.Index, title: 'Getting Started'}
-  ],
+  default: []
 });
 
 export const activeTabState = atom<string>({

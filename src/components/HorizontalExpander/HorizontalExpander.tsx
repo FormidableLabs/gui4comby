@@ -1,14 +1,19 @@
-import {ReactNode} from "react";
+import {CSSProperties, ReactNode} from "react";
 
 type Props = {
     left?: ReactNode;
     right?: ReactNode;
     children?: ReactNode;
+    style?: CSSProperties;
     [x: string]: unknown;
 }
-const HorizontalExpander = ({left, right, children, ...rest}: Props) => {
+const HorizontalExpander = ({left, right, children, style, ...rest}: Props) => {
+    const mixedStyle = {
+        display: 'flex',
+        ...style,
+    }
     return (
-        <div style={{display: 'flex'}} {...rest}>
+        <div style={mixedStyle} {...rest}>
             {left}
             <div style={{flexGrow: 1}}>{children}</div>
             {right}

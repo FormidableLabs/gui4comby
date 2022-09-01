@@ -22,23 +22,29 @@ const TabBar = ({}: Props) => {
 
     useEffect(() => console.log('TabBar mount'), []);
 
+    // if there are no tabs, add a default tab
     useEffect(() => {
-      if(!tabs.find(tab => tab.id === params.tabId)){
+      if(tabs.length < 1) {
+        let newId = getId();
+        setTabs([{type: TabType.Index, title: 'Getting Started', id: newId, path: `/tab/${newId}`}]);
+      }
+    }, [tabs]);
+
+    // when tab no longer exists, focus on a new tab
+    useEffect(() => {
+      if(!tabs.find(tab => tab.id === params.tabId) && tabs.length > 0){
         let newPosition = Math.max(position-1, 0);
         setPosition(newPosition);
         navigate(`/tab/${tabs[newPosition].id}`);
-      } else {
+      } else if ( !tabs.find(tab => tab.id === params.tabId) ) {
         setPosition(tabs.findIndex(tab => tab.id === params.tabId))
       }
     }, [tabs, params.tabId, position, navigate])
 
-
+    // remove tab from list
     const close = (id: string) => {
       setTabs((oldState) => {
         let newState = oldState.filter(tab => tab.id !== id);
-        if(newState.length < 1) {
-          newState.push({type: TabType.Index, title: 'Getting Started', id: getId()})
-        }
         return newState;
       });
     }
@@ -64,7 +70,7 @@ const TabBar = ({}: Props) => {
             {tabs.map((tab, idx) => {
               return (
                 <Nav.Item key={idx + '-' + tab.id} style={{flexShrink: 0}}>
-                    <Nav.Link className={params.tabId === tab.id ? 'active':''} onClick={() => navigate(`/tab/${tab.id}`)}>
+                    <Nav.Link className={params.tabId === tab.id ? 'active':''} onClick={() => navigate(tab.path)}>
                       <TabIcon type={tab.type}/>{' '}{tab.title}
                       <AiOutlineClose size={14} style={{marginLeft: '0.5em'}} onClick={(e) => {close(tab.id); e.stopPropagation()}}/>
                     </Nav.Link>

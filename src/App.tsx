@@ -18,17 +18,31 @@ import PreserveBackgroundLocationLink, {
 } from "./components/PreserveBackgroundLocationLink/PreserveBackgroundLocationLink";
 import SideSheet from "./components/SideSheet/SideSheet";
 import DockerSettings from "./components/DockerSettings/DockerSettings";
+import EventLog from "./components/EventLog/EventLog";
+import {useRecoilState} from "recoil";
+import {eventLogState} from "./components/EventLog/EventLog.recoil";
+import Docs from "./components/Docs/Docs";
+import DocPage from "./components/Docs/DocPage";
 
 
 function App() {
   const location = useLocation();
   const state = location.state as LocationState;
+  const [eventLog, setEventLog] = useRecoilState(eventLogState);
 
   console.log('app location', location);
 
   useEffect(() => {
     const unlisten = listen('server-log', (event) => {
-      console.log('server-log', JSON.stringify(event, null, 2));
+      let payload = event.payload as {time: number, message: string};
+      setEventLog((oldState) => {
+        let combined = [
+          ...oldState,
+          {...payload, id: event.id}
+        ];
+        // only keep last 99 messages
+        return combined.slice(-99);
+      });
     });
     console.log('App mount');
 
@@ -40,14 +54,19 @@ function App() {
   }, [])
 
   return (
-    <div className={'ayu-light-bordered'} style={{width: '100vw', height: '100vh'}}>
+    <div className={'ayu-mirage-bordered'} style={{width: '100vw', height: '100vh'}}>
       <Routes location={state?.backgroundLocation || location}>
-        <Route path={"/"} element={<VerticalExpander header={<TabBar/>}>
+        <Route path={"/"} element={<VerticalExpander header={<TabBar/>} footer={<EventLog/>}>
           <Outlet/>
           <Toaster/>
         </VerticalExpander>}>
-          <Route path="tab/:tabId" element={<TabContent />} />
-          <Route index element={<Greeter />} />
+          {/* TODO deprecate tab/ path */}
+          <Route path="tab/:tabId" element={<TabContent/>}/>
+          <Route path="playground/:tabId" element={<TabContent/>}/>
+          <Route path="filesystem/:tabId" element={<TabContent/>}/>
+          <Route path="docs/:tabId" element={<Docs/>}>
+            <Route path={":docId"} element={<DocPage/>}/>
+          </Route>
         </Route>
       </Routes>
       {state?.backgroundLocation && (

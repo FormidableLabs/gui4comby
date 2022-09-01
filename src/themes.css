@@ -2,6 +2,10 @@
 .ayu-light-bordered {
   background: #f8f9fa;
   color: #5c6166;
+  --bs-border-color: #6b7d8f1f;
+  --bs-table-striped-bg: #fcfcfc;
+  --bs-table-striped-c
+  olor: #5c6166;
 } 
 
 .ayu-light-bordered .nav {
@@ -28,10 +32,90 @@
   border-left: solid 1px #ffaa33;
 }
 
+.ayu-light-bordered .form-control {
+  color: #5c6166;
+  background: #fcfcfc;
+  border-color: #8a919945;
+  --bs-input-focus-bg:                        $input-bg;
+  --bs-input-focus-border-color:              tint-color($component-active-bg, 50%);
+  --bs-input-focus-color:                     $input-color;
+  --bs-input-placeholder-color:               $gray-600;
+  --bs-input-plaintext-color:                 $body-color;
+}
+
+.ayu-light-bordered .btn {
+  --bs-btn-color: #5c6166;
+  --bs-btn-bg: #fcfcfc;
+  --bs-btn-border-color: #8a919945;
+}
+
+.ayu-light-bordered .btn.btn-primary {
+  --bs-btn-color: #8a9199;
+  --bs-btn-bg: #fcfcfc;
+  --bs-btn-border-color: #8a919945;
+  --bs-btn-hover-color: undefined;
+  --bs-btn-hover-bg: undefined;
+  --bs-btn-hover-border-color: #ffaa33;
+  --bs-btn-focus-shadow-rgb: 49,132,253;
+  --bs-btn-active-color: undefined;
+  --bs-btn-active-bg: undefined;
+  --bs-btn-active-border-color: #ffaa33;
+  /*
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-bg: #0d6efd;
+  --bs-btn-disabled-border-color: #0d6efd;
+  */  
+}
+.ayu-light-bordered .btn:active {
+  --bs-btn-color: #5c6166;
+  --bs-btn-bg: #fcfcfc;
+  --bs-btn-border-color: #ffaa33;  
+}
+
+.ayu-light-bordered .form-select {
+  color: #ffaa33;
+  background-color: #56728f1f;
+  border-color: #56728f1f;
+}
+
+.ayu-light-bordered .input-group-text {
+  color: #ffaa33;
+  background-color: #56728f1f;
+  border-color: #56728f1f;
+}
+
+/* ACE Editor Theme */
+.ayu-light-bordered .ace_gutter {
+background: #f8f9fa;
+color: #5c6166;
+}
+
+.ayu-light-bordered .ace_print-margin {
+background: #fcfcfc
+}
+
+.ayu-light-bordered .ace_editor {
+  background: #fcfcfc;
+  color: #5c6166;
+}
+
+.ayu-light-bordered .ace-layer..ace_marker-layer .ace_active-line {
+  background: #56728f1f;
+  color: #5c6166;
+}
+
+.ayu-light-bordered .ace-tm .ace_gutter-active-line {
+  background: #56728f1f;
+  color: #5c6166;
+}
 
 .ayu-mirage-bordered {
   background: #1f2430;
   color: #cccac2;
+  --bs-border-color: #171b24;
+  --bs-table-striped-bg: #242936;
+  --bs-table-striped-c
+  olor: #cccac2;
 } 
 
 .ayu-mirage-bordered .nav {
@@ -58,3 +142,79 @@
   border-left: solid 1px #ffcc66;
 }
 
+.ayu-mirage-bordered .form-control {
+  color: #cccac2;
+  background: #242936;
+  border-color: #707a8c45;
+  --bs-input-focus-bg:                        $input-bg;
+  --bs-input-focus-border-color:              tint-color($component-active-bg, 50%);
+  --bs-input-focus-color:                     $input-color;
+  --bs-input-placeholder-color:               $gray-600;
+  --bs-input-plaintext-color:                 $body-color;
+}
+
+.ayu-mirage-bordered .btn {
+  --bs-btn-color: #cccac2;
+  --bs-btn-bg: #242936;
+  --bs-btn-border-color: #707a8c45;
+}
+
+.ayu-mirage-bordered .btn.btn-primary {
+  --bs-btn-color: #707a8c;
+  --bs-btn-bg: #242936;
+  --bs-btn-border-color: #707a8c45;
+  --bs-btn-hover-color: undefined;
+  --bs-btn-hover-bg: undefined;
+  --bs-btn-hover-border-color: #ffcc66;
+  --bs-btn-focus-shadow-rgb: 49,132,253;
+  --bs-btn-active-color: undefined;
+  --bs-btn-active-bg: undefined;
+  --bs-btn-active-border-color: #ffcc66;
+  /*
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-bg: #0d6efd;
+  --bs-btn-disabled-border-color: #0d6efd;
+  */  
+}
+.ayu-mirage-bordered .btn:active {
+  --bs-btn-color: #cccac2;
+  --bs-btn-bg: #242936;
+  --bs-btn-border-color: #ffcc66;  
+}
+
+.ayu-mirage-bordered .form-select {
+  color: #ffcc66;
+  background-color: #63759926;
+  border-color: #63759926;
+}
+
+.ayu-mirage-bordered .input-group-text {
+  color: #ffcc66;
+  background-color: #63759926;
+  border-color: #63759926;
+}
+
+/* ACE Editor Theme */
+.ayu-mirage-bordered .ace_gutter {
+background: #1f2430;
+color: #cccac2;
+}
+
+.ayu-mirage-bordered .ace_print-margin {
+background: #242936
+}
+
+.ayu-mirage-bordered .ace_editor {
+  background: #242936;
+  color: #cccac2;
+}
+
+.ayu-mirage-bordered .ace-layer..ace_marker-layer .ace_active-line {
+  background: #63759926;
+  color: #cccac2;
+}
+
+.ayu-mirage-bordered .ace-tm .ace_gutter-active-line {
+  background: #63759926;
+  color: #cccac2;
+}

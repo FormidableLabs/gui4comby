@@ -169,14 +169,21 @@ const Playground = ({id}:{id:string}) => {
       <Form.Group className="mb-3" controlId="sourceSample">
         <Form.Label style={{alignItems: 'center', display: 'flex', justifyContent: 'space-between'}}><strong><small>Source Code </small></strong><small><LanguageSelect onChange={onLanguageSelect}/></small></Form.Label>
         {/*<Form.Control as="textarea" rows={3} placeholder="Paste your source code here" value={source} onChange={e => setSource(e.target.value)}/>*/}
-        <div ref={sourceBoxRef} className={'form-control'} style={{overflow: 'auto', resize: 'vertical', padding: 0, minHeight: 'calc(3em + 0.5em)', width: '100%', paddingBottom: '5px', background: '#e8e8e8'}}>
+        <div ref={sourceBoxRef} className={'form-control'} style={{
+          overflow: 'auto',
+          resize: 'vertical',
+          padding: 0,
+          minHeight: 'calc(3em + 0.5em)',
+          width: '100%',
+          paddingBottom: '5px',
+        }}>
           {size &&
           <AceEditor
             placeholder="Paste your source code here"
             mode={aceMode}
             width={`${size.width}px`}
             height={`${size.height}px`}
-            theme="github"
+            theme=""
             name="sourceSampleAce"
             onChange={value => setSource(value)}
             fontSize={14}

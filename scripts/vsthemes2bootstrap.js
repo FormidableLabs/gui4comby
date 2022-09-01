@@ -13,6 +13,10 @@ glob.sync(path.resolve('themes/*.json')).forEach(filename => {
 .${className} {
   background: ${theme.colors['panel.background']};
   color: ${theme.colors['editor.foreground']};
+  --bs-border-color: ${theme.colors['tab.border']};
+  --bs-table-striped-bg: ${theme.colors['tab.activeBackground']};
+  --bs-table-striped-c
+  olor: ${theme.colors['tab.activeForeground']};
 } 
 
 .${className} .nav {
@@ -39,6 +43,82 @@ glob.sync(path.resolve('themes/*.json')).forEach(filename => {
   border-left: solid 1px ${theme.colors['tab.activeBorderTop']};
 }
 
+.${className} .form-control {
+  color: ${theme.colors['input.foreground']};
+  background: ${theme.colors['input.background']};
+  border-color: ${theme.colors['input.border']};
+  --bs-input-focus-bg:                        $input-bg;
+  --bs-input-focus-border-color:              tint-color($component-active-bg, 50%);
+  --bs-input-focus-color:                     $input-color;
+  --bs-input-placeholder-color:               $gray-600;
+  --bs-input-plaintext-color:                 $body-color;
+}
+
+.${className} .btn {
+  --bs-btn-color: ${theme.colors['input.foreground']};
+  --bs-btn-bg: ${theme.colors['input.background']};
+  --bs-btn-border-color: ${theme.colors['input.border']};
+}
+
+.${className} .btn.btn-primary {
+  --bs-btn-color: ${theme.colors['tab.inactiveForeground']};
+  --bs-btn-bg: ${theme.colors['input.background']};
+  --bs-btn-border-color: ${theme.colors['input.border']};
+  --bs-btn-hover-color: ${theme.colors['input.activeForeground']};
+  --bs-btn-hover-bg: ${theme.colors['input.activeBackground']};
+  --bs-btn-hover-border-color: ${theme.colors['tab.activeBorderTop']};
+  --bs-btn-focus-shadow-rgb: 49,132,253;
+  --bs-btn-active-color: ${theme.colors['input.activeForeground']};
+  --bs-btn-active-bg: ${theme.colors['input.activeBackground']};
+  --bs-btn-active-border-color: ${theme.colors['tab.activeBorderTop']};
+  /*
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-bg: #0d6efd;
+  --bs-btn-disabled-border-color: #0d6efd;
+  */  
+}
+.${className} .btn:active {
+  --bs-btn-color: ${theme.colors['tab.activeForeground']};
+  --bs-btn-bg: ${theme.colors['tab.activeBackground']};
+  --bs-btn-border-color: ${theme.colors['tab.activeBorderTop']};  
+}
+
+.${className} .form-select {
+  color: ${theme.colors['list.highlightForeground']};
+  background-color: ${theme.colors['list.activeSelectionBackground']};
+  border-color: ${theme.colors['list.focusOutline']};
+}
+
+.${className} .input-group-text {
+  color: ${theme.colors['list.highlightForeground']};
+  background-color: ${theme.colors['list.activeSelectionBackground']};
+  border-color: ${theme.colors['list.focusOutline']};
+}
+
+/* ACE Editor Theme */
+.${className} .ace_gutter {
+background: ${theme.colors['editorWidget.background']};
+color: ${theme.colors['editor.foreground']};
+}
+
+.${className} .ace_print-margin {
+background: ${theme.colors['editor.background']}
+}
+
+.${className} .ace_editor {
+  background: ${theme.colors['editor.background']};
+  color: ${theme.colors['editor.foreground']};
+}
+
+.${className} .ace-layer..ace_marker-layer .ace_active-line {
+  background: ${theme.colors['list.activeSelectionBackground']};
+  color: ${theme.colors['list.activeSelectionForeground']};
+}
+
+.${className} .ace-tm .ace_gutter-active-line {
+  background: ${theme.colors['list.focusBackground']};
+  color: ${theme.colors['list.focusForeground']};
+}
 `;
 
     output += cssContent;

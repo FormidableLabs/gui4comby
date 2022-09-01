@@ -14,19 +14,20 @@ const NewTabButton = ({type}:Props) => {
   function add() {
     const id = getId();
     let title = '';
+    let segment = 'tab';
     switch(type){
-      case TabType.Index: title = 'Getting Started'; break;
-      case TabType.Playground: title = `Playground ${tabs.length}`; break;
-      case TabType.Filesystem: title = `Filesystem ${tabs.length}`; break;
-      case TabType.Docs: title = 'Docs'; break;
-      case TabType.Settings: title = 'Settings'; break;
+      case TabType.Index: title = 'Getting Started'; segment='tab'; break;
+      case TabType.Playground: title = `Playground ${tabs.length}`; segment='playground'; break;
+      case TabType.Filesystem: title = `Filesystem ${tabs.length}`; segment='filesystem'; break;
+      case TabType.Docs: title = 'Docs'; segment='docs'; break;
+      case TabType.Settings: title = 'Settings'; segment='settings'; break;
     }
 
     setTabs((oldState) => [
       ...oldState,
-      {id, type, title}
+      {id, type, title, path: `/${segment}/${id}`}
     ]);
-    navigate(`/tab/${id}`);
+    navigate(`/${segment}/${id}`);
   }
 
   return (
