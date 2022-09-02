@@ -15,7 +15,7 @@ const EventLog = ({...rest}:Props) => {
     <div {...rest} style={{ borderTop: 'solid 1px var(--bs-border-color)'}}>
       {show &&
         <div style={{height: '20vh', overflow: 'auto', display: 'flex', flexDirection: 'column'}}>
-          {log.map((log, i) => <div key={log.id} style={{
+          {log.map((log, i) => <div key={`${log.id}-${i}`} style={{
             display: 'flex',
             background: i % 2 != 0 ? '':'var(--bs-table-striped-bg)',
             color: i % 2 != 0 ? '' : 'var(--bs-table-striped-color)'

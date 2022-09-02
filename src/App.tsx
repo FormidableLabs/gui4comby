@@ -53,7 +53,7 @@ function App() {
     <>
       <Routes location={state?.backgroundLocation || location}>
         <Route path={"/"} element={
-          <div id={'app'} className={'ayu-light-bordered'}>
+          <div id={'app'} className={'ayu-mirage-bordered'}>
             <TabBar id={'header'}/>
             <div id="content">
               <div id={'main'}>

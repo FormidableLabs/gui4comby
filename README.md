@@ -33,7 +33,7 @@ This template should help get you started developing with Tauri, React and Types
 - [ ] Filesystem: Accept All Functional
 - [ ] Filesystem: Interactive Accept / Reject
 - [ ] Filesystem: Matched/Rewritten color highlighting or diff
-- [ ] Docs: Basic import & display of comby.dev docs
+- [x] Docs: Basic import & display of comby.dev docs
 - [ ] Docs: Replace playground links w/ open in app (new playground tab auto-filled)
 - [ ] Library: Save and Manage match, rewrite and rule patterns
 - [ ] Library: Default collection - Samples
@@ -42,7 +42,7 @@ This template should help get you started developing with Tauri, React and Types
 - [ ] Themes: Map vscode themes to css variable overrides
 - [ ] Themes: Ability to switch between available themes
 - [ ] Themes: Support any theme from https://vscodethemes.com/
-- [ ] App Tabs: Close all tabs shows Getting Started splash
+- [x] App Tabs: Close all tabs shows Getting Started splash
 - [x] App Toaster: Provide Feedback on success/failure messages using toasts
 - [ ] App Event Log: History of time, action, success or failure messages
 - 
@@ -50,6 +50,7 @@ This template should help get you started developing with Tauri, React and Types
 - [x] Bug: Execing docker: Docker Container Error: Docker responded with status code 409: Conflict. The container name "/gui4comby-server" is already in use by container
 - [x] Bug: If no matches from comby, stdOut is empty resulting in JSON Parse error: Unexpected EOF on the frontend
 - [x] Bug: State is shared between playground tabs
+- [ ] Bug: Docs tab lose scroll position on tab changes (they revert to tab path which is usually top, or a section header)
 
 ## Todo Edge Cases
 ### Edge Case: comby/comby image not available locally, and not signed into docker
