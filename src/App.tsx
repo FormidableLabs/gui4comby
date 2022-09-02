@@ -1,4 +1,3 @@
-import {Tab} from "react-bootstrap";
 import VerticalExpander from "./components/VerticalExpander/verticalExpander";
 import TabBar from "./components/TabBar/TabBar";
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -6,7 +5,6 @@ import './themes.css';
 import TabContent from "./components/TabContent/TabContent";
 import {useEffect} from "react";
 import {Routes, Route, Outlet, useLocation, useNavigate} from "react-router-dom";
-import Greeter from "./components/Greeter/Greeter";
 import Toaster from "./components/Toaster/Toaster";
 import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en.json';
@@ -54,9 +52,9 @@ function App() {
   }, [])
 
   return (
-    <div className={'ayu-mirage-bordered'} style={{width: '100vw', height: '100vh'}}>
+    <div className={'ayu-light-bordered'} style={{width: '100vw', height: '100vh'}}>
       <Routes location={state?.backgroundLocation || location}>
-        <Route path={"/"} element={<VerticalExpander header={<TabBar/>} footer={<EventLog/>}>
+        <Route path={"/"} element={<VerticalExpander header={<TabBar/>} footer={<EventLog/>} id={'mainContent'}>
           <Outlet/>
           <Toaster/>
         </VerticalExpander>}>

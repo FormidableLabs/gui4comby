@@ -13,6 +13,13 @@ export type Tab = {
   path: string;
 }
 
+export type TabState = {
+  type: TabType.Docs,
+  document: string;
+} | {
+  type: TabType.Playground,
+};
+
 export const tabsState = atom<Tab[]>({
   key: 'appTabs',
   default: []

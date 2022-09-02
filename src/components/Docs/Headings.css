@@ -1,0 +1,13 @@
+h2.mdx {
+  position: relative;
+}
+.mdx .anchor-link {
+  color: #666;
+  opacity: 0;
+  position: absolute;
+  transform: translate(-1em, -2px);
+  width: 1em;
+}
+h2.mdx:hover .anchor-link {
+  opacity: 1;
+}
