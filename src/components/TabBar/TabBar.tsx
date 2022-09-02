@@ -12,17 +12,18 @@ import {AiOutlineSetting} from "react-icons/ai";
 import PreserveBackgroundLocationLink from "../PreserveBackgroundLocationLink/PreserveBackgroundLocationLink";
 
 type Props = {
+  [x: string]: unknown
 }
 
-const TabBar = ({}: Props) => {
+const TabBar = ({...rest}: Props) => {
     const [tabs, setTabs] = useRecoilState(tabsState);
     const params = useParams();
     const navigate = useNavigate();
     const [position, setPosition] = useState(tabs.findIndex(tab => tab.id === params.tabId));
 
     useEffect(() => console.log('TabBar mount'), []);
-
-    // if there are no tabs, add a default tab
+    //
+    // // if there are no tabs, add a default tab
     useEffect(() => {
       if(tabs.length < 1) {
         let newId = getId();
@@ -30,16 +31,18 @@ const TabBar = ({}: Props) => {
       }
     }, [tabs]);
 
-    // when tab no longer exists, focus on a new tab
+    // // when tab no longer exists, focus on a new tab
     useEffect(() => {
       if(!tabs.find(tab => tab.id === params.tabId) && tabs.length > 0){
+        console.log("couldn't find tab for", params.tabId, location, params);
         let newPosition = Math.max(position-1, 0);
-        setPosition(newPosition);
+        console.log('positions', position, newPosition);
         navigate(`/tab/${tabs[newPosition].id}`);
-      } else if ( !tabs.find(tab => tab.id === params.tabId) ) {
-        setPosition(tabs.findIndex(tab => tab.id === params.tabId))
+      } else if ( tabs.find(tab => tab.id === params.tabId) ) {
+        let newPosition = tabs.findIndex(tab => tab.id === params.tabId);
+        setPosition(newPosition)
       }
-    }, [tabs, params.tabId, position, navigate])
+    }, [tabs, params.tabId, position, navigate, location.pathname])
 
     // remove tab from list
     const close = (id: string) => {
@@ -52,7 +55,7 @@ const TabBar = ({}: Props) => {
 
 
     return (
-      <HorizontalExpander right={<Nav className={'nav-tabs tabbar'}>
+      <HorizontalExpander {...rest} right={<Nav className={'nav-tabs tabbar'}>
         <Nav.Item>
           <NewTabButton type={TabType.Playground}/>
         </Nav.Item>
@@ -66,7 +69,7 @@ const TabBar = ({}: Props) => {
           <PreserveBackgroundLocationLink to={'/settings'}><AiOutlineSetting/> Settings</PreserveBackgroundLocationLink>
         </Nav.Item>
       </Nav>}>
-        <Nav className={'nav-tabs buttons'} style={{overflowX: 'scroll', flex: 'none', flexWrap: 'nowrap'}}>
+        <Nav className={'nav-tabs buttons'} style={{overflowX: 'scroll', flex: 'none', flexWrap: 'nowrap', overflowY: 'hidden'}}>
             {tabs.map((tab, idx) => {
               return (
                 <Nav.Item key={idx + '-' + tab.id} style={{flexShrink: 0}}>

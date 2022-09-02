@@ -1,13 +1,40 @@
 html, body, #root {
   width: 100vw;
   height: 100vh;
-
-  /* This sets the containing element up to use a box layout */
-  display: -webkit-box;
-  /* We want to layout our first container vertically */
-  -webkit-box-orient: vertical;
-  /* we want our child elements to stretch to fit the container */
-  -webkit-box-align:stretch;
+  overflow: hidden;;
 }
+
+
+#app {
+	height:100%;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-box-align:stretch;
+}
+
+#header {
+	height:42px;
+	overflow-y: hidden;
+	overflow-x: auto;
+}
+
+#footer {
+	/*height:30px;*/
+}
+
+#content {
+	-webkit-box-flex:1;
+	display: -webkit-box;
+	-webkit-box-orient: horizontal;
+	-webkit-box-align:stretch;
+}
+
+#sidebar { width:120px; }
+
+#main {
+	-webkit-box-flex:1;
+	overflow: scroll;
+}
+
 /* https://github.com/twbs/icons/issues/82#issuecomment-841772780 */
 svg, svg.bi {vertical-align: -0.125em;}

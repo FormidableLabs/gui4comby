@@ -26,9 +26,7 @@ import DocPage from "./components/Docs/DocPage";
 function App() {
   const location = useLocation();
   const state = location.state as LocationState;
-  const [eventLog, setEventLog] = useRecoilState(eventLogState);
-
-  console.log('app location', location);
+  const [_, setEventLog] = useRecoilState(eventLogState);
 
   useEffect(() => {
     const unlisten = listen('server-log', (event) => {
@@ -42,7 +40,6 @@ function App() {
         return combined.slice(-99);
       });
     });
-    console.log('App mount');
 
     return () => {
       (async()=>{
@@ -51,20 +48,29 @@ function App() {
     }
   }, [])
 
+
   return (
-    <div className={'ayu-light-bordered'} style={{width: '100vw', height: '100vh'}}>
+    <>
       <Routes location={state?.backgroundLocation || location}>
-        <Route path={"/"} element={<VerticalExpander header={<TabBar/>} footer={<EventLog/>} id={'mainContent'}>
-          <Outlet/>
-          <Toaster/>
-        </VerticalExpander>}>
-          {/* TODO deprecate tab/ path */}
-          <Route path="tab/:tabId" element={<TabContent/>}/>
-          <Route path="playground/:tabId" element={<TabContent/>}/>
-          <Route path="filesystem/:tabId" element={<TabContent/>}/>
-          <Route path="docs/:tabId" element={<Docs/>}>
-            <Route path={":docId"} element={<DocPage/>}/>
-          </Route>
+        <Route path={"/"} element={
+          <div id={'app'} className={'ayu-light-bordered'}>
+            <TabBar id={'header'}/>
+            <div id="content">
+              <div id={'main'}>
+                <Outlet/>
+              </div>
+            </div>
+            <EventLog id={'footer'}/>
+            <Toaster/>
+          </div>
+          }>
+            {/* TODO deprecate tab/ path */}
+            <Route path="tab/:tabId" element={<TabContent/>}/>
+            <Route path="playground/:tabId" element={<TabContent/>}/>
+            <Route path="filesystem/:tabId" element={<TabContent/>}/>
+            <Route path="docs/:tabId" element={<Docs/>}>
+              <Route path={":pageId"} element={<DocPage/>}/>
+            </Route>
         </Route>
       </Routes>
       {state?.backgroundLocation && (
@@ -79,10 +85,10 @@ function App() {
               <Route path="/settings/language" element={<SideSheet visible={true}><p>Language Settings</p></SideSheet>} />
             </Route>
           </Routes>
-      )}
-    </div>
-
-  );
+        )}
+        {/*<div id="sidebar">Sidebar</div>*/}
+    </>
+  )
 }
 
 export default App;

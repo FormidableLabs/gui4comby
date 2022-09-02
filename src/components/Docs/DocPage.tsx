@@ -15,9 +15,9 @@ export const unTitleCase = (s: string) => s.replace(/(^[a-z]|-[a-z])/g, (m: stri
 const DocPage = () => {
   const [tabs, setTabs] = useRecoilState(tabsState);
   const location = useLocation();
-  const params = useParams() as {docId: string, tabId: string};
+  const params = useParams() as {pageId: string, tabId: string};
   const navigate = useNavigate();
-  console.log(tabs);
+
   // TODO: update tab path to include docId
   useEffect(() => {
     const tab = tabs.find(tab => tab.id === params.tabId);
@@ -29,28 +29,28 @@ const DocPage = () => {
         return {
           ...tab,
           path: location.pathname,
-          title: `${params.docId !== '' ? unTitleCase(params.docId) : 'Docs'}`
+          title: `${params.pageId !== '' ? unTitleCase(params.pageId) : 'Docs'}`
         }
       } else { return tab }
     })]);
-  },[params.tabId, params.docId, location.pathname]);
+  },[params.tabId, params.pageId, location.pathname]);
 
   // scroll to header
   useEffect(() => {
     const el = document.getElementById(location.hash.slice(1));
-    const container = document.getElementById('mainContent-expander-inner');
+    const container = document.getElementById('main');
     if(el && container) {
       container.scrollTop = el.offsetTop - 40;
     }
   }, [location.hash]);
 
-  if (!params.docId || ! docs[params.docId]) {
+  if (!params.pageId || ! docs[params.pageId]) {
     return (<div>Page not found :(</div>)
   }
 
-  const Component = docs[params.docId!] as JSX.Element;
+  const Component = docs[params.pageId!] as JSX.Element;
   return (<VerticalExpander style={{padding: '1em'}}>
-    <h1>{unTitleCase(params.docId)}</h1>
+    <h1>{unTitleCase(params.pageId)}</h1>
     {/*@ts-ignore*/}
     <Component components={{
       a: (props: Record<string,string>) => {
@@ -70,7 +70,7 @@ const DocPage = () => {
               // if(el && container) {
               //   container.scrollTop = el.offsetTop - 40;
               // }
-              navigate(`/docs/${params.tabId}/${segment ? segment : params.docId}#${anchor}`);
+              navigate(`/docs/${params.tabId}/${segment ? segment : params.pageId}#${anchor}`);
               e.stopPropagation();
             }}
           >{children}</a>

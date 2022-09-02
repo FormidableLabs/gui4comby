@@ -4,13 +4,15 @@ import {useRecoilState} from "recoil";
 import {eventLogState} from "./EventLog.recoil";
 import formatDate from '@bitty/format-date';
 
-
-const EventLog = () => {
+type Props = {
+  [x: string]: unknown;
+}
+const EventLog = ({...rest}:Props) => {
   const [show, setShow] = useState(false);
   const [log, setLog] = useRecoilState(eventLogState);
-  console.log({log})
+
   return (
-    <div style={{ borderTop: 'solid 1px var(--bs-border-color)'}}>
+    <div {...rest} style={{ borderTop: 'solid 1px var(--bs-border-color)'}}>
       {show &&
         <div style={{height: '20vh', overflow: 'auto', display: 'flex', flexDirection: 'column'}}>
           {log.map((log, i) => <div key={log.id} style={{
