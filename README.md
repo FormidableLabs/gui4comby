@@ -45,6 +45,7 @@ This template should help get you started developing with Tauri, React and Types
 - [x] App Tabs: Close all tabs shows Getting Started splash
 - [x] App Toaster: Provide Feedback on success/failure messages using toasts
 - [ ] App Event Log: History of time, action, success or failure messages
+- [ ] Docs: Enhance styling of elements like tables, blockquotes, etc
 - 
 - [ ] Bug: Too many tabs pushes new tab buttons off the screen
 - [x] Bug: Execing docker: Docker Container Error: Docker responded with status code 409: Conflict. The container name "/gui4comby-server" is already in use by container

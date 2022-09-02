@@ -38,3 +38,14 @@ html, body, #root {
 
 /* https://github.com/twbs/icons/issues/82#issuecomment-841772780 */
 svg, svg.bi {vertical-align: -0.125em;}
+
+blockquote {
+	background: var(--theme-focus-bg);
+	color: var(--theme-focus-color);
+    border-left: 8px solid var(--theme-focus-color);
+	padding: 1em;
+}
+blockquote p {
+	padding-bottom: 0;
+	margin-bottom: 0;
+}

@@ -15,8 +15,10 @@ glob.sync(path.resolve('themes/*.json')).forEach(filename => {
   color: ${theme.colors['editor.foreground']};
   --bs-border-color: ${theme.colors['tab.border']};
   --bs-table-striped-bg: ${theme.colors['tab.activeBackground']};
-  --bs-table-striped-c
-  olor: ${theme.colors['tab.activeForeground']};
+  --bs-table-striped-color: ${theme.colors['tab.activeForeground']};
+  
+  --theme-focus-bg: ${theme.colors['list.activeSelectionBackground']};
+  --theme-focus-color: ${theme.colors['list.highlightForeground']};  
 } 
 
 .${className} .nav {

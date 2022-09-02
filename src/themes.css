@@ -4,8 +4,10 @@
   color: #5c6166;
   --bs-border-color: #6b7d8f1f;
   --bs-table-striped-bg: #fcfcfc;
-  --bs-table-striped-c
-  olor: #5c6166;
+  --bs-table-striped-color: #5c6166;
+  
+  --theme-focus-bg: #56728f1f;
+  --theme-focus-color: #ffaa33;  
 } 
 
 .ayu-light-bordered .nav {
@@ -114,8 +116,10 @@ background: #fcfcfc
   color: #cccac2;
   --bs-border-color: #171b24;
   --bs-table-striped-bg: #242936;
-  --bs-table-striped-c
-  olor: #cccac2;
+  --bs-table-striped-color: #cccac2;
+  
+  --theme-focus-bg: #63759926;
+  --theme-focus-color: #ffcc66;  
 } 
 
 .ayu-mirage-bordered .nav {
