@@ -6,6 +6,7 @@ import {useEffect} from "react";
 import {H1, H2, H3, H4, H5, H6} from "./Headings";
 import VerticalExpander from "../VerticalExpander/verticalExpander";
 import {BiWindowOpen} from "react-icons/all";
+import {docPageScrollFamily} from "./Docs.recoil";
 
 export const unTitleCase = (s: string) => s.replace(/(^[a-z]|-[a-z])/g, (m: string) => {
   if(m.length === 1) { return m.toUpperCase() }
@@ -18,9 +19,10 @@ const DocPage = () => {
   const location = useLocation();
   const params = useParams() as {pageId: string, tabId: string};
   const navigate = useNavigate();
+  const [_, setScroll] = useRecoilState(docPageScrollFamily(params.tabId));
 
+  // when tab location or hash changes, update the tab meta info
   useEffect(() => {
-    console.log('updating doc path', location, params);
     const tab = tabs.find(tab => tab.id === params.tabId);
     const newPath = `${location.pathname}${location.hash}`;
     if(tab && tab.path === newPath){ return }
@@ -36,7 +38,7 @@ const DocPage = () => {
     })]);
   },[params.tabId, params.pageId, location.pathname, location.hash]);
 
-  // scroll to header
+  // when location.hash changes, scroll to specified header
   useEffect(() => {
     const container = document.getElementById('main')!;
 
@@ -45,6 +47,19 @@ const DocPage = () => {
       container.scrollTop = el.offsetTop - 40;
     }
   }, [location.hash]);
+
+  // when tab is focused, register a scroll handler
+  useEffect(() => {
+    const container = document.getElementById('main')!;
+    const onScroll = (event:Event)=> {
+      // @ts-ignore
+      setScroll(_old => event.target.scrollTop)
+    };
+    container.addEventListener('scroll', onScroll);
+    return () => {
+      container.removeEventListener('scroll', onScroll);
+    }
+  }, [params.tabId, setScroll]);
 
   if (!params.pageId || ! docs[params.pageId]) {
     return (<div>Page not found :(</div>)
