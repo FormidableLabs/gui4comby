@@ -29,3 +29,14 @@ export const activeTabState = atom<string>({
   key: 'appTabsActiveTab',
   default: '0'
 })
+
+export type MainSizeState = {
+  sized: boolean;
+  rect?: DOMRectReadOnly;
+}
+export const mainSizeAtom = atom<MainSizeState>({
+  key: 'appMainSize',
+  default: {
+    sized: false,
+  }
+});
