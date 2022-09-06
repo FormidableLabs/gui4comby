@@ -4,14 +4,19 @@ import { docs } from '../../docs';
 import {Nav} from "react-bootstrap";
 import {unTitleCase} from "./DocPage";
 import {useEffect} from "react";
+import {useRecoilState} from "recoil";
+import {docPageScrollFamily} from "./Docs.recoil";
 
 const Docs = () => {
   const location = useLocation();
+  const params = useParams() as {tabId: string}
+  const [scroll, _] = useRecoilState(docPageScrollFamily(params.tabId));
+
+  // on tab focus, reset scroll position to last saved value (or 0)
   useEffect(() => {
-    console.log('reset doc scroll position');
     const container = document.getElementById('main')!;
-    container.scrollTop = 0;
-  }, [location.pathname]);
+    container.scrollTop = scroll;
+  }, [params.tabId, location.pathname]);
 
   return (<HorizontalExpander style={{width: '100%', overflowX: 'scroll'}} left={<DocsNav/>} id={'docs'}>
     <Outlet/>
