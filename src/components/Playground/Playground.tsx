@@ -1,5 +1,5 @@
 import {Button, Form} from "react-bootstrap";
-import {MutableRefObject, useEffect, useLayoutEffect, useRef, useState} from "react";
+import {MutableRefObject, useCallback, useEffect, useLayoutEffect, useRef, useState} from "react";
 import {invoke} from "@tauri-apps/api/tauri";
 import useToaster, {ToastVariant} from "../Toaster/useToaster";
 import LanguageSelect, {LanguageOption} from "../LanguageSelect/LanguageSelect";
@@ -14,7 +14,8 @@ import useResizeObserver from '@react-hook/resize-observer'
 import {useRecoilState} from "recoil";
 import {
   aceModeFamily,
-  languageFamily, loadingFamily,
+  languageFamily,
+  loadingFamily,
   matchedFamily,
   matchTemplateFamily,
   rewriteTemplateFamily,
@@ -22,6 +23,7 @@ import {
   ruleFamily,
   sourceFamily
 } from "./Playground.recoil";
+import {useDebounce} from "usehooks-ts";
 
 const useSize = (target: MutableRefObject<HTMLElement | null>) => {
   const [size, setSize] = useState<DOMRectReadOnly>()
@@ -108,20 +110,17 @@ const Playground = ({id}:{id:string}) => {
   const [language, setLanguage] = useRecoilState(languageFamily(id));
   const [loading, setLoading] = useRecoilState(loadingFamily(id));
   const [aceMode, setAceMode] = useRecoilState(aceModeFamily(id));
+  const debounceTime = 200;
+  const debouncedSource = useDebounce(source,debounceTime);
+  const debouncedMatchTemplate = useDebounce(matchTemplate,debounceTime);
+  const debouncedRewriteTemplate = useDebounce(rewriteTemplate, debounceTime);
+  const debouncedRule = useDebounce(rule, debounceTime);
 
   const sourceBoxRef = useRef(null)
-  const size = useSize(sourceBoxRef)
+  const size = useSize(sourceBoxRef);
 
-  useEffect(() => {
-    console.log('playground mount');
-  }, []);
-
-  const onLanguageSelect = (value: string, option: LanguageOption) => {
-    setLanguage(value);
-    setAceMode(option.mode || '');
-  }
-
-  const run = async () => {
+  const run = useCallback(
+  async () => {
     console.log('invoking rpc');
     try {
       setLoading(true);
@@ -162,7 +161,22 @@ const Playground = ({id}:{id:string}) => {
       push('App Error', error.message || error, ToastVariant.danger);
     }
     setLoading(false);
+  },
+  [debouncedSource, debouncedMatchTemplate, debouncedRewriteTemplate, debouncedRule, language],
+);
+
+  useEffect(() => {
+    run().catch(err => {
+      push("Run Error", err.message ? err.message : err, ToastVariant.danger);
+    });
+  }, [run]);
+
+  const onLanguageSelect = (value: string, option: LanguageOption) => {
+    setLanguage(value);
+    setAceMode(option.mode || '');
   }
+
+
 
   return <div style={{padding: '1em 1em'}}>
     <Form>
@@ -216,13 +230,12 @@ const Playground = ({id}:{id:string}) => {
         </Form.Group>
         <Form.Group className="mb-3" controlId="matched" style={{gridColumn: 1}}>
           <Form.Label><strong><small>Matched</small></strong></Form.Label>
-          <Form.Control as="textarea" rows={3} placeholder="" value={matched} readOnly={true}/>
+          <Form.Control as="textarea" rows={3} placeholder="" value={matched} readOnly={true} disabled={loading}/>
         </Form.Group>
         <Form.Group className="mb-3" controlId="rewritten">
           <Form.Label><strong><small>Rewritten</small></strong></Form.Label>
-          <Form.Control as="textarea" rows={3} placeholder="" value={rewritten} readOnly={true}/>
+          <Form.Control as="textarea" rows={3} placeholder="" value={rewritten} readOnly={true} disabled={loading}/>
         </Form.Group>
-        <Button onClick={() => run()} disabled={loading} variant={loading ? 'disabled' : 'primary'}>Run</Button>
       </div>
     </Form>
   </div>
