@@ -1,52 +1,94 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import { invoke } from "@tauri-apps/api/tauri";
-import "./App.css";
+import VerticalExpander from "./components/VerticalExpander/verticalExpander";
+import TabBar from "./components/TabBar/TabBar";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './themes.css';
+import TabContent from "./components/TabContent/TabContent";
+import {useEffect} from "react";
+import {Routes, Route, Outlet, useLocation, useNavigate} from "react-router-dom";
+import Toaster from "./components/Toaster/Toaster";
+import TimeAgo from 'javascript-time-ago';
+import en from 'javascript-time-ago/locale/en.json';
+
+TimeAgo.addDefaultLocale(en);
+import { listen } from '@tauri-apps/api/event'
+import PreserveBackgroundLocationLink, {
+  LocationState
+} from "./components/PreserveBackgroundLocationLink/PreserveBackgroundLocationLink";
+import SideSheet from "./components/SideSheet/SideSheet";
+import DockerSettings from "./components/DockerSettings/DockerSettings";
+import EventLog from "./components/EventLog/EventLog";
+import {useRecoilState} from "recoil";
+import {eventLogState} from "./components/EventLog/EventLog.recoil";
+import Docs from "./components/Docs/Docs";
+import DocPage from "./components/Docs/DocPage";
+
 
 function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
+  const location = useLocation();
+  const state = location.state as LocationState;
+  const [_, setEventLog] = useRecoilState(eventLogState);
 
-  async function greet() {
-    setGreetMsg(await invoke("greet", { name }));
-  }
+  useEffect(() => {
+    const unlisten = listen('server-log', (event) => {
+      let payload = event.payload as {time: number, message: string};
+      setEventLog((oldState) => {
+        let combined = [
+          ...oldState,
+          {...payload, id: event.id}
+        ];
+        // only keep last 99 messages
+        return combined.slice(-99);
+      });
+    });
+
+    return () => {
+      (async()=>{
+        (await unlisten)();
+      })();
+    }
+  }, [])
+
 
   return (
-    <div className="container">
-      <h1>Welcome to Tauri!</h1>
-
-      <div className="row">
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-
-      <p>
-        Click on the Tauri, Vite, and React logos to learn more about each
-        framework.
-      </p>
-
-      <div className="row">
-        <div>
-          <input
-            id="greet-input"
-            onChange={(e) => setName(e.currentTarget.value)}
-            placeholder="Enter a name..."
-          />
-          <button type="button" onClick={() => greet()}>
-            Greet
-          </button>
-        </div>
-      </div>
-      <p>{greetMsg}</p>
-    </div>
-  );
+    <>
+      <Routes location={state?.backgroundLocation || location}>
+        <Route path={"/"} element={
+          <div id={'app'} className={'ayu-mirage-bordered'}>
+            <TabBar id={'header'}/>
+            <div id="content">
+              <div id={'main'}>
+                <Outlet/>
+              </div>
+            </div>
+            <EventLog id={'footer'}/>
+            <Toaster/>
+          </div>
+          }>
+            {/* TODO deprecate tab/ path */}
+            <Route path="tab/:tabId" element={<TabContent/>}/>
+            <Route path="playground/:tabId" element={<TabContent/>}/>
+            <Route path="filesystem/:tabId" element={<TabContent/>}/>
+            <Route path="docs/:tabId" element={<Docs/>}>
+              <Route path={":pageId"} element={<DocPage/>}/>
+            </Route>
+        </Route>
+      </Routes>
+      {state?.backgroundLocation && (
+          <Routes>
+            <Route path={"/settings"}>
+              <Route index={true} element={<SideSheet visible={true}>
+                Settings Index page
+                <PreserveBackgroundLocationLink to={'/settings/docker'}>Docker</PreserveBackgroundLocationLink><br/>
+                <PreserveBackgroundLocationLink to={'/settings/language'}>Language</PreserveBackgroundLocationLink>
+              </SideSheet>}/>
+              <Route path="/settings/docker" element={<SideSheet visible={true}><DockerSettings/></SideSheet>} />
+              <Route path="/settings/language" element={<SideSheet visible={true}><p>Language Settings</p></SideSheet>} />
+            </Route>
+          </Routes>
+        )}
+        {/*<div id="sidebar">Sidebar</div>*/}
+    </>
+  )
 }
 
 export default App;

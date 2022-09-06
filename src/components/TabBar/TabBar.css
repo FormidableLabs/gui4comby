@@ -1,0 +1,10 @@
+.tabbar {
+    display: flex;
+    flex-direction: row;
+    flex-shrink: 1;
+    flex-wrap: nowrap !important;
+}
+.tabbar .nav-item .nav-link.button {
+    border: 0;
+}
+
