@@ -1,4 +1,3 @@
-import VerticalExpander from "../VerticalExpander/verticalExpander";
 import {useRecoilValue} from "recoil";
 import {mainSizeAtom} from "../../App.recoil";
 import './GettingStarted.css';
