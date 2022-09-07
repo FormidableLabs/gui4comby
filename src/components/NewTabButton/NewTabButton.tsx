@@ -3,11 +3,14 @@ import TabIcon, {TabType} from "../TabIcon/TabIcon";
 import {useRecoilState} from "recoil";
 import {getId, tabsState} from "../../App.recoil";
 import {useNavigate} from "react-router-dom";
+import {CSSProperties} from "react";
 
 type Props = {
   type: TabType;
+  text?: string;
+  style?: CSSProperties;
 }
-const NewTabButton = ({type}:Props) => {
+const NewTabButton = ({type, text, style}:Props) => {
   const [tabs, setTabs] = useRecoilState(tabsState);
   const navigate = useNavigate();
 
@@ -31,7 +34,7 @@ const NewTabButton = ({type}:Props) => {
   }
 
   return (
-    <Nav.Link className={'button'} onClick={add}><TabIcon type={type}/></Nav.Link>
+    <Nav.Link className={'button'} onClick={add} style={style}><TabIcon type={type}/>{text ? ` ${text}` : null}</Nav.Link>
   )
 }
 export default NewTabButton;

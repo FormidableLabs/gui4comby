@@ -7,6 +7,7 @@ import {useParams} from "react-router-dom";
 import {useRecoilValue} from "recoil";
 import {tabsState} from "../../App.recoil";
 import Docs from "../Docs/Docs";
+import GettingStarted from "../GettingStarted/GettingStarted";
 
 type Props = {
 
@@ -26,7 +27,7 @@ const TabContent = ({}:Props) => {
 
   let Component  = <div>Todo</div>;
   switch(tab.type){
-    case TabType.Index: Component = <div>Getting Started Placeholder <Greeter/></div>; break;
+    case TabType.Index: Component = <GettingStarted/>; break;
     case TabType.Playground: Component = <Playground id={params.tabId!}/>; break;
     case TabType.Filesystem: Component = <div>Filesystem Placeholder</div>; break;
     case TabType.Docs: Component = <Docs/>; break;

@@ -3,7 +3,7 @@ import TabBar from "./components/TabBar/TabBar";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './themes.css';
 import TabContent from "./components/TabContent/TabContent";
-import {useEffect} from "react";
+import {MutableRefObject, useEffect, useLayoutEffect, useRef, useState} from "react";
 import {Routes, Route, Outlet, useLocation, useNavigate} from "react-router-dom";
 import Toaster from "./components/Toaster/Toaster";
 import TimeAgo from 'javascript-time-ago';
@@ -21,12 +21,36 @@ import {useRecoilState} from "recoil";
 import {eventLogState} from "./components/EventLog/EventLog.recoil";
 import Docs from "./components/Docs/Docs";
 import DocPage from "./components/Docs/DocPage";
+import useResizeObserver from "@react-hook/resize-observer";
+import {mainSizeAtom, MainSizeState} from "./App.recoil";
 
+export const useMainSizeObserver = () => {
+  const [sizeState, setSizeState] = useRecoilState(mainSizeAtom);
+  const target = useRef(null);
+
+  useLayoutEffect(() => {
+    if (target.current) {
+      setSizeState({
+        sized: true,
+        // @ts-ignore
+        rect: target.current.getBoundingClientRect()
+      })
+    }
+  }, [target])
+
+  // @ts-ignore
+  useResizeObserver(target, (entry) => setSizeState({
+    sized: true,
+    rect: entry.contentRect
+  }))
+  return {ref: target, sized: sizeState.sized, rect: sizeState.rect}
+}
 
 function App() {
   const location = useLocation();
   const state = location.state as LocationState;
   const [_, setEventLog] = useRecoilState(eventLogState);
+  const {sized, ref} = useMainSizeObserver();
 
   useEffect(() => {
     const unlisten = listen('server-log', (event) => {
@@ -56,8 +80,8 @@ function App() {
           <div id={'app'} className={'ayu-mirage-bordered'}>
             <TabBar id={'header'}/>
             <div id="content">
-              <div id={'main'}>
-                <Outlet/>
+              <div ref={ref} id={'main'}>
+                {sized && <Outlet/>}
               </div>
             </div>
             <EventLog id={'footer'}/>
