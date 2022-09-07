@@ -10,6 +10,11 @@
   --theme-focus-color: #ffaa33;  
 } 
 
+.ayu-light-bordered .text-muted {
+  color: #8a9199;
+  --bs-table-striped-color: #8a9199;
+}
+
 .ayu-light-bordered .nav {
   --bs-nav-link-color: #8a9199;
   --bs-nav-link-hover-color: #5c6166;
@@ -121,6 +126,11 @@ background: #fcfcfc
   --theme-focus-bg: #63759926;
   --theme-focus-color: #ffcc66;  
 } 
+
+.ayu-mirage-bordered .text-muted {
+  color: #707a8c;
+  --bs-table-striped-color: #707a8c;
+}
 
 .ayu-mirage-bordered .nav {
   --bs-nav-link-color: #707a8c;

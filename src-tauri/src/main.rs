@@ -152,6 +152,14 @@ struct DockerRunResult {
     std_err: Option<String>,
 }
 
+fn server_log(app_handle: &tauri::AppHandle, message: String) {
+    println!("server log: {:?}", &message);
+    let emit_result = app_handle.emit_all("server-log", Payload { message, time: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis() });
+    if emit_result.is_err() {
+        println!("failed to send server log: {:?}", &emit_result.err());
+    }
+}
+
 async fn docker_run(docker: &Docker, cmd: Vec<&str>, std_in: Option<String>, app_handle: tauri::AppHandle) -> Result<DockerRunResult, String> {
     let image = get_latest_downloaded_comby_image(docker).await?;
 
@@ -164,32 +172,41 @@ async fn docker_run(docker: &Docker, cmd: Vec<&str>, std_in: Option<String>, app
         ..Default::default()
     };
     println!("checking for existing container");
+    let container_name = "/gui4comby-server".to_string();
     let existingContainer = maybe(docker.list_containers(Some(ListContainersOptions::<String> {
         all: true,
         filters: HashMap::from([
-            ("name".to_string(), vec!["/gui4comby-server".to_string()])
+            ("name".to_string(), vec![container_name.clone()])
         ]),
         ..Default::default()
     })).await)?;
 
+    let mut container_started = false;
+
     let id = match existingContainer.len() {
         0 => {
             println!("creating a container for use");
+            server_log(&app_handle, format!("Creating container {} to run commands with", container_name));
             maybe(docker
                 .create_container::<&str, &str>(Some(CreateContainerOptions { name: "gui4comby-server" }), container_config)
                 .await)?.id
         },
         _ => {
             println!("found an existing container for use");
+            container_started = existingContainer.get(0).as_ref().unwrap().state.as_ref().unwrap().eq_ignore_ascii_case("running");
             existingContainer.get(0).unwrap().id.as_ref().unwrap().to_string()
         }
     };
 
+    if container_started == false {
+        server_log(&app_handle, "Starting container".to_string())
+    }
     println!("starting container");
     maybe(docker.start_container::<String>(&id, None).await)?;
 
 
     println!("execing container");
+    server_log(&app_handle, format!("Docker Run\n$ {}", cmd.join(" ")));
     let exec = maybe(docker
         .create_exec(
             &id,
@@ -219,12 +236,6 @@ async fn docker_run(docker: &Docker, cmd: Vec<&str>, std_in: Option<String>, app
         }
 
         while let Some(Ok(msg)) = output.next().await {
-            // TODO differentiate LogOutput::StdOut and LogOutput::StdErr
-            let emit_result = app_handle.emit_all("server-log", Payload { message: format!("{:?}", &msg).into(), time: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis() });
-            if emit_result.is_err() {
-                println!("event error {:?}", &emit_result.err());
-            }
-            println!("msg: {:?}", &msg);
             match msg {
                 LogOutput::StdOut { message } => std_out.push_str( String::from_utf8_lossy(&message ).as_ref() ),
                 LogOutput::StdErr { message } => std_err.push_str( String::from_utf8_lossy(&message ).as_ref() ),
@@ -233,7 +244,6 @@ async fn docker_run(docker: &Docker, cmd: Vec<&str>, std_in: Option<String>, app
             }
         }
     } else {
-        println!("... 'unreachable' :(");
         unreachable!();
     }
     println!("exec done");

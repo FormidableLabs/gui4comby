@@ -21,6 +21,11 @@ glob.sync(path.resolve('themes/*.json')).forEach(filename => {
   --theme-focus-color: ${theme.colors['list.highlightForeground']};  
 } 
 
+.${className} .text-muted {
+  color: ${theme.colors['tab.inactiveForeground']};
+  --bs-table-striped-color: ${theme.colors['tab.inactiveForeground']};
+}
+
 .${className} .nav {
   --bs-nav-link-color: ${theme.colors['tab.inactiveForeground']};
   --bs-nav-link-hover-color: ${theme.colors['tab.activeForeground']};
