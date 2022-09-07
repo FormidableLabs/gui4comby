@@ -9,10 +9,10 @@ type Props = {
 }
 const EventLog = ({...rest}:Props) => {
   const [show, setShow] = useState(false);
-  const [log, setLog] = useRecoilState(eventLogState);
+  const [log, _] = useRecoilState(eventLogState);
 
   return (
-    <div {...rest} style={{ borderTop: 'solid 1px var(--bs-border-color)'}}>
+    <div {...rest} style={{ borderTop: 'solid 1px var(--bs-border-color)'}} className={'text-muted'}>
       {show &&
         <div style={{height: '20vh', overflow: 'auto', display: 'flex', flexDirection: 'column'}}>
           {log.map((log, i) => <div key={`${log.id}-${i}`} style={{
@@ -24,13 +24,14 @@ const EventLog = ({...rest}:Props) => {
               marginLeft: '1em',
               flexBasis: 60, flexShrink: 0, flexGrow: 0,
               marginRight: '1em',
+              textAlign: 'right'
             }}>
-              <small>
-                <span style={{display: 'inline-block'}}>{formatDate(new Date(log.time), 'M/DD/YYYY')}</span>
-                <span style={{display: 'inline-block'}}>{formatDate(new Date(log.time), 'H:mm A')}</span>
-              </small>
+            <small style={{fontSize: '.875em'}}>
+              <span style={{display: 'inline-block'}}>{formatDate(new Date(log.time), 'M/DD/YYYY')}</span>
+              <span style={{display: 'inline-block'}}>{formatDate(new Date(log.time), 'H:mm A')}</span>
+            </small>
             </span>
-            <span style={{}}><small>{log.message}</small></span>
+            <span style={{whiteSpace: 'pre'}}><small>{log.message}</small></span>
           </div>)}
         </div>
       }
@@ -40,11 +41,11 @@ const EventLog = ({...rest}:Props) => {
           textOverflow: "ellipsis",
           whiteSpace: 'nowrap',
           overflow: 'hidden'}}>
-          {log.length > 0 && <span>
-            <span style={{display: 'inline-block'}}><small>{formatDate(new Date(log[log.length-1].time), 'M/DD/YYYY')}</small></span>
-            <span style={{display: 'inline-block'}}><small>{formatDate(new Date(log[log.length-1].time), 'H:mm A')}</small></span>
+          {log.length > 0 && <small>
+            <span style={{display: 'inline-block'}}>{formatDate(new Date(log[log.length-1].time), 'M/DD/YYYY')}</span>
+            <span style={{display: 'inline-block', marginLeft: '0.25em'}}>{formatDate(new Date(log[log.length-1].time), 'H:mm A')}</span>
             <span style={{paddingLeft: '1em'}}><small>{log[log.length-1].message}</small></span>
-          </span>}
+          </small>}
         </span>
         <span style={{flexShrink:0, cursor: 'pointer', marginLeft: 'auto', marginRight: '0.5em', display: 'flex', alignItems: 'center', paddingLeft: '1em'}} onClick={() => setShow(s => !s)}><AiOutlineMessage/> <small>Event Log</small></span>
       </div>
