@@ -5,10 +5,10 @@ import './GettingStarted.css';
 import NewTabButton from "../NewTabButton/NewTabButton";
 import {TabType} from "../TabIcon/TabIcon";
 import {Nav, Navbar} from "react-bootstrap";
+import NewDocTabButton from "../NewTabButton/NewDocTabButton";
 
 const GettingStarted = () => {
   const mainSizeState = useRecoilValue(mainSizeAtom);
-  console.log('mainSizeState.rect!.height', mainSizeState.rect!.height);
 
   return (
     <div className='cover' style={{
@@ -30,13 +30,13 @@ const GettingStarted = () => {
           <Nav className={'flex-column'}>
             <Navbar.Brand><strong>Learn</strong></Navbar.Brand>
             <Nav.Item>
-              <NewTabButton type={TabType.Docs} text={'Overview'} style={{padding: 0}}/>
+              <NewDocTabButton docId={'overview'} text={'Overview'} style={{padding: 0}}/>
             </Nav.Item>
             <Nav.Item>
-              <NewTabButton type={TabType.Docs} text={'Basic Usage'} style={{padding: 0}}/>
+              <NewDocTabButton docId={'basic-usage'} text={'Basic Usage'} style={{padding: 0}}/>
             </Nav.Item>
             <Nav.Item>
-              <NewTabButton type={TabType.Docs} text={'Advanced Usage'} style={{padding: 0}}/>
+              <NewDocTabButton docId={'advanced-usage'} text={'Advanced Usage'} style={{padding: 0}}/>
             </Nav.Item>
           </Nav>
         </div>
@@ -51,7 +51,6 @@ const GettingStarted = () => {
 
       </div>
     </div>
-    // <VerticalExpander style={{}} header={<div><h1>GUI 4 Comby</h1><h2>Tag line</h2></div>}>Getting Started</VerticalExpander>
   )
 }
 export default GettingStarted;
