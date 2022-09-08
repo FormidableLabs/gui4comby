@@ -1,4 +1,4 @@
-import {atom, selector} from "recoil";
+import {atom, atomFamily, selector} from "recoil";
 import {TabType} from "./components/TabIcon/TabIcon";
 
 let id = 0;
@@ -39,4 +39,9 @@ export const mainSizeAtom = atom<MainSizeState>({
   default: {
     sized: false,
   }
+});
+
+export const appThemeAtom = atom({
+  key: 'appTheme',
+  default: 'ayu-mirage-bordered'
 });

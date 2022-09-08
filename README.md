@@ -18,6 +18,7 @@ This template should help get you started developing with Tauri, React and Types
 * Docker credentials - application passwords: [Manage access tokens | Docker Documentation](https://docs.docker.com/docker-hub/access-tokens/)
 * https://github.com/ydeshayes/react-highlight for highlighting matches/rewrites
 * VSCode theme reference https://code.visualstudio.com/api/references/theme-color
+* Generate ace theme from vscode theme https://github.com/ayu-theme/ayu-ace/blob/master/scripts/update.js
 
 ## Todo
 - [x] App: Support tabs to accommodate multiple work streams

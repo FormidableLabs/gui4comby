@@ -1,0 +1,160 @@
+  .themed .ace_gutter {
+    background: var(--colors-editor-background);
+    color: var(--colors-editorLineNumber-foreground)
+  }
+
+  .themed .ace_print-margin {
+  width: 1px;
+  background: var(--colors-editor-background);
+  }
+
+  .themed {
+  background-color: var(--colors-editor-background);
+  color: var(--colors-editor-foreground);
+  }
+
+  .themed .ace_cursor {
+  color: var(--colors-editorCursor-foreground)
+  }
+
+  .themed .ace_marker-layer .ace_selection {
+  background: var(--colors-selection-background)
+  }
+
+  .themed.ace_multiselect .ace_selection.ace_start {
+  box-shadow: 0 0 3px 0px var(--colors-widget-shadow);
+  border-radius: 2px
+  }
+
+  .themed .ace_marker-layer .ace_step {
+  background: var(--colors-editorMarkerNavigation-background)
+  }
+
+  .themed .ace_marker-layer .ace_bracket {
+  margin: -1px 0 0 -1px;
+  border: 1px solid var(--colors-editorOverviewRuler-bracketMatchForeground)
+  }
+
+  .themed .ace_marker-layer .ace_active-line {
+  background: var(--colors-editor-lineHighlightBackground)
+  }
+
+  .themed .ace_gutter-active-line {
+  background-color: var(--colors-editor-lineHighlightBackground)
+  }
+
+  .themed .ace_marker-layer .ace_selected-word {
+  border: 1px solid var(--colors-editor-wordHighlightBorder);
+  background-color: 1px solid var(--colors-editor-wordHighlightBackground);
+  }
+
+  .themed .ace_fold {
+  background-color: var(--colors-editor-rangeHighlightBackground);
+  border-color: var(--colors-editor-rangeHighlightBackground);
+  }
+
+  .themed .ace_keyword {
+    color: var(--scope-keyword-foreground);
+  }
+
+  .themed .ace_keyword.ace_operator {
+  color: var(--syntax-operator);
+  }
+
+  .themed .ace_constant.ace_language {
+  color: var(--syntax-constant);
+  }
+
+  .themed .ace_constant.ace_numeric {
+  color: var(--syntax-special);
+  }
+
+  .themed .ace_constant.ace_character {
+  color: var(--syntax-constant);
+  }
+
+  .themed .ace_constant.ace_character.ace_escape {
+  color: var(--syntax-special);
+  }
+
+  .themed .ace_constant.ace_other {
+  color: var(--scope-constant-other-foreground);
+  }
+
+  .themed .ace_support.ace_function {
+  color: var(--scope-support-function-foreground);
+  }
+
+  .themed .ace_support.ace_constant {
+  font-style: italic;
+  color: var(--scope-support-constant-foreground);
+  }
+
+  .themed .ace_support.ace_class {
+  font-style: italic;
+  color: var(--scope-support-class-foreground);
+  }
+
+  .themed .ace_support.ace_type {
+  font-style: italic;
+  color: var(--scope-support-type-foreground)
+  }
+
+  .themed .ace_storage {
+  color: var(--scope-storage-foreground);
+  }
+
+  .themed .ace_storage.ace_type {
+  color: var(--scope-source-c-storage-type-foreground);
+  }
+
+  .themed .ace_invalid {
+  color: var(--scope-invalid-foreground);
+  }
+
+  .themed .ace_invalid.ace_deprecated {
+  color: var(--scope-markup-strike-foreground);
+  background-color: var(--scope-markup-raw-background);
+  }
+
+  .themed .ace_string {
+  color: var(--scope-string-foreground);
+  }
+
+  .themed .ace_string.ace_regexp {
+  color: var(--scope-string-regexp-foreground);
+  }
+
+  .themed .ace_comment {
+  font-style: italic;
+  color: var(--scope-comment-foreground);
+  }
+
+  .themed .ace_variable {
+  color: var(--scope-variable-foreground);
+  }
+
+  .themed .ace_variable.ace_language {
+  font-style: italic;
+  color: var(--scope-variable-language-foreground);
+  }
+
+  .themed .ace_variable.ace_parameter {
+  color: var(--scope-variable-parameter-foreground);
+  }
+
+  .themed .ace_entity.ace_other.ace_attribute-name {
+  color: var(--scope-entity-other-attribute-name-foreground);
+  }
+
+  .themed .ace_entity.ace_name.ace_function {
+  color: var(--scope-entity-name-function-foreground);
+  }
+
+  .themed .ace_entity.ace_name.ace_tag, .themed .ace_meta.ace_tag {
+  color: var(--syntax-tag);
+  }
+
+  .themed .ace_identifier {
+    color: var(--scope-variable-member-foreground)
+  }

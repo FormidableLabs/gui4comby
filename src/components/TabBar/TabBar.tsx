@@ -1,6 +1,6 @@
 import {Nav} from "react-bootstrap";
 import HorizontalExpander from "../HorizontalExpander/HorizontalExpander";
-import './TabBar.css';
+import './TabBar.scss';
 import NewTabButton from "../NewTabButton/NewTabButton";
 import TabIcon, {TabType} from "../TabIcon/TabIcon";
 import {getId, tabsState} from "../../App.recoil";

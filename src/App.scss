@@ -1,0 +1,65 @@
+#app, #sidesheet {
+	height:100%;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-box-align:stretch;
+	color: var(--colors-foreground);
+  	background: var(--colors-panel-background);
+
+	a {
+		color: var(--colors-textLink-foreground);
+
+		&:hover {
+			color: var(--colors-textLink-activeForeground);
+		}
+	}
+
+	blockquote {
+		background: var(--colors-textBlockQuote-background);
+		color: var(--colors-textPreformat-foreground);
+		border-left: 8px solid var(--colors-focusBorder);
+		padding: 1em;
+
+		p {
+			padding-bottom: 0;
+			margin-bottom: 0;
+		}
+	}
+
+	.form-control, .form-select, .input-group-text {
+		background: var(--colors-editor-background);
+		border-color: var(--colors-input-border);
+		color: var(--colors-input-foreground);
+
+		&:focus {
+			outline: 0;
+		}
+	}
+
+
+
+}
+
+#header {
+	height:42px;
+	overflow-y: hidden;
+	overflow-x: auto;
+}
+
+#footer {
+	/*height:30px;*/
+}
+
+#content {
+	-webkit-box-flex:1;
+	display: -webkit-box;
+	-webkit-box-orient: horizontal;
+	-webkit-box-align:stretch;
+}
+
+#sidebar { width:120px; }
+
+#main {
+	-webkit-box-flex:1;
+	overflow: scroll;
+}
