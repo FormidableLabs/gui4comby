@@ -3,7 +3,7 @@ import path from 'path';
 import glob from 'glob';
 
 const token_color = (theme, scope, setting) => {
-  const found = theme.tokenColors.find(token => {
+  const found = theme.tokenColors?.find(token => {
     if(typeof scope === "undefined"){
       return typeof token.scope === "undefined";
     } else {
@@ -86,10 +86,10 @@ const map = (theme) => {
         [cur.replace(/\./g, '-')]: theme.colors[cur]
       } : prev;
     }, {}),
-    "scope": theme.tokenColors.reduce((prev, cur) => {
+    "scope": theme.tokenColors?.reduce((prev, cur) => {
       return {
         ...prev,
-        ...cur.scope ? cur.scope.reduce((prev, key)=>{
+        ...Array.isArray(cur.scope) ? cur.scope.reduce((prev, key)=>{
           return {...prev, [key.replace(/\.|\s/g, '-')]: {
             foreground: cur.settings.foreground,
             background: cur.settings.background,
@@ -100,6 +100,9 @@ const map = (theme) => {
   };
 };
 
+
+const variable_list = [];
+
 const toCssVariables = (obj, label= null) => {
   return Object.keys(obj).reduce((prev, key) => {
     if(typeof obj[key] === 'object') {
@@ -108,7 +111,9 @@ const toCssVariables = (obj, label= null) => {
         ...toCssVariables(obj[key], label ? `${label}-${key}` : key)];
     } else {
       let color = obj[key];
-      if(typeof color !== 'undefined'){
+      let variable = `--${label ? `${label}-${key}`: key}`;
+      // only generate variable if the color is defined and it is in our allow list
+      if(typeof color !== 'undefined' && variable_list.indexOf(variable) !== -1){
         return [...prev, `--${label ? `${label}-${key}`: key}: ${color};`]
       } else {
         return prev;
@@ -120,26 +125,47 @@ const toCssVariables = (obj, label= null) => {
 let output = '';
 const themes = [];
 
-glob.sync(path.resolve('themes/*.json')).forEach(filename => {
-  const themeContent = fs.readFileSync(filename).toString('utf8');
-  const theme = JSON.parse(themeContent);
-  const className = path.basename(filename).split('.').shift();
-  const mapped = map(theme);
+// find variables being used and save to a list of what we want to generate
+glob.sync(path.resolve('src/**/!(variables).+(scss|css)')).forEach(filename => {
+  const source = fs.readFileSync(filename).toString('utf8');
+  const matches = source.matchAll(/var\((--[a-zA-Z-]+)\)/g);
+  if(!matches){ return }
+  for( let match of matches) {
+    variable_list.push( match[1] );
+  }
+});
 
-  const cssContent = `
-  .${className} {
-${toCssVariables(mapped).map(variable => `    ${variable}`).join("\n")}
-  }  
-  `;
+glob.sync(path.resolve('themes/sources/*.json')).forEach(filename => {
+  try {
+    const themeContent = fs.readFileSync(filename)
+      .toString('utf8')
+      // remove comments
+      .replaceAll(/^\s*\/\/.*$/g, '')
+      .replaceAll(/\s+\/\/.*$/g, '')
+      // remove trailing commas
+      .replaceAll(/,\s*}/g, "\n}");
+    const theme = JSON.parse(themeContent);
+    const className = path.basename(filename).split('.').shift().replaceAll(/\s/g, '-');
+    const mapped = map(theme);
 
-  themes.push({
-    type: theme.type,
-    value: className,
-    label: className.replace(/(^[a-z]|-[a-z])/g, v => v.toUpperCase().replace('-',' ')) + ` (${theme.type})`
-  });
+    const cssContent = `
+    .${className} {
+  ${toCssVariables(mapped).map(variable => `    ${variable}`).join("\n")}
+    }  
+    `;
 
-  output += cssContent;
-  console.log(cssContent);
+    themes.push({
+      type: theme.type,
+      value: className,
+      label: className.replace(/(^[a-z]|-[a-z])/g, v => v.toUpperCase().replace('-',' ')) + ` (${theme.type})`
+    });
+
+    output += cssContent;
+    console.log(cssContent);
+  } catch (err) {
+    console.log('failed to process', filename, err);
+    fs.unlinkSync(filename);
+  }
 })
 
 fs.writeFileSync(path.resolve('src/variables.css'), output);

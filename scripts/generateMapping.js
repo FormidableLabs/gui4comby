@@ -4,7 +4,7 @@
 // displays a list of each sample entry and potential candidates
 // which is then used as a reference when crafting the mapping by hand
 import fs from 'fs';
-const themeFile = fs.readFileSync('./themes/ayu-mirage-bordered.json').toString('utf-8');
+const themeFile = fs.readFileSync('./themes/sources/ayu-ayu-mirage-bordered.json').toString('utf-8');
 const theme = JSON.parse(themeFile);
 const sample = {
   "syntax": {
