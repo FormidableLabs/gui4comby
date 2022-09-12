@@ -145,7 +145,11 @@ glob.sync(path.resolve('themes/sources/*.json')).forEach(filename => {
       // remove trailing commas
       .replaceAll(/,\s*}/g, "\n}");
     const theme = JSON.parse(themeContent);
-    const className = path.basename(filename).split('.').shift().replaceAll(/\s/g, '-');
+    const className = path.basename(filename)
+      .split('.')
+      .shift()
+      .replaceAll(/\s/g, '-')
+      .replaceAll(/(![a-zA-Z0-9-])/g, '');
     const mapped = map(theme);
 
     const cssContent = `
