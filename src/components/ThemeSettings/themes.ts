@@ -713,13 +713,13 @@ export const themes = [
     "label": "Cold Horizon Vscode Normal (dark)"
   },
   {
-    "value": "ColdFusion-cfml_dark",
-    "label": "ColdFusion Cfml_dark (undefined)"
+    "value": "ColdFusion-cfmldark",
+    "label": "ColdFusion Cfmldark (undefined)"
   },
   {
     "type": "light",
-    "value": "ColdFusion-cfml_light",
-    "label": "ColdFusion Cfml_light (light)"
+    "value": "ColdFusion-cfmllight",
+    "label": "ColdFusion Cfmllight (light)"
   },
   {
     "type": "dark",
@@ -796,8 +796,8 @@ export const themes = [
   },
   {
     "type": "dark",
-    "value": "darkpp-italic-Dark++-Italic-color-theme",
-    "label": "Darkpp Italic-Dark++-Italic Color Theme (dark)"
+    "value": "darkpp-italic-Dark-Italic-color-theme",
+    "label": "Darkpp Italic-Dark-Italic Color Theme (dark)"
   },
   {
     "type": "light",
@@ -993,8 +993,8 @@ export const themes = [
   },
   {
     "type": "dark",
-    "value": "hopscotch-Hopscotch-[proofreader]",
-    "label": "Hopscotch-Hopscotch-[proofreader] (dark)"
+    "value": "hopscotch-Hopscotch-proofreader",
+    "label": "Hopscotch-Hopscotch Proofreader (dark)"
   },
   {
     "type": "dark",
@@ -1003,8 +1003,8 @@ export const themes = [
   },
   {
     "type": "dark",
-    "value": "hopscotch-Hopscotch-Mono-[proofreader]",
-    "label": "Hopscotch-Hopscotch-Mono-[proofreader] (dark)"
+    "value": "hopscotch-Hopscotch-Mono-proofreader",
+    "label": "Hopscotch-Hopscotch-Mono Proofreader (dark)"
   },
   {
     "type": "dark",
@@ -1061,13 +1061,13 @@ export const themes = [
   },
   {
     "type": "dark",
-    "value": "light-plus-tweaked-Dark+-Tweaked-color-theme",
-    "label": "Light Plus Tweaked-Dark+-Tweaked Color Theme (dark)"
+    "value": "light-plus-tweaked-Dark-Tweaked-color-theme",
+    "label": "Light Plus Tweaked-Dark-Tweaked Color Theme (dark)"
   },
   {
     "type": "light",
-    "value": "light-plus-tweaked-Light+-Tweaked-color-theme",
-    "label": "Light Plus Tweaked-Light+-Tweaked Color Theme (light)"
+    "value": "light-plus-tweaked-Light-Tweaked-color-theme",
+    "label": "Light Plus Tweaked-Light-Tweaked Color Theme (light)"
   },
   {
     "type": "dark",
@@ -1156,8 +1156,8 @@ export const themes = [
   },
   {
     "type": "dark",
-    "value": "merko-green-theme-merko's-green-theme-color-theme",
-    "label": "Merko Green Theme Merko's Green Theme Color Theme (dark)"
+    "value": "merko-green-theme-merkos-green-theme-color-theme",
+    "label": "Merko Green Theme Merkos Green Theme Color Theme (dark)"
   },
   {
     "type": "dark",

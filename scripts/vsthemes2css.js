@@ -149,7 +149,7 @@ glob.sync(path.resolve('themes/sources/*.json')).forEach(filename => {
       .split('.')
       .shift()
       .replaceAll(/\s/g, '-')
-      .replaceAll(/(![a-zA-Z0-9-])/g, '');
+      .replaceAll(/[^a-zA-Z0-9-]/g, '');
     const mapped = map(theme);
 
     const cssContent = `

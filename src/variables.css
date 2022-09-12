@@ -4923,7 +4923,7 @@
     --scope-support-type-foreground: #1FDAD9;
     }  
     
-    .ColdFusion-cfml_dark {
+    .ColdFusion-cfmldark {
       --syntax-tag: #569cd6;
     --syntax-constant: #569cd6;
     --syntax-operator: #d4d4d4;
@@ -4936,7 +4936,7 @@
     --scope-variable-foreground: #9CDCFE;
     }  
     
-    .ColdFusion-cfml_light {
+    .ColdFusion-cfmllight {
       --syntax-tag: #0000ff;
     --syntax-constant: #0000ff;
     --syntax-operator: #0066CC;
@@ -5348,7 +5348,7 @@
     --scope-string-regexp-foreground: #811f3f;
     }  
     
-    .darkpp-italic-Dark++-Italic-color-theme {
+    .darkpp-italic-Dark-Italic-color-theme {
       --syntax-tag: #569CD6;
     --syntax-constant: #FFAB40;
     --syntax-operator: #FFD54F;
@@ -6499,7 +6499,7 @@
     --colors-widget-shadow: #00000066;
     }  
     
-    .hopscotch-Hopscotch-[proofreader] {
+    .hopscotch-Hopscotch-proofreader {
       --colors-editor-background: #322931;
     --colors-editor-foreground: #797379;
     --colors-editor-lineHighlightBackground: #0e4842;
@@ -6526,7 +6526,7 @@
     --scope-string-foreground: #8fc13e;
     }  
     
-    .hopscotch-Hopscotch-Mono-[proofreader] {
+    .hopscotch-Hopscotch-Mono-proofreader {
       --colors-editor-background: #322931;
     --colors-editor-foreground: #797379;
     --colors-editor-lineHighlightBackground: #0e4842;
@@ -6790,7 +6790,7 @@
     --scope-entity-other-attribute-name-foreground: #da564a;
     }  
     
-    .light-plus-tweaked-Dark+-Tweaked-color-theme {
+    .light-plus-tweaked-Dark-Tweaked-color-theme {
       --syntax-tag: #569cd6;
     --syntax-constant: #569cd6;
     --syntax-operator: #d4d4d4;
@@ -6813,7 +6813,7 @@
     --scope-variable-foreground: #9cdcfe;
     }  
     
-    .light-plus-tweaked-Light+-Tweaked-color-theme {
+    .light-plus-tweaked-Light-Tweaked-color-theme {
       --syntax-tag: #0000fF;
     --syntax-constant: #0000fF;
     --syntax-operator: #000000;
@@ -7410,7 +7410,7 @@
     --scope-markup-strike-foreground: #ffe6b3;
     }  
     
-    .merko-green-theme-merko's-green-theme-color-theme {
+    .merko-green-theme-merkos-green-theme-color-theme {
       --syntax-tag: #b9b9b9;
     --syntax-constant: #daf1bb;
     --colors-editor-background: #0a0f0b;
