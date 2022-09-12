@@ -5,18 +5,15 @@
 
 use std::cmp::Ordering;
 use std::collections::HashMap;
-use std::fmt::format;
-use std::future::Future;
-use std::sync::Mutex;
+use std::fs;
+use std::path::{MAIN_SEPARATOR, Path};
 use bollard::container::{Config, CreateContainerOptions, ListContainersOptions, LogOutput};
 use bollard::Docker;
 use bollard::errors::Error;
 use bollard::exec::{CreateExecOptions, StartExecResults};
-use bollard::image::{CreateImageOptions, ListImagesOptions, SearchImagesOptions};
+use bollard::image::{CreateImageOptions, ListImagesOptions};
 use futures_util::{TryStreamExt, StreamExt, future};
 use std::time::{SystemTime, UNIX_EPOCH};
-use bollard::models::{ContainerSummary, ImageSearchResponseItem, ImageSummary};
-use serde::Serialize;
 use tauri::{Manager};
 use tokio::io::AsyncWriteExt;
 
@@ -121,7 +118,7 @@ async fn download_comby_image(state: tauri::State<'_, DockerState>, credentials:
         Err(error) => return Err(format!("Docker Error: {}", error.to_string())),
     };
     // TODO: use credentials to download image
-    let result = match docker.create_image(
+    let _result = match docker.create_image(
         Some(CreateImageOptions {
             from_image: IMAGE,
             ..Default::default()
@@ -173,7 +170,7 @@ async fn docker_run(docker: &Docker, cmd: Vec<&str>, std_in: Option<String>, app
     };
     println!("checking for existing container");
     let container_name = "/gui4comby-server".to_string();
-    let existingContainer = maybe(docker.list_containers(Some(ListContainersOptions::<String> {
+    let existing_container = maybe(docker.list_containers(Some(ListContainersOptions::<String> {
         all: true,
         filters: HashMap::from([
             ("name".to_string(), vec![container_name.clone()])
@@ -183,7 +180,7 @@ async fn docker_run(docker: &Docker, cmd: Vec<&str>, std_in: Option<String>, app
 
     let mut container_started = false;
 
-    let id = match existingContainer.len() {
+    let id = match existing_container.len() {
         0 => {
             println!("creating a container for use");
             server_log(&app_handle, format!("Creating container {} to run commands with", container_name));
@@ -193,8 +190,8 @@ async fn docker_run(docker: &Docker, cmd: Vec<&str>, std_in: Option<String>, app
         },
         _ => {
             println!("found an existing container for use");
-            container_started = existingContainer.get(0).as_ref().unwrap().state.as_ref().unwrap().eq_ignore_ascii_case("running");
-            existingContainer.get(0).unwrap().id.as_ref().unwrap().to_string()
+            container_started = existing_container.get(0).as_ref().unwrap().state.as_ref().unwrap().eq_ignore_ascii_case("running");
+            existing_container.get(0).unwrap().id.as_ref().unwrap().to_string()
         }
     };
 
@@ -294,6 +291,113 @@ fn maybe_ref<S,F>(result: &Result<S, F>) -> Result<&S, String> where F: std::fmt
     }
 }
 
+#[derive(Clone, serde::Serialize)]
+struct DirInfoResult {
+    resolved_path: String,
+    exists: bool,
+    children: Option<Vec<String>>,
+    candidates: Option<Vec<String>>,
+    home_dir: Option<String>,
+    in_home_dir: Option<bool>,
+    path_separator: String,
+}
+
+use resolve_path::PathResolveExt;
+use tauri::regex::Regex;
+
+#[tauri::command]
+fn dir_info(path: String) -> Result<DirInfoResult, String> {
+    let home_result = "~/".try_resolve();
+    let home_dir = match home_result {
+        Ok(_) => Some(format!("{}", home_result.as_ref().unwrap().to_string_lossy())),
+        Err(_) => None,
+    };
+
+    let search_path: String = match home_dir {
+        None => match path.starts_with("~") {
+            true => { return Err(format!("Could not resolve home path: {:?}", &home_result.err())); },
+            false => path
+        }
+        Some(_) => {
+            let re = Regex::new(r"^~/?").unwrap();
+            let result = re.replace_all(path.as_str(), home_dir.as_ref().unwrap().as_str());
+            result.to_string()
+        }
+    };
+
+    let resolved_path = maybe(search_path.try_resolve())?;
+    let children: Option<Vec<String>> = match resolved_path.exists() {
+        true => Some(maybe(fs::read_dir(resolved_path.as_ref()))?.into_iter()
+                .filter(|r| r.is_ok())
+                .map(|r| r.unwrap().path()) // This is safe, since we only have the Ok variants
+                .filter(|r| r.is_dir()) // Filter out non-folders
+                .map(|r| format!("{}",r.to_string_lossy()))
+                .collect()),
+        false => None
+    };
+
+    let candidates: Option<Vec<String>> = match resolved_path.exists() {
+        true => None,
+        false => match resolved_path.parent() {
+            None => None,
+            Some(parent) => Some(maybe(fs::read_dir(parent))?.into_iter()
+                .filter(|r| r.is_ok()) // Get rid of Err variants for Result<DirEntry>
+                .map(|r| r.unwrap().path()) // This is safe, since we only have the Ok variants
+                .filter(|r| r.is_dir()) // Filter out non-folders
+                .filter(|r| {
+                    // Given ~/path/to/foba
+                    // Matches:
+                    //   ~/path/to/foba
+                    //   ~/path/to/fooBar
+                    //   ~/path/to/fooBuzAdmin
+                    let parent = match r.parent() {
+                        None => "".to_string(),
+                        Some(_) => format!("{}{}", r.parent().unwrap().to_string_lossy(), MAIN_SEPARATOR)
+                    };
+                    let candidate = r.to_string_lossy();
+                    let search = resolved_path.as_ref().to_string_lossy().replace(&parent, "");
+                    //let pattern: String = resolved_path.as_ref().to_string_lossy().replace(&parent, "").chars().enumerate().into_iter().map(|c| format!(".*{}", c.1)).collect();
+                    let pattern: String = search
+                        .chars().enumerate().into_iter()
+                        .map(|e| format!("{}", e.1))
+                        .collect::<Vec<String>>()
+                        .join(".*");
+                    if pattern.len() < 1 {  return true; }
+                    let re_pattern = format!("{}", pattern);
+                    let candidate_child = candidate.replace(&parent, "");
+
+                    // if we only want to match items that start w/ what is left in remainder
+                    //return candidate_child.starts_with(&search);
+
+                    let re = Regex::new(&re_pattern);
+                    if re.is_err() { return true; }
+                    return re.unwrap().is_match(&candidate_child);
+                }) // filter out regex matches
+                .map(|r| format!("{}", r.to_string_lossy()))
+                .collect())
+        }
+    };
+
+    Ok(DirInfoResult {
+        resolved_path: format!("{}", &resolved_path.to_string_lossy()),
+        exists: resolved_path.exists(),
+        children,
+        candidates,
+        home_dir: match &home_dir {
+            None => None,
+            Some(d) => Some(format!("{}", d))
+        },
+        in_home_dir: match resolved_path.exists() {
+            true => match &home_dir {
+                None => Some(false),
+                Some(_) => Some(resolved_path.starts_with(home_dir.unwrap()))
+            },
+            false => None
+        },
+        path_separator: format!("{}", MAIN_SEPARATOR)
+    })
+}
+
 fn main() {
     let docker = Docker::connect_with_local_defaults();
     // let docker_result = docker.ok_or(format!("Docker Error: {}", docker.err.to_string()));
@@ -301,6 +405,7 @@ fn main() {
         .manage(DockerState { docker })
         .invoke_handler(tauri::generate_handler![
             greet,
+            dir_info,
             docker_version,
             comby_image,
             download_comby_image,

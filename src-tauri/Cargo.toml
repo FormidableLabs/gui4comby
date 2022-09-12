@@ -20,6 +20,7 @@ tauri = { version = "1.0.0", features = ["api-all"] }
 bollard = "0.13"
 futures-util = "0.3"
 tokio = { version = "1.7", features = ["time", "net", "io-util"] }
+resolve-path = "0.1.0"
 
 [features]
 # by default Tauri runs in production mode
