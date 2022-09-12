@@ -1,5 +1,5 @@
 
-    .1mm-themes-1mm-themes-dark-plus {
+    .Onemm-themes-1mm-themes-dark-plus {
       --syntax-tag: #569cd6;
     --syntax-constant: #569cd6;
     --syntax-operator: #d16969;
@@ -15,7 +15,7 @@
     --scope-variable-foreground: #9CDCFE;
     }  
     
-    .1mm-themes-1mm-themes-dracula {
+    .Onemm-themes-1mm-themes-dracula {
       --syntax-tag: #BD93F9;
     --colors-editor-background: #282a36;
     --colors-editorMarkerNavigation-background: #1D2128;
@@ -44,7 +44,7 @@
     --scope-support-constant-foreground: #BD93F9;
     }  
     
-    .1mm-themes-1mm-themes-monokai {
+    .Onemm-themes-1mm-themes-monokai {
       --syntax-tag: #FD971F;
     --syntax-constant: #AE81FF;
     --colors-editor-background: #272822;
@@ -65,7 +65,7 @@
     --scope-support-type-foreground: #66D9EF;
     }  
     
-    .1mm-themes-1mm-themes-one-dark-pro {
+    .Onemm-themes-1mm-themes-one-dark-pro {
       --syntax-constant: #56B6C2;
     --syntax-operator: #d19a66ff;
     --colors-editor-background: #282c34;
@@ -81,7 +81,7 @@
     --scope-support-class-foreground: #abb2bf;
     }  
     
-    .2077-theme-2077-theme-color-theme {
+    .Two077-theme-2077-theme-color-theme {
       --syntax-tag: #ff2e97;
     --syntax-constant: #ff2e97;
     --colors-foreground: #ffffff;
@@ -103,7 +103,7 @@
     --scope-support-class-foreground: #ff2cf1;
     }  
     
-    .8bit-dark-color-theme {
+    .Eightbit-dark-color-theme {
       --syntax-constant: #F00;
     --colors-focusBorder: #FF0;
     --colors-foreground: #FFF;
@@ -122,7 +122,7 @@
     --colors-tab-inactiveForeground: #FFF;
     }  
     
-    .8bit-light-color-theme {
+    .Eightbit-light-color-theme {
       --syntax-constant: #F00;
     --colors-focusBorder: #00F;
     --colors-foreground: #000;
@@ -213,7 +213,6 @@
     --scope-variable-language-foreground: #c8d1df;
     --scope-entity-other-attribute-name-foreground: #E6AC6F;
     --scope-string-regexp-foreground: #98c379;
-    --scope-markup-strike-foreground: ;
     }  
     
     .alek-kai-theme-alekKai {
@@ -3197,7 +3196,6 @@
     --colors-editorMarkerNavigation-background: #292D3E;
     --scope-comment-foreground: #666d93;
     --scope-invalid-foreground: #ff526f;
-    --scope-keyword-foreground: #;
     --scope-entity-name-function-foreground: #80a8ff;
     --scope-support-function-foreground: #80a8ff;
     --scope-string-foreground: #c3e88d;
@@ -3206,7 +3204,6 @@
     --scope-variable-foreground: #9AA1CD;
     --scope-variable-parameter-foreground: #9AA1CD;
     --scope-variable-language-foreground: #ff526f;
-    --scope-constant-other-foreground: #;
     }  
     
     .beautiful-ui-Material-color-theme {
@@ -5000,7 +4997,6 @@
     --scope-variable-language-foreground: #FFFFFF;
     --scope-entity-other-attribute-name-foreground: #D9C891;
     --scope-string-regexp-foreground: #798494;
-    --scope-markup-strike-foreground: ;
     }  
     
     .cyberpunk-cyberpunk-umbra-color-theme {
@@ -5036,7 +5032,6 @@
     --scope-variable-language-foreground: #ff5680;
     --scope-entity-other-attribute-name-foreground: #ee6dff;
     --scope-string-regexp-foreground: #89DDFF;
-    --scope-markup-strike-foreground: ;
     }  
     
     .dank-neon-Dank-Neon-color-theme-light {
@@ -6043,7 +6038,6 @@
     --scope-variable-language-foreground: #FF5370;
     --scope-entity-other-attribute-name-foreground: #25a2a6;
     --scope-string-regexp-foreground: #708394;
-    --scope-markup-strike-foreground: ;
     }  
     
     .freecodecamp-dark-vscode-theme-freeCodeCamp-Dark-Theme-color-theme {
@@ -7531,7 +7525,6 @@
     --scope-variable-language-foreground: #66caff;
     --scope-entity-other-attribute-name-foreground: #C0C0C0;
     --scope-string-regexp-foreground: #FFA54F;
-    --scope-markup-strike-foreground: ;
     }  
     
     .miniprogram-vscode-extension-light {
@@ -7555,7 +7548,6 @@
     --scope-variable-language-foreground: #0024D6;
     --scope-entity-other-attribute-name-foreground: #696969;
     --scope-string-regexp-foreground: #2082AB;
-    --scope-markup-strike-foreground: ;
     }  
     
     .mirage-Mirage-color-theme {
@@ -10678,7 +10670,6 @@
     --scope-variable-language-foreground: #FF5370;
     --scope-entity-other-attribute-name-foreground: #C792EA;
     --scope-string-regexp-foreground: #89DDFF;
-    --scope-markup-strike-foreground: ;
     }  
     
     .vsc-community-material-theme-Community-Material-Theme-Darker {
@@ -10715,7 +10706,6 @@
     --scope-variable-language-foreground: #FF5370;
     --scope-entity-other-attribute-name-foreground: #C792EA;
     --scope-string-regexp-foreground: #89DDFF;
-    --scope-markup-strike-foreground: ;
     }  
     
     .vsc-community-material-theme-Community-Material-Theme-Default-High-Contrast {
@@ -10752,7 +10742,6 @@
     --scope-variable-language-foreground: #FF5370;
     --scope-entity-other-attribute-name-foreground: #C792EA;
     --scope-string-regexp-foreground: #89DDFF;
-    --scope-markup-strike-foreground: ;
     }  
     
     .vsc-community-material-theme-Community-Material-Theme-Default {
@@ -10789,7 +10778,6 @@
     --scope-variable-language-foreground: #FF5370;
     --scope-entity-other-attribute-name-foreground: #C792EA;
     --scope-string-regexp-foreground: #89DDFF;
-    --scope-markup-strike-foreground: ;
     }  
     
     .vsc-community-material-theme-Community-Material-Theme-Lighter-High-Contrast {
@@ -10826,7 +10814,6 @@
     --scope-variable-language-foreground: #E53935;
     --scope-entity-other-attribute-name-foreground: #7C4DFF;
     --scope-string-regexp-foreground: #39ADB5;
-    --scope-markup-strike-foreground: ;
     }  
     
     .vsc-community-material-theme-Community-Material-Theme-Lighter {
@@ -10863,7 +10850,6 @@
     --scope-variable-language-foreground: #E53935;
     --scope-entity-other-attribute-name-foreground: #7C4DFF;
     --scope-string-regexp-foreground: #39ADB5;
-    --scope-markup-strike-foreground: ;
     }  
     
     .vsc-community-material-theme-Community-Material-Theme-Ocean-High-Contrast {
@@ -10900,7 +10886,6 @@
     --scope-variable-language-foreground: #FF5370;
     --scope-entity-other-attribute-name-foreground: #C792EA;
     --scope-string-regexp-foreground: #89DDFF;
-    --scope-markup-strike-foreground: ;
     }  
     
     .vsc-community-material-theme-Community-Material-Theme-Ocean {
@@ -10937,7 +10922,6 @@
     --scope-variable-language-foreground: #FF5370;
     --scope-entity-other-attribute-name-foreground: #C792EA;
     --scope-string-regexp-foreground: #89DDFF;
-    --scope-markup-strike-foreground: ;
     }  
     
     .vsc-community-material-theme-Community-Material-Theme-Palenight-High-Contrast {
@@ -10974,7 +10958,6 @@
     --scope-variable-language-foreground: #FF5370;
     --scope-entity-other-attribute-name-foreground: #C792EA;
     --scope-string-regexp-foreground: #89DDFF;
-    --scope-markup-strike-foreground: ;
     }  
     
     .vsc-community-material-theme-Community-Material-Theme-Palenight {
@@ -11011,7 +10994,6 @@
     --scope-variable-language-foreground: #FF5370;
     --scope-entity-other-attribute-name-foreground: #C792EA;
     --scope-string-regexp-foreground: #89DDFF;
-    --scope-markup-strike-foreground: ;
     }  
     
     .vscode-chester-atom-vscodechesteratom {
@@ -11088,7 +11070,6 @@
     --scope-variable-language-foreground: #FF5370;
     --scope-entity-other-attribute-name-foreground: #C792EA;
     --scope-string-regexp-foreground: #89DDFF;
-    --scope-markup-strike-foreground: ;
     }  
     
     .vscode-office-OneDark-Modern {

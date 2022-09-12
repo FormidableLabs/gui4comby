@@ -26,6 +26,7 @@ import DocPage from "./components/Docs/DocPage";
 import useResizeObserver from "@react-hook/resize-observer";
 import {appThemeAtom, mainSizeAtom, MainSizeState} from "./App.recoil";
 import ThemeSettings from "./components/ThemeSettings/ThemeSettings";
+import SettingsIndex from "./components/SettingsIndex/SettingsIndex";
 
 
 export const useMainSizeObserver = () => {
@@ -105,11 +106,7 @@ function App() {
       {state?.backgroundLocation && (
           <Routes>
             <Route path={"/settings"}>
-              <Route index={true} element={<SideSheet visible={true}>
-                Settings Index page
-                <PreserveBackgroundLocationLink to={'/settings/docker'}>Docker</PreserveBackgroundLocationLink><br/>
-                <PreserveBackgroundLocationLink to={'/settings/theme'}>Theme</PreserveBackgroundLocationLink>
-              </SideSheet>}/>
+              <Route index={true} element={<SideSheet visible={true}><SettingsIndex/></SideSheet>}/>
               <Route path="/settings/docker" element={<SideSheet visible={true}><DockerSettings/></SideSheet>} />
               <Route path="/settings/theme" element={<SideSheet visible={true}><ThemeSettings/></SideSheet>} />
             </Route>

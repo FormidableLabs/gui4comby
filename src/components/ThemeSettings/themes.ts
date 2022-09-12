@@ -2,37 +2,37 @@
 export const themes = [
   {
     "type": "dark",
-    "value": "1mm-themes-1mm-themes-dark-plus",
+    "value": "Onemm-themes-1mm-themes-dark-plus",
     "label": "1mm Themes-1mm Themes Dark Plus (dark)"
   },
   {
     "type": "dark",
-    "value": "1mm-themes-1mm-themes-dracula",
+    "value": "Onemm-themes-1mm-themes-dracula",
     "label": "1mm Themes-1mm Themes Dracula (dark)"
   },
   {
     "type": "dark",
-    "value": "1mm-themes-1mm-themes-monokai",
+    "value": "Onemm-themes-1mm-themes-monokai",
     "label": "1mm Themes-1mm Themes Monokai (dark)"
   },
   {
     "type": "dark",
-    "value": "1mm-themes-1mm-themes-one-dark-pro",
+    "value": "Onemm-themes-1mm-themes-one-dark-pro",
     "label": "1mm Themes-1mm Themes One Dark Pro (dark)"
   },
   {
     "type": "dark",
-    "value": "2077-theme-2077-theme-color-theme",
+    "value": "Two077-theme-2077-theme-color-theme",
     "label": "2077 Theme-2077 Theme Color Theme (dark)"
   },
   {
     "type": "dark",
-    "value": "8bit-dark-color-theme",
+    "value": "Eightbit-dark-color-theme",
     "label": "8bit Dark Color Theme (dark)"
   },
   {
     "type": "light",
-    "value": "8bit-light-color-theme",
+    "value": "Eightbit-light-color-theme",
     "label": "8bit Light Color Theme (light)"
   },
   {
