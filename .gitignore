@@ -23,5 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 
-# sample files/experiments
+# sample files / theme generation cache files
 themes/ayu-light-bordered.tsx
+themes/marketplace.results
+themes/manifests
+themes/sources

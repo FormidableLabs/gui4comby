@@ -1,10 +1,12 @@
-import VerticalExpander from "./components/VerticalExpander/verticalExpander";
-import TabBar from "./components/TabBar/TabBar";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './themes.css';
+import "./variables.css";
+import "./style.css";
+import "./App.scss";
+import "./Ace.scss";
+import TabBar from "./components/TabBar/TabBar";
 import TabContent from "./components/TabContent/TabContent";
-import {MutableRefObject, useEffect, useLayoutEffect, useRef, useState} from "react";
-import {Routes, Route, Outlet, useLocation, useNavigate} from "react-router-dom";
+import {useEffect, useLayoutEffect, useRef } from "react";
+import {Routes, Route, Outlet, useLocation } from "react-router-dom";
 import Toaster from "./components/Toaster/Toaster";
 import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en.json';
@@ -17,12 +19,14 @@ import PreserveBackgroundLocationLink, {
 import SideSheet from "./components/SideSheet/SideSheet";
 import DockerSettings from "./components/DockerSettings/DockerSettings";
 import EventLog from "./components/EventLog/EventLog";
-import {useRecoilState} from "recoil";
+import {useRecoilState, useRecoilValue} from "recoil";
 import {eventLogState} from "./components/EventLog/EventLog.recoil";
 import Docs from "./components/Docs/Docs";
 import DocPage from "./components/Docs/DocPage";
 import useResizeObserver from "@react-hook/resize-observer";
-import {mainSizeAtom, MainSizeState} from "./App.recoil";
+import {appThemeAtom, mainSizeAtom, MainSizeState} from "./App.recoil";
+import ThemeSettings from "./components/ThemeSettings/ThemeSettings";
+
 
 export const useMainSizeObserver = () => {
   const [sizeState, setSizeState] = useRecoilState(mainSizeAtom);
@@ -51,6 +55,7 @@ function App() {
   const state = location.state as LocationState;
   const [_, setEventLog] = useRecoilState(eventLogState);
   const {sized, ref} = useMainSizeObserver();
+  const theme = useRecoilValue(appThemeAtom);
 
   useEffect(() => {
     const unlisten = listen('server-log', (event) => {
@@ -77,7 +82,7 @@ function App() {
     <>
       <Routes location={state?.backgroundLocation || location}>
         <Route path={"/"} element={
-          <div id={'app'} className={'ayu-mirage-bordered'}>
+          <div id={'app'} className={theme}>
             <TabBar id={'header'}/>
             <div id="content">
               <div ref={ref} id={'main'}>
@@ -103,10 +108,10 @@ function App() {
               <Route index={true} element={<SideSheet visible={true}>
                 Settings Index page
                 <PreserveBackgroundLocationLink to={'/settings/docker'}>Docker</PreserveBackgroundLocationLink><br/>
-                <PreserveBackgroundLocationLink to={'/settings/language'}>Language</PreserveBackgroundLocationLink>
+                <PreserveBackgroundLocationLink to={'/settings/theme'}>Theme</PreserveBackgroundLocationLink>
               </SideSheet>}/>
               <Route path="/settings/docker" element={<SideSheet visible={true}><DockerSettings/></SideSheet>} />
-              <Route path="/settings/language" element={<SideSheet visible={true}><p>Language Settings</p></SideSheet>} />
+              <Route path="/settings/theme" element={<SideSheet visible={true}><ThemeSettings/></SideSheet>} />
             </Route>
           </Routes>
         )}

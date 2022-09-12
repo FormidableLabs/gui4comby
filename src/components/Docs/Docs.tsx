@@ -6,6 +6,7 @@ import {unTitleCase} from "./DocPage";
 import {useEffect} from "react";
 import {useRecoilState} from "recoil";
 import {docPageScrollFamily} from "./Docs.recoil";
+import "./Docs.scss";
 
 const Docs = () => {
   const location = useLocation();
@@ -18,7 +19,7 @@ const Docs = () => {
     container.scrollTop = scroll;
   }, [params.tabId, location.pathname]);
 
-  return (<HorizontalExpander style={{width: '100%', overflowX: 'scroll'}} left={<DocsNav/>} id={'docs'}>
+  return (<HorizontalExpander style={{width: '100%', overflowX: 'scroll'}} left={<DocsNav/>} className={'docs'}>
     <Outlet/>
   </HorizontalExpander>)
 }

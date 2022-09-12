@@ -205,6 +205,7 @@ const Playground = ({id}:{id:string}) => {
             showGutter={true}
             highlightActiveLine={true}
             value={source}
+            className={'themed'}
             setOptions={{
               enableBasicAutocompletion: false,
               enableLiveAutocompletion: false,

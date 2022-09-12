@@ -79,7 +79,6 @@ const DocPage = () => {
           let anchor = props.href.slice(props.href.indexOf('#')+1);
 
           return <a
-            className={'link-primary'}
             href={`javascript://`}
             style={{display: 'inline'}}
             {...rest}

@@ -1,0 +1,12 @@
+.docs {
+  color: var(--colors-editor-foreground);
+  background: var(--colors-editor-background);
+
+  code {
+    color: var(--scope-variable-language-foreground);
+  }
+  pre {
+    background: var(--colors-textBlockQuote-background);
+    padding: 1em;
+  }
+}
