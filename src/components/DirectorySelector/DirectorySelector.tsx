@@ -15,9 +15,13 @@ type DirInfoResult = {
   path_separator: string;
 }
 type DirectorySelectorProps = {
-   onSelect: (path: string | undefined) => void
-} & { [key: string]: string };
+   onSelect: (path: string | undefined) => void;
+   [key: string]: unknown;
+};
 
+// TODO: Handle Up/Down arrow keys cycle through candidates
+// TODO: Handle tab auto complete/drill down active candidate
+// TODO: Handle return to select
 const DirectorySelector = ({onSelect, ...rest}:DirectorySelectorProps) => {
   const {push} = useToaster();
   const [loading, setLoading] = useState(false);
@@ -29,30 +33,24 @@ const DirectorySelector = ({onSelect, ...rest}:DirectorySelectorProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dirInfo, setDirInfo] = useState<DirInfoResult|null>(null);
   const getDirInfo = useCallback(async (path: string) => {
-    //if(debouncedPath === '') { return }
-    console.log('debounce useEffect')
     setLoading(true);
-    console.log('loading');
     try {
       let info = await invoke<DirInfoResult>("dir_info", {path});
-      console.log('Info', info);
       setDirInfo(info);
     } catch (err) {
       push('Filesystem Error', err as string, ToastVariant.warning);
       setDirInfo(null);
     } finally {
       setLoading(false);
-      console.log('done loading');
     }
   }, [setLoading, setDirInfo, push]);
 
+  // when modal shows, initialize to selected value
+  // when modal hides, reset path values
   useEffect(() => {
-    console.log('dir select useEffect', inputRef.current);
     if(show && inputRef.current) {
-      console.log('focusing input')
       inputRef.current.focus();
       if(selected) {
-        console.log('inputRef, show, selected');
         setLoading(true);
         setInputPath(selected);
       }
@@ -62,13 +60,12 @@ const DirectorySelector = ({onSelect, ...rest}:DirectorySelectorProps) => {
     }
   },[inputRef, show, selected]);
 
+  // when input settles down, update path
   useEffect(() => {
     setPath(debouncedInputPath);
-    if(debouncedInputPath === ''){
-      setDirInfo(null);
-    }
   }, [debouncedInputPath]);
 
+  // when patch changes, fetch dir info
   useEffect(() => {
     if(path === '') {
       setDirInfo(null);
@@ -77,6 +74,7 @@ const DirectorySelector = ({onSelect, ...rest}:DirectorySelectorProps) => {
     getDirInfo(path).catch(console.error);
   }, [path]);
 
+  // when selected changes, let our caller know
   useEffect(() => {
     if(onSelect){
       onSelect(selected);
@@ -94,7 +92,6 @@ const DirectorySelector = ({onSelect, ...rest}:DirectorySelectorProps) => {
     setInputPath(path + dirInfo?.path_separator);
     setPath(path + dirInfo?.path_separator);
     if(show && inputRef.current) {
-      console.log('focusing input')
       inputRef.current.focus();
     }
   };

@@ -2,6 +2,7 @@ import {Form} from "react-bootstrap";
 import {useRecoilState} from "recoil";
 import {languageFamily, matchTemplateFamily, rewriteTemplateFamily, ruleFamily} from "../Playground/Playground.recoil";
 import DirectorySelector from "../DirectorySelector/DirectorySelector";
+import {useState} from "react";
 
 const Filesystem = ({id}:{id:string})=> {
   const [matchTemplate, setMatchTemplate] = useRecoilState(matchTemplateFamily(id));
@@ -10,13 +11,14 @@ const Filesystem = ({id}:{id:string})=> {
   //const [rule, setRule] = useState('where true');
   const [rule, setRule] = useRecoilState(ruleFamily(id));
   const [language, setLanguage] = useRecoilState(languageFamily(id));
+  const [dir, setDir] = useState<string|undefined>();
 
 
   return <div style={{padding: '1em 1em'}}>
     <Form>
       <Form.Group className="mb-3" controlId="dirSelect">
           <Form.Label><strong><small>Directory</small></strong></Form.Label>
-          <DirectorySelector/>
+          <DirectorySelector onSelect={(path) => setDir(path)}/>
         </Form.Group>
       <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: '1em'}}>
         <Form.Group className="mb-3" controlId="matchTemplate">
