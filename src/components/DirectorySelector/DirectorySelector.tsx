@@ -1,6 +1,6 @@
-import {Button, Form, InputGroup, Modal} from "react-bootstrap";
+import {Badge, Button, Form, InputGroup, Modal} from "react-bootstrap";
 import {AiOutlineFileSearch, AiOutlineRight} from "react-icons/ai";
-import {ReactNode, useEffect, useRef, useState} from "react";
+import {ReactNode, useCallback, useEffect, useRef, useState} from "react";
 import {invoke} from "@tauri-apps/api/tauri";
 import {useDebounce} from "usehooks-ts";
 import useToaster, {ToastVariant} from "../Toaster/useToaster";
@@ -10,48 +10,102 @@ type DirInfoResult = {
   exists: boolean;
   children?: Array<string>;
   candidates?: Array<string>;
-  home_dir?: boolean;
+  home_dir?: string;
   in_home_dir?: boolean;
   path_separator: string;
 }
+type DirectorySelectorProps = {
+   onSelect: (path: string | undefined) => void
+} & { [key: string]: string };
 
-const DirectorySelector = ({...rest}:{[x: string]: string}) => {
+const DirectorySelector = ({onSelect, ...rest}:DirectorySelectorProps) => {
   const {push} = useToaster();
+  const [loading, setLoading] = useState(false);
   const [show, setShow] = useState(false);
   const [path, setPath] = useState('');
+  const [inputPath, setInputPath] = useState('');
+  const debouncedInputPath = useDebounce(inputPath, 500);
+  const [selected, setSelected] = useState<string>();
   const inputRef = useRef<HTMLInputElement>(null);
-  const [dir, setDir] = useState('');
-  const debouncedPath = useDebounce(path, 500);
   const [dirInfo, setDirInfo] = useState<DirInfoResult|null>(null);
+  const getDirInfo = useCallback(async (path: string) => {
+    //if(debouncedPath === '') { return }
+    console.log('debounce useEffect')
+    setLoading(true);
+    console.log('loading');
+    try {
+      let info = await invoke<DirInfoResult>("dir_info", {path});
+      console.log('Info', info);
+      setDirInfo(info);
+    } catch (err) {
+      push('Filesystem Error', err as string, ToastVariant.warning);
+      setDirInfo(null);
+    } finally {
+      setLoading(false);
+      console.log('done loading');
+    }
+  }, [setLoading, setDirInfo, push]);
 
   useEffect(() => {
     console.log('dir select useEffect', inputRef.current);
     if(show && inputRef.current) {
       console.log('focusing input')
       inputRef.current.focus();
+      if(selected) {
+        console.log('inputRef, show, selected');
+        setLoading(true);
+        setInputPath(selected);
+      }
+    } else if (!show) {
+      setPath('');
+      setInputPath('');
     }
-  },[inputRef, show]);
+  },[inputRef, show, selected]);
 
   useEffect(() => {
-    (async () => {
-      if(debouncedPath === '') { return }
-      try {
-        let info = await invoke<DirInfoResult>("dir_info", {path});
-        console.log('Info', info);
-        setDirInfo(info);
-      } catch (err) {
-        push('Filesystem Error', err as string, ToastVariant.warning);
-        setDirInfo(null);
-      }
-    })();
-  }, [debouncedPath]);
+    setPath(debouncedInputPath);
+    if(debouncedInputPath === ''){
+      setDirInfo(null);
+    }
+  }, [debouncedInputPath]);
 
-  const handleClose = () => setShow(false);
+  useEffect(() => {
+    if(path === '') {
+      setDirInfo(null);
+      return
+    }
+    getDirInfo(path).catch(console.error);
+  }, [path]);
+
+  useEffect(() => {
+    if(onSelect){
+      onSelect(selected);
+    }
+  }, [selected, onSelect]);
+
+
+
+  const handleClose = () => {
+    setShow(false);
+  }
   const handleShow = () => setShow(true);
+  const shorten = (path:string) => path.replace(dirInfo?.home_dir || '', '~/');
+  const drillDown = (path:string) => {
+    setInputPath(path + dirInfo?.path_separator);
+    setPath(path + dirInfo?.path_separator);
+    if(show && inputRef.current) {
+      console.log('focusing input')
+      inputRef.current.focus();
+    }
+  };
+  const onSelectClick = () => {
+    setSelected(path);
+    handleClose();
+  }
 
   return <>
     <InputGroup {...rest} size={'sm'} onClick={handleShow}>
-      <Form.Control as="input" placeholder="Select the target directory"/>
+      <Form.Control as="input" value={selected} placeholder="Select the target directory"/>
       <Button variant="outline-secondary" id="button-addon1">
         <AiOutlineFileSearch />
       </Button>
@@ -59,42 +113,44 @@ const DirectorySelector = ({...rest}:{[x: string]: string}) => {
     <Modal show={show} onHide={handleClose} size={'lg'}>
         <Modal.Header closeButton>
           <AiOutlineFileSearch style={{marginRight: '0.5em'}}/>
-          <Form.Control value={path} onChange={e => setPath(e.target.value)} ref={inputRef} as="input" placeholder="" style={{padding: 0, border: 0}}/>
+          <Form.Control value={inputPath} onChange={e => setInputPath(e.target.value)} ref={inputRef} as="input" placeholder="" style={{padding: 0, border: 0}}/>
         </Modal.Header>
-        {path === '' && <Modal.Body>
+        {!loading && path === '' && <Modal.Body>
           <div>Type <code>~/</code> to browse your user folder.</div>
           <div>Or, type the fully qualified path to your directory.</div>
           <div><i>Note, autocomplete is only available inside the home directory.</i></div>
         </Modal.Body>}
-        {dirInfo && <Modal.Body>
-          resolved path: {dirInfo.resolved_path}<br/>
-          {dirInfo.candidates?.map((path,i) => (
-            <Button variant={'info'} key={i} style={{margin: '0.1em'}}>
-              {path.split(dirInfo.path_separator).filter(e => e !== '').reduce((prev: null | ReactNode, cur)=>{
-                if (prev) {
-                  return <>{prev} <AiOutlineRight/> {cur}</>
-                } else {
-                  return <>{cur}</>
-                }
-              }, null)}
-            </Button>
+        {!loading && dirInfo && <Modal.Body style={{display: 'flex', flexDirection: 'column', minHeight: '120px', maxHeight: '120px', overflowY: 'scroll'}}>
+          {dirInfo.candidates?.map(shorten).map((path,i) => (
+            <Candidate key={i} onClick={() => drillDown(path)} path={path} dirInfo={dirInfo}/>
           ))}
-          {dirInfo.children?.map((path,i) => (
-            <Button variant={'info'} key={i} style={{maxWidth: '100%', marginBottom: '0.1em', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap'}}>
-              {path.split(dirInfo.path_separator).filter(e => e !== '').reduce((prev: null | ReactNode, cur)=>{
-                if (prev) {
-                  return <>{prev} <AiOutlineRight/> {cur}</>
-                } else {
-                  return <>{cur}</>
-                }
-              }, null)}
-            </Button>
+          {dirInfo.children?.map(shorten).map((path,i) => (
+            <Candidate key={i} onClick={() => drillDown(path)} path={path} dirInfo={dirInfo}/>
           ))}
         </Modal.Body>}
-        <Modal.Footer>
-          <Button variant={'default'}>Cancel</Button><Button variant={'primary'} disabled={!dirInfo?.exists}>Select</Button>
+      {loading && <Modal.Body>
+        Loading ...
+      </Modal.Body>}
+        <Modal.Footer style={{flexWrap: 'nowrap'}}>
+          <span style={{flexGrow: 1, textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap'}}>{dirInfo?.exists ? shorten(dirInfo.resolved_path):''}</span>
+          <Button variant={'default'} onClick={handleClose}>Cancel</Button>
+          <Button variant={'primary'} onClick={onSelectClick} disabled={!dirInfo?.exists}>Select</Button>
         </Modal.Footer>
       </Modal>
   </>
 }
 export default DirectorySelector;
+
+const Candidate = ({onClick, path, dirInfo}: {onClick: ()=>void, path: string, dirInfo:DirInfoResult}) => {
+  return (
+    <Badge onClick={onClick} style={{flexShrink: 0, textAlign: 'left', marginBottom: '0.25em', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap'}}>
+      {path.split(dirInfo.path_separator).filter(e => e !== '').reduce((prev: null | ReactNode, cur)=>{
+        if (prev) {
+          return <>{prev} <AiOutlineRight/> {cur}</>
+        } else {
+          return <>{cur}</>
+        }
+      }, null)}
+    </Badge>
+  )
+}
