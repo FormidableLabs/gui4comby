@@ -1,7 +1,9 @@
 use std::fs;
 use std::path::MAIN_SEPARATOR;
 use resolve_path::PathResolveExt;
-use crate::{maybe, Regex};
+use tauri::Runtime;
+use crate::{docker_run, DockerState, maybe, Regex};
+
 
 #[derive(Clone, serde::Serialize)]
 pub struct DirInfoResult {
@@ -105,4 +107,39 @@ pub fn dir_info(path: String) -> Result<DirInfoResult, String> {
         },
         path_separator: format!("{}", MAIN_SEPARATOR)
     })
+}
+
+#[derive(Clone, serde::Serialize)]
+pub enum FilesystemResultType {
+    Match,
+    Rewrite
+}
+
+#[derive(Clone, serde::Serialize)]
+pub struct FilesystemResult {
+    pub result_type: FilesystemResultType,
+    pub result: Option<String>,
+    pub warning: Option<String>
+}
+
+#[tauri::command]
+pub async fn filesystem_match<R: Runtime>(
+    state: tauri::State<'_, DockerState>, app_handle: tauri::AppHandle<R>,
+    tab_id: String, host_path: String, extensions: Vec<String>, exclude_dirs: Vec<String>,
+    match_template: String, language: String) -> Result<FilesystemResult,String> {
+    let mnt_path = "/mnt/source";
+    let exclude_dirs_param = exclude_dirs.join(",");
+    let extensions_param = extensions.join(",");
+    let docker = maybe::maybe_ref(&state.docker)?;
+    let result = docker_run::docker_run_mnt(docker, tab_id, host_path,vec![
+        "comby", match_template.as_str(), "",
+        "-matcher", language.as_str(),
+        "-d", mnt_path,
+        "-exclude-dir", &exclude_dirs_param,
+        "-extension", &extensions_param,
+        "-match-only",
+        "-json-lines"
+    ], app_handle).await?;
+
+    Ok(FilesystemResult { result_type: FilesystemResultType::Match, result: result.std_out, warning: result.std_err })
 }

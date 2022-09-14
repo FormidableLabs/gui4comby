@@ -1,5 +1,5 @@
 # Directory Selector
-For security purposes, we'll narrow auto-complete to user's home directory.
+For our App's security purposes, we'll narrow auto-complete to user's home directory.
 We'll allow user to provide exact paths outside of their home directory, but no autocomplete from there.
 
 Modeled after go to directory in OSX.
@@ -12,5 +12,7 @@ Use [enter] to accept.
 ![Screenshot 3](screenshot-3.png)
 ![Screenshot 1](screenshot-1.png)
 ![Screenshot 2](screenshot-2.png)
+
+
 
 

@@ -18,13 +18,13 @@ use std::fs;
 use std::path::MAIN_SEPARATOR;
 use bollard::Docker;
 use std::time::{SystemTime, UNIX_EPOCH};
-use tauri::Manager;
+use tauri::{Manager, Runtime};
 use resolve_path::PathResolveExt;
 use tauri::regex::Regex;
 use docker_run::DockerState;
 use playground::{playground_match, playground_rewrite};
 use image::{comby_image, download_comby_image, docker_version};
-use filesystem::dir_info;
+use filesystem::{dir_info, filesystem_match};
 
 
 
@@ -39,7 +39,7 @@ struct Payload {
     message: String,
     time: u128
 } // TODO support user defined tag
-fn server_log(app_handle: &tauri::AppHandle, message: String) {
+fn server_log<R: Runtime>(app_handle: &tauri::AppHandle<R>, message: String) {
     println!("server log: {:?}", &message);
     let emit_result = app_handle.emit_all("server-log", Payload { message, time: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis() });
     if emit_result.is_err() {
@@ -60,7 +60,8 @@ fn main() {
             comby_image,
             download_comby_image,
             playground_match,
-            playground_rewrite
+            playground_rewrite,
+            filesystem_match,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
