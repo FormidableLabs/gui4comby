@@ -109,6 +109,30 @@ pub fn dir_info(path: String) -> Result<DirInfoResult, String> {
     })
 }
 
+#[tauri::command]
+pub fn filesystem_content(path: String) -> Result<String, String> {
+    let home_result = "~/".try_resolve();
+    let home_dir = match home_result {
+        Ok(_) => Some(format!("{}", home_result.as_ref().unwrap().to_string_lossy())),
+        Err(_) => None,
+    };
+
+    let search_path: String = match home_dir {
+        None => match path.starts_with("~") {
+            true => { return Err(format!("Could not resolve home path: {:?}", &home_result.err())); },
+            false => path
+        }
+        Some(_) => {
+            let re = Regex::new(r"^~/?").unwrap();
+            let result = re.replace_all(path.as_str(), home_dir.as_ref().unwrap().as_str());
+            result.to_string()
+        }
+    };
+
+    let content: String = maybe::maybe(fs::read_to_string(search_path))?;
+    Ok(content)
+}
+
 #[derive(Clone, serde::Serialize)]
 pub enum FilesystemResultType {
     Match,
@@ -142,4 +166,35 @@ pub async fn filesystem_match<R: Runtime>(
     ], app_handle).await?;
 
     Ok(FilesystemResult { result_type: FilesystemResultType::Match, result: result.std_out, warning: result.std_err })
+}
+
+#[tauri::command]
+pub async fn filesystem_rewrite<R: Runtime>(
+    state: tauri::State<'_, DockerState>,
+    app_handle: tauri::AppHandle<R>,
+    tab_id: String,
+    host_path: String,
+    extensions: Vec<String>,
+    exclude_dirs: Vec<String>,
+    match_template: String,
+    rewrite_template: String,
+    language: String
+) -> Result<FilesystemResult,String> {
+
+    let mnt_path = "/mnt/source";
+    let exclude_dirs_param = exclude_dirs.join(",");
+    let extensions_param = extensions.join(",");
+    let docker = maybe::maybe_ref(&state.docker)?;
+    let result = docker_run::docker_run_mnt(docker, tab_id, host_path,vec![
+        "comby",
+        match_template.as_str(),
+        rewrite_template.as_str(),
+        "-matcher", language.as_str(),
+        "-d", mnt_path,
+        "-exclude-dir", &exclude_dirs_param,
+        "-extension", &extensions_param,
+        "-json-lines"
+    ], app_handle).await?;
+
+    Ok(FilesystemResult { result_type: FilesystemResultType::Rewrite, result: result.std_out, warning: result.std_err })
 }

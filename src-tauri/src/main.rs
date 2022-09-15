@@ -24,7 +24,7 @@ use tauri::regex::Regex;
 use docker_run::DockerState;
 use playground::{playground_match, playground_rewrite};
 use image::{comby_image, download_comby_image, docker_version};
-use filesystem::{dir_info, filesystem_match};
+use filesystem::{dir_info, filesystem_content, filesystem_match, filesystem_rewrite};
 
 
 
@@ -59,9 +59,11 @@ fn main() {
             docker_version,
             comby_image,
             download_comby_image,
+            filesystem_content,
+            filesystem_match,
+            filesystem_rewrite,
             playground_match,
             playground_rewrite,
-            filesystem_match,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

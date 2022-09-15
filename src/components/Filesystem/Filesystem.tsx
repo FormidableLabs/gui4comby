@@ -8,7 +8,7 @@ import useToaster, {ToastVariant} from "../Toaster/useToaster";
 import {useParams} from "react-router-dom";
 import {FilesystemMatchResult, FilesystemResult, FilesystemResultType, FilesystemRewriteResult} from "./Filesystem.types";
 import ResultsExplorer from "./ResultsExplorer";
-import {CombyMatch} from "../Playground/Comby";
+import {CombyMatch, CombyRewrite} from "../Playground/Comby";
 import {directorySelectionFamily} from "./Filesystem.recoil";
 
 const Filesystem = ({id}:{id:string})=> {
@@ -20,60 +20,33 @@ const Filesystem = ({id}:{id:string})=> {
   const [language, setLanguage] = useRecoilState(languageFamily(id));
   const [directorySelection, setDirectorySelection] = useRecoilState<DirectorySelection>(directorySelectionFamily(id));
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<{matched: Array<CombyMatch>}|null>(null);
+  const [result, setResult] = useState<Array<CombyRewrite>|null>(null);
 
   const run = useCallback(async () => {
     console.log('invoking rpc', {matchTemplate, rewriteTemplate, rule, directorySelection, tabId: params.tabId});
     try {
       setLoading(true);
-      const match_args = {
+      const rewrite_args = {
           matchTemplate,
+          rewriteTemplate,
           language,
           tabId: params.tabId,
           hostPath: directorySelection.expanded,
           extensions: [".md"],
           excludeDirs: ["node_modules"],
         };
-      console.log({match_args});
 
-      let results = (await Promise.all([
-        invoke<FilesystemResult>("filesystem_match", match_args),
-        // invoke<PlaygroundResult>("playground_rewrite", {
-        //   source,
-        //   language,
-        //   matchTemplate,
-        //   rewriteTemplate
-        // }),
-      ])).map((r) => {
-        console.log('r', r);
-        console.log(r.result);
-        return {
-          ...r,
-          result: r.result ? r.result.split("\n").map(r => {
-            try {
-              return JSON.parse(r)
-            } catch (err) {
-              return null;
-            }
-          }).filter(val => val) :  {uri: null, matches: [], in_place_substitutions: [], rewritten_source: '', diff: ''}
-        }
-      }) as unknown as [FilesystemMatchResult | FilesystemRewriteResult];
-
-      const match_results: FilesystemMatchResult = results.find(result => result.result_type === FilesystemResultType.Match) as FilesystemMatchResult;
-      //const rewrite_results: FilesystemRewriteResult = results.find(result => result.result_type === FilesystemResultType.Rewrite) as FilesystemRewriteResult;
-
-      if(match_results.warning) {
-        push('Matcher Warning', match_results.warning, ToastVariant.warning)
+      const results = await invoke<FilesystemResult>("filesystem_rewrite", rewrite_args);
+      if(results.warning) {
+        push('Rewriter Warning', results.warning, ToastVariant.warning)
       }
-      // if(rewrite_results.warning) {
-      //   push('Rewriter Warning', rewrite_results.warning, ToastVariant.warning)
-      // }
-      setResult({matched: match_results.result});
-      console.log('filesystem', JSON.stringify({match_results,
-      //  rewrite_results
-      }));
-
-
+      setResult(results.result?.split("\n").map(r => {
+        try {
+          return JSON.parse(r)
+        } catch (err) {
+          return null;
+        }
+      }).filter(val => val) as Array<CombyRewrite>);
     } catch (error) {
       console.error(error);
       // @ts-ignore
@@ -113,7 +86,7 @@ const Filesystem = ({id}:{id:string})=> {
           <Button onClick={run} disabled={loading || !Boolean(directorySelection.expanded) || !Boolean(matchTemplate) || !Boolean(rewriteTemplate)}>Run</Button>
         </Form>
       </div>
-      <ResultsExplorer results={result} path={directorySelection.path}/>
+      {result && <ResultsExplorer results={result} path={directorySelection.path}/>}
     </>;
 }
 export default Filesystem;
