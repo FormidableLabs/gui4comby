@@ -4,42 +4,23 @@ import {languageFamily, matchTemplateFamily, rewriteTemplateFamily, ruleFamily} 
 import DirectorySelector, {DirectorySelection} from "../DirectorySelector/DirectorySelector";
 import {useCallback, useState} from "react";
 import {invoke} from "@tauri-apps/api/tauri";
-import {CombyMatch, CombyRewrite} from "../Playground/Comby";
 import useToaster, {ToastVariant} from "../Toaster/useToaster";
 import {useParams} from "react-router-dom";
-
-enum FilesystemResultType {
-  Match = 'Match',
-  Rewrite = 'Rewrite'
-}
-
-type FilesystemResult = {
-  result_type: FilesystemResultType;
-  result: string | null;
-  warning?: string;
-}
-type FilesystemMatchResult = {
-  result_type: FilesystemResultType.Match;
-  result: Array<CombyMatch>;
-  warning?: string;
-}
-type FilesystemRewriteResult = {
-  result_type: FilesystemResultType.Rewrite;
-  result: Array<CombyRewrite>;
-  warning?: string;
-}
+import {FilesystemMatchResult, FilesystemResult, FilesystemResultType, FilesystemRewriteResult} from "./Filesystem.types";
+import ResultsExplorer from "./ResultsExplorer";
+import {CombyMatch} from "../Playground/Comby";
+import {directorySelectionFamily} from "./Filesystem.recoil";
 
 const Filesystem = ({id}:{id:string})=> {
   const {push} = useToaster();
   const params = useParams() as {tabId: string};
   const [matchTemplate, setMatchTemplate] = useRecoilState(matchTemplateFamily(id));
-  //const [rewriteTemplate, setRewriteTemplate] = useState(`fmt.Println(fmt.Sprintf("comby says %s", :[arguments]))`);
   const [rewriteTemplate, setRewriteTemplate] = useRecoilState(rewriteTemplateFamily(id));
-  //const [rule, setRule] = useState('where true');
   const [rule, setRule] = useRecoilState(ruleFamily(id));
   const [language, setLanguage] = useRecoilState(languageFamily(id));
-  const [directorySelection, setDirectorySelection] = useState<DirectorySelection>({path: '', expanded: ''});
+  const [directorySelection, setDirectorySelection] = useRecoilState<DirectorySelection>(directorySelectionFamily(id));
   const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<{matched: Array<CombyMatch>}|null>(null);
 
   const run = useCallback(async () => {
     console.log('invoking rpc', {matchTemplate, rewriteTemplate, rule, directorySelection, tabId: params.tabId});
@@ -68,7 +49,13 @@ const Filesystem = ({id}:{id:string})=> {
         console.log(r.result);
         return {
           ...r,
-          result: r.result ? r.result.split("\n").map(r => JSON.parse) :  {uri: null, matches: [], in_place_substitutions: [], rewritten_source: '', diff: ''}
+          result: r.result ? r.result.split("\n").map(r => {
+            try {
+              return JSON.parse(r)
+            } catch (err) {
+              return null;
+            }
+          }).filter(val => val) :  {uri: null, matches: [], in_place_substitutions: [], rewritten_source: '', diff: ''}
         }
       }) as unknown as [FilesystemMatchResult | FilesystemRewriteResult];
 
@@ -81,7 +68,7 @@ const Filesystem = ({id}:{id:string})=> {
       // if(rewrite_results.warning) {
       //   push('Rewriter Warning', rewrite_results.warning, ToastVariant.warning)
       // }
-
+      setResult({matched: match_results.result});
       console.log('filesystem', JSON.stringify({match_results,
       //  rewrite_results
       }));
@@ -102,30 +89,31 @@ const Filesystem = ({id}:{id:string})=> {
     setDirectorySelection(selected)
   }, [setDirectorySelection]);
 
-
-
-  return <div style={{padding: '1em 1em'}}>
-    <Form>
-      <Form.Group className="mb-3" controlId="dirSelect">
-          <Form.Label><strong><small>Directory</small></strong></Form.Label>
-          <DirectorySelector defaultValue={directorySelection.path} onSelect={onSelect}/>
-        </Form.Group>
-      <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: '1em'}}>
-        <Form.Group className="mb-3" controlId="matchTemplate">
-          <Form.Label><strong><small>Match Template</small></strong></Form.Label>
-          <Form.Control as="textarea" rows={3} placeholder="Match template" value={matchTemplate} onChange={e => setMatchTemplate(e.target.value)}/>
-        </Form.Group>
-        <Form.Group className="mb-3" controlId="rewriteTemplate">
-          <Form.Label><strong><small>Rewrite Template</small></strong></Form.Label>
-          <Form.Control as="textarea" rows={3} placeholder="Rewrite template" value={rewriteTemplate} onChange={e => setRewriteTemplate(e.target.value)}/>
-        </Form.Group>
-        <Form.Group className="mb-3" controlId="rule">
-          <Form.Label><strong><small>Rule</small></strong></Form.Label>
-          <Form.Control as="textarea" rows={1} placeholder="rule expression" value={rule} onChange={e => setRule(e.target.value)}/>
-        </Form.Group>
+  return <>
+      <div style={{padding: '1em 1em'}}>
+        <Form>
+          <Form.Group className="mb-3" controlId="dirSelect">
+              <Form.Label><strong><small>Directory</small></strong></Form.Label>
+              <DirectorySelector defaultValue={directorySelection} onSelect={onSelect}/>
+            </Form.Group>
+          <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: '1em'}}>
+            <Form.Group className="mb-3" controlId="matchTemplate">
+              <Form.Label><strong><small>Match Template</small></strong></Form.Label>
+              <Form.Control as="textarea" rows={3} placeholder="Match template" value={matchTemplate} onChange={e => setMatchTemplate(e.target.value)}/>
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="rewriteTemplate">
+              <Form.Label><strong><small>Rewrite Template</small></strong></Form.Label>
+              <Form.Control as="textarea" rows={3} placeholder="Rewrite template" value={rewriteTemplate} onChange={e => setRewriteTemplate(e.target.value)}/>
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="rule">
+              <Form.Label><strong><small>Rule</small></strong></Form.Label>
+              <Form.Control as="textarea" rows={1} placeholder="rule expression" value={rule} onChange={e => setRule(e.target.value)}/>
+            </Form.Group>
+          </div>
+          <Button onClick={run} disabled={loading || !Boolean(directorySelection.expanded) || !Boolean(matchTemplate) || !Boolean(rewriteTemplate)}>Run</Button>
+        </Form>
       </div>
-      <Button onClick={run} disabled={loading || !Boolean(directorySelection) || !Boolean(matchTemplate) || !Boolean(rewriteTemplate)}>Run</Button>
-    </Form>
-  </div>
+      <ResultsExplorer results={result} path={directorySelection.path}/>
+    </>;
 }
 export default Filesystem;
