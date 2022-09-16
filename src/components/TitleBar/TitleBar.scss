@@ -1,7 +1,7 @@
 .titlebar {
   white-space: nowrap;
-  height: 42px;
-  background: var(--panel-background-color);
+  //height: 42px;
+  background: var(--background-color);
   user-select: none;
   display: flex;
   justify-content: flex-start;
@@ -10,7 +10,7 @@
   top: 0;
   left: 0;
   right: 0;
-  border-bottom: solid 1px var(--border-color);
+  //border-bottom: solid 1px var(--border-color);
   // padding left is for when using transparent window title to allow room for window controls
   //padding-left: 75px;
 
@@ -28,20 +28,37 @@
       color: var(--foreground-muted-color);
 
       &:hover {
-        border-color: var(--foreground-active-color);
+        //border-color: var(--foreground-active-color);
+        color: var(--color-pop-1);
+        background-color: var(--panel-background-active-color);
+        border-color: var(--panel-background-active-color);
         border-bottom-color: transparent;
         //padding-top: calc(var(--bs-nav-link-padding-y) - 1px);
-        border-top: solid 1px var(--foreground-active-color);
+        //border-top: solid 1px var(--foreground-active-color);
       }
 
       &.active {
-        background-color: var(--background-color);
-        border: solid 1px var(--border-color);
-        border-bottom-color: var(--background-color);
-        border-top: solid 1px var(--foreground-active-color);
+        background-color: var(--panel-background-color);
+        border-color: var(--panel-background-color);
+        color: var(--color);
+        //border: solid 1px var(--border-color);
+        border-bottom-color: var(--panel-background-color);
+        //border-top: solid 1px var(--foreground-active-color);
         //padding-top: calc(var(--bs-nav-link-padding-y) - 1px);
         color: var(--foreground-color);
       }
+    }
+  }
+
+  .btn {
+    background-color: var(--background-color);
+    color: var(--foreground-color);
+    border: 0;
+    //border-radius: 4px;
+    //cursor: pointer;
+
+    &:hover {
+      background-color: var(--panel-background-active-color);
     }
   }
 }

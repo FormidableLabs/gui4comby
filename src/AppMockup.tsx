@@ -1,9 +1,11 @@
 import TitleBar from "./components/TitleBar/TitleBar";
-import "./reset.scss";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./AppMockup.scss";
 import "./style.css";
+import "react-resizable/css/styles.css";
 import {useEffect} from "react";
+import {VSizable} from "./components/VSizable/VSizable";
+
 
 const AppMockup = () => {
   useEffect(() =>{
@@ -13,7 +15,8 @@ const AppMockup = () => {
 
   return <>
     <TitleBar/>
-    App
+    <VSizable sizable={<div style={{width: '100%', height: '100%'}}>Size Me</div>}>Hello</VSizable>
   </>
 }
 export default AppMockup;
+
