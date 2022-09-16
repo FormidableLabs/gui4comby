@@ -1,0 +1,48 @@
+.titlebar {
+  white-space: nowrap;
+  height: 42px;
+  background: var(--panel-background-color);
+  user-select: none;
+  display: flex;
+  justify-content: flex-start;
+  position: fixed;
+  align-items: center;
+  top: 0;
+  left: 0;
+  right: 0;
+  border-bottom: solid 1px var(--border-color);
+  // padding left is for when using transparent window title to allow room for window controls
+  //padding-left: 75px;
+
+  .nav-tabs {
+    margin-left: 0.5em;
+    border-bottom: transparent;
+    white-space: nowrap;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    flex-wrap: nowrap;
+    z-index: 10;
+
+    .nav-link {
+      background-color: transparent;
+      color: var(--foreground-muted-color);
+
+      &:hover {
+        border-color: var(--foreground-active-color);
+        border-bottom-color: transparent;
+        //padding-top: calc(var(--bs-nav-link-padding-y) - 1px);
+        border-top: solid 1px var(--foreground-active-color);
+      }
+
+      &.active {
+        background-color: var(--background-color);
+        border: solid 1px var(--border-color);
+        border-bottom-color: var(--background-color);
+        border-top: solid 1px var(--foreground-active-color);
+        //padding-top: calc(var(--bs-nav-link-padding-y) - 1px);
+        color: var(--foreground-color);
+      }
+    }
+  }
+}
+

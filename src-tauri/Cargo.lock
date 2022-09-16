@@ -1132,6 +1132,7 @@ name = "gui4comby"
 version = "0.0.0"
 dependencies = [
  "bollard",
+ "cocoa",
  "futures-util",
  "resolve-path",
  "serde",

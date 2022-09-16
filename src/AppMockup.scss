@@ -1,0 +1,39 @@
+.default {
+  &.dark {
+    --background-color: #353555;
+    --panel-background-color: #313154;
+    --panel-background-active-color: #525279;
+    --foreground-color: #fff;
+    --foreground-muted-color: #ffffffaa;
+    --foreground-active-color: #ffcd00;
+    --border-color: #00000055;
+  }
+
+  &.light {
+    --background-color: #e4edf8;
+    --panel-background-color: #d6e4f5;
+    --panel-background-active-color: #e2effd;
+    --foreground-color: #3f3f3f;
+    --foreground-muted-color: #3f3f3faa;
+    --foreground-active-color: #153b71;
+    --border-color: #00000055;
+  }
+}
+
+html, body, #root {
+  background: var(--background-color);
+  color: var(--foreground-color);
+}
+
+.btn {
+  background-color: var(--panel-background-color);
+  color: var(--foreground-color);
+  border: 0;
+  //border-radius: 4px;
+  //cursor: pointer;
+
+  &:hover {
+    background-color: var(--panel-background-active-color);
+  }
+}
+

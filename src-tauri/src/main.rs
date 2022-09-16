@@ -13,6 +13,7 @@ mod playground;
 mod image;
 #[macro_use]
 mod filesystem;
+mod main_ext;
 
 use std::fs;
 use std::path::MAIN_SEPARATOR;
@@ -25,7 +26,7 @@ use docker_run::DockerState;
 use playground::{playground_match, playground_rewrite};
 use image::{comby_image, download_comby_image, docker_version};
 use filesystem::{dir_info, filesystem_content, filesystem_match, filesystem_rewrite};
-
+use crate::main_ext::{ToolbarThickness, WindowExt};
 
 
 #[tauri::command]
@@ -52,6 +53,12 @@ fn main() {
     let docker = Docker::connect_with_local_defaults();
     // let docker_result = docker.ok_or(format!("Docker Error: {}", docker.err.to_string()));
     tauri::Builder::default()
+        .setup(|app| {
+            let win = app.get_window("main").unwrap();
+            // This is buggy when chrome toolbar is opened and window is resized
+            //win.set_transparent_titlebar(ToolbarThickness::Medium);
+            Ok(())
+        })
         .manage(DockerState { docker })
         .invoke_handler(tauri::generate_handler![
             greet,

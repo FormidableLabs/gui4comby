@@ -27,7 +27,7 @@ const ResultsExplorer = ({results, path}:Props) => {
   const prev = () => {
     setIndex(index - 1 < 0 ? results.length-1 : index-1);
   }
-  const fs_path = results[index].uri?.replace('/mnt/source/', path);
+  const fs_path = results[index].uri!.replace('/mnt/source/', path);
 
   return <div>
     <div style={{display: 'flex', alignItems: 'center', border: 'solid 1px', padding: '0.25em'}}>
