@@ -1,70 +1,51 @@
-:root {
-	--colors-editor-background: #ffffff;
-	--colors-foreground: #333333;
+.default {
+  &.dark {
+    /* Theme */
+    --bg-step-1: #25252Dff;
+    --bg-step-2: #2D3037ff;
+    --bg-step-3: #373A43ff;
+    --bg-step-4: #454753ff;
+    --bg-step-5: #707078ff;
+
+    --fg-color: #EBEFF2ff;
+    --fg-color-muted-1: #CFD2D9ff;
+    --fg-color-muted-2: #AEB1B8ff;
+    --fg-color-pop-1: #894EEEff;
+    --fg-color-pop-1-muted: #894EEE99;
+    --fg-color-pop-2: #F48494ff;
+    --fg-color-pop-2-muted: #F4849499;
+  }
+
+  &.light {
+    --bg-step-1: #25252Dff;
+    --bg-step-2: #2D3037ff;
+    --bg-step-3: #373A43ff;
+    --bg-step-4: #454753ff;
+    --bg-step-5: #707078ff;
+
+    --fg-color: #EBEFF2ff;
+    --fg-color-muted-1: #CFD2D9ff;
+    --fg-color-muted-2: #AEB1B8ff;
+    --fg-color-pop-1: #894EEEff;
+    --fg-color-pop-2: #F48494ff;
+  }
+
+  /* Theme Mapping */
+  --background-color: var(--bg-step-1);
+  --panel-background-color: var(--bg-step-2);
+  --panel-background-active-color: var(--bg-step-3);
+  --foreground-color: var(--fg-color);
+  --foreground-muted-color: var(--fg-color-muted-1);
+  --foreground-active-color: var(--fg-color-pop-1);
+  --border-color: #00000055;
 }
 
-#app, #sidesheet {
-	height:100%;
-	display: -webkit-box;
-	-webkit-box-orient: vertical;
-	-webkit-box-align:stretch;
-	color: var(--colors-foreground);
-  	background: var(--colors-editor-background);
-
-	a {
-		color: var(--colors-textLink-foreground);
-
-		&:hover {
-			color: var(--colors-textLink-activeForeground);
-		}
-	}
-
-	blockquote {
-		background: var(--colors-textBlockQuote-background);
-		color: var(--colors-textPreformat-foreground);
-		border-left: 8px solid var(--colors-focusBorder);
-		padding: 1em;
-
-		p {
-			padding-bottom: 0;
-			margin-bottom: 0;
-		}
-	}
-
-	.form-control, .form-select, .input-group-text {
-		background: var(--colors-editor-background);
-		border-color: var(--colors-input-border);
-		color: var(--colors-input-foreground);
-
-		&:focus {
-			outline: 0;
-		}
-	}
-
-
-
+html, body, #root {
+  background: var(--panel-background-color);
+  color: var(--foreground-color);
+  height: 100vh;
+  overflow: hidden;
 }
-
-#header {
-	height:42px;
-	overflow-y: hidden;
-	overflow-x: auto;
-}
-
-#footer {
-	/*height:30px;*/
-}
-
-#content {
-	-webkit-box-flex:1;
-	display: -webkit-box;
-	-webkit-box-orient: horizontal;
-	-webkit-box-align:stretch;
-}
-
-#sidebar { width:120px; }
-
-#main {
-	-webkit-box-flex:1;
-	overflow: scroll;
+#root {
+  padding-top: 42px;
 }

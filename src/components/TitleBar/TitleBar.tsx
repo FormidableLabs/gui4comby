@@ -1,16 +1,49 @@
 import './TitleBar.scss';
-import {AiOutlineExperiment, AiOutlineFileSearch, AiOutlineRead, AiOutlineSetting} from "react-icons/ai";
-import {Button, Nav} from "react-bootstrap";
-import {useState} from "react";
+import {AiOutlineSetting} from "react-icons/ai";
+import {Nav} from "react-bootstrap";
+import {useEffect, useState} from "react";
+import TabIcon, {TabType} from "../TabIcon/TabIcon";
+import NewTabButton from "../NewTabButton/NewTabButton";
+import PreserveBackgroundLocationButton from '../PreserveBackgroundLocationLink/PreserveBackgroundLocationButton';
+import {AiOutlineClose} from "react-icons/all";
+import {useRecoilState} from "recoil";
+import {getId, tabsState} from "../../App.recoil";
+import {useNavigate, useParams} from "react-router-dom";
+
 
 const TitleBar = () => {
+  const [tabs, setTabs] = useRecoilState(tabsState);
+  const params = useParams() as {tabId: string};
+  const navigate = useNavigate();
+  const [position, setPosition] = useState(tabs.findIndex(tab => tab.id === params.tabId));
   const [activeKey, setActiveKey] = useState('get-started');
-  const reveal = (id:string) => {
-    setActiveKey(id);
-    // make sure tab is fully on screen
+
+  // // if there are no tabs, add a default tab
+  useEffect(() => {
+    if(tabs.length < 1) {
+      let newId = getId();
+      setTabs([{type: TabType.Index, title: 'Getting Started', id: newId, path: `/tab/${newId}`}]);
+    }
+  }, [tabs]);
+
+  // when tab no longer exists, focus on a new tab
+  useEffect(() => {
+    if(!tabs.find(tab => tab.id === params.tabId) && tabs.length > 0){
+      console.log("couldn't find tab for", params.tabId, location, params);
+      let newPosition = Math.max(position-1, 0);
+      console.log('positions', position, newPosition);
+      navigate(`/tab/${tabs[newPosition].id}`);
+    } else if ( tabs.find(tab => tab.id === params.tabId) ) {
+      let newPosition = tabs.findIndex(tab => tab.id === params.tabId);
+      setPosition(newPosition)
+    }
+  }, [tabs, params.tabId, position, navigate, location.pathname])
+
+  // make sure tab is fully on screen
+  useEffect(() => {
     let parent = document.getElementById('titlebar-tabs');
     if(!parent) { return }
-    let tab = document.getElementById(id);
+    let tab = document.getElementById(params.tabId);
     if(!tab) { return }
 
     let navsRightEdge = parent.offsetWidth;
@@ -22,34 +55,36 @@ const TitleBar = () => {
     } else if(tabLeftEdge < parent.scrollLeft) {
       parent.scrollTo({left: tab.offsetLeft, behavior: 'smooth'})
     }
+  }, [params.tabId])
+
+  // remove tab from list
+  const close = (id: string) => {
+    setTabs((oldState) => {
+      let newState = oldState.filter(tab => tab.id !== id);
+      return newState;
+    });
   }
 
   return (
     <div data-tauri-drag-region className="titlebar">
       {/*<strong>GUI 4 Comby</strong>*/}
-      <Nav variant="tabs" activeKey={activeKey} style={{flexGrow: 1}} id={'titlebar-tabs'} onSelect={(key) => reveal(key!)}>
-        <Nav.Item>
-          <Nav.Link eventKey="get-started">Get Started</Nav.Link>
-        </Nav.Item>
-        <Nav.Item>
-          <Nav.Link eventKey="link-1">Option 2</Nav.Link>
-        </Nav.Item>
-        {['a','b','c','d','e','f'].map(e => (
-          <Nav.Item key={e} id={`link-${e}`}>
-            <Nav.Link eventKey={`link-${e}`}>Option {e}</Nav.Link>
-          </Nav.Item>
-        ))}
-        <Nav.Item>
-          <Nav.Link eventKey="disabled" disabled>
-            Disabled
-          </Nav.Link>
-        </Nav.Item>
+      <Nav variant="tabs" activeKey={activeKey} style={{flexGrow: 1}} id={'titlebar-tabs'}>
+        {tabs.map((tab, idx) => {
+          return (
+            <Nav.Item key={idx + '-' + tab.id} id={tab.id} style={{flexShrink: 0}}>
+                <Nav.Link className={params.tabId === tab.id ? 'active':''} onClick={() => navigate(tab.path)}>
+                  <TabIcon type={tab.type}/>{' '}{tab.title}
+                  <AiOutlineClose size={14} style={{marginLeft: '0.5em'}} onClick={(e) => {close(tab.id); e.stopPropagation()}}/>
+                </Nav.Link>
+            </Nav.Item>
+          )
+        })}
       </Nav>
       <span style={{marginLeft: 'auto', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', columnGap: '0.25em'}}>
-        <Button onClick={() => reveal('link-a')}><AiOutlineExperiment/></Button>
-        <Button onClick={() => reveal('link-c')}><AiOutlineFileSearch/></Button>
-        <Button onClick={() => reveal('link-e')}><AiOutlineRead/></Button>
-        <Button onClick={() => reveal('link-g')}><AiOutlineSetting/></Button>
+        <NewTabButton type={TabType.Playground}/>
+        <NewTabButton type={TabType.Filesystem}/>
+        <NewTabButton type={TabType.Docs}/>
+        <PreserveBackgroundLocationButton to={'/settings'}><AiOutlineSetting/></PreserveBackgroundLocationButton>
       </span>
     </div>
   )

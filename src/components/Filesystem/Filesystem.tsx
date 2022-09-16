@@ -10,6 +10,7 @@ import {FilesystemMatchResult, FilesystemResult, FilesystemResultType, Filesyste
 import ResultsExplorer from "./ResultsExplorer";
 import {CombyMatch, CombyRewrite} from "../Playground/Comby";
 import {directorySelectionFamily} from "./Filesystem.recoil";
+import {VSizable} from "../VSizable/VSizable";
 
 const Filesystem = ({id}:{id:string})=> {
   const {push} = useToaster();
@@ -62,8 +63,13 @@ const Filesystem = ({id}:{id:string})=> {
     setDirectorySelection(selected)
   }, [setDirectorySelection]);
 
-  return <>
-      <div style={{padding: '1em 1em'}}>
+  /* TODO:
+      measure distance between bottom of run button and available height
+      and set default height to match available space
+  */
+
+  return <VSizable defaultHeight={result ? 200 : 0} sizable={result ? <ResultsExplorer results={result} path={directorySelection.path}/> : null}>
+      <div style={{padding: '1em 1em', height: '100%', overflowY: 'scroll'}}>
         <Form>
           <Form.Group className="mb-3" controlId="dirSelect">
               <Form.Label><strong><small>Directory</small></strong></Form.Label>
@@ -86,7 +92,6 @@ const Filesystem = ({id}:{id:string})=> {
           <Button onClick={run} disabled={loading || !Boolean(directorySelection.expanded) || !Boolean(matchTemplate) || !Boolean(rewriteTemplate)}>Run</Button>
         </Form>
       </div>
-      {result && <ResultsExplorer results={result} path={directorySelection.path}/>}
-    </>;
+    </VSizable>;
 }
 export default Filesystem;

@@ -1,4 +1,4 @@
-import {Nav, Tab} from "react-bootstrap";
+import {Button, Nav, Tab} from "react-bootstrap";
 import TabIcon, {TabType} from "../TabIcon/TabIcon";
 import {useRecoilState} from "recoil";
 import {getId, tabsState} from "../../App.recoil";
@@ -34,7 +34,7 @@ const NewTabButton = ({type, text, style}:Props) => {
   }
 
   return (
-    <Nav.Link className={'button'} onClick={add} style={style}><TabIcon type={type}/>{text ? ` ${text}` : null}</Nav.Link>
+    <Button onClick={add} style={style}><TabIcon type={type}/>{text ? ` ${text}` : null}</Button>
   )
 }
 export default NewTabButton;

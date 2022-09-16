@@ -1,19 +1,18 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import "./variables.css";
-import "./style.css";
 import "./App.scss";
+import "./style.css";
+import "react-resizable/css/styles.css";
 import "./Ace.scss";
-import TabBar from "./components/TabBar/TabBar";
 import TabContent from "./components/TabContent/TabContent";
 import {useEffect, useLayoutEffect, useRef } from "react";
 import {Routes, Route, Outlet, useLocation } from "react-router-dom";
 import Toaster from "./components/Toaster/Toaster";
 import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en.json';
-
 TimeAgo.addDefaultLocale(en);
+
 import { listen } from '@tauri-apps/api/event'
-import PreserveBackgroundLocationLink, {
+import {
   LocationState
 } from "./components/PreserveBackgroundLocationLink/PreserveBackgroundLocationLink";
 import SideSheet from "./components/SideSheet/SideSheet";
@@ -27,6 +26,7 @@ import useResizeObserver from "@react-hook/resize-observer";
 import {appThemeAtom, mainSizeAtom, MainSizeState} from "./App.recoil";
 import ThemeSettings from "./components/ThemeSettings/ThemeSettings";
 import SettingsIndex from "./components/SettingsIndex/SettingsIndex";
+import TitleBar from "./components/TitleBar/TitleBar";
 
 
 export const useMainSizeObserver = () => {
@@ -58,6 +58,11 @@ function App() {
   const {sized, ref} = useMainSizeObserver();
   const theme = useRecoilValue(appThemeAtom);
 
+  useEffect(() =>{
+     document.body.classList.add('default');
+     document.body.classList.add('dark');
+  }, [/* TODO reference theme state */]);
+
   useEffect(() => {
     const unlisten = listen('server-log', (event) => {
       let payload = event.payload as {time: number, message: string};
@@ -83,16 +88,14 @@ function App() {
     <>
       <Routes location={state?.backgroundLocation || location}>
         <Route path={"/"} element={
-          <div id={'app'} className={theme}>
-            <TabBar id={'header'}/>
-            <div id="content">
-              <div ref={ref} id={'main'}>
-                {sized && <Outlet/>}
-              </div>
+          <>
+            <TitleBar/>
+            <div ref={ref} style={{height: '100%', display: 'grid', gridTemplateRows: 'auto 28px'}}>
+              {sized && <div id={'main'} style={{height: '100%', overflowY: 'scroll'}}><Outlet/></div>}
+              <EventLog id={'footer'}/>
             </div>
-            <EventLog id={'footer'}/>
             <Toaster/>
-          </div>
+          </>
           }>
             {/* TODO deprecate tab/ path */}
             <Route path="tab/:tabId" element={<TabContent/>}/>

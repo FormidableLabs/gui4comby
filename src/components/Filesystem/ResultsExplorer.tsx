@@ -29,8 +29,8 @@ const ResultsExplorer = ({results, path}:Props) => {
   }
   const fs_path = results[index].uri!.replace('/mnt/source/', path);
 
-  return <div>
-    <div style={{display: 'flex', alignItems: 'center', border: 'solid 1px', padding: '0.25em'}}>
+  return <div style={{height: '100%', display: 'grid', gridTemplateRows: '42px auto'}}>
+    <div style={{display: 'flex', alignItems: 'center', borderBottom: 'solid 2px var(--border-color)', padding: '0.25em'}}>
       <span style={{display: 'grid', columnGap: '0.25em', gridTemplateColumns: '1fr 1fr 1fr', alignItems: 'center', justifyItems: 'center'}}>
         <AiOutlineDiff/>
         <Button size={'sm'} variant={'default'} onClick={prev}><AiOutlineArrowLeft/></Button>
@@ -50,7 +50,9 @@ const ResultsExplorer = ({results, path}:Props) => {
       </span>
       <Button style={{marginLeft: '0.25em'}} variant={'default'} size={'sm'}><RiLayoutBottom2Line/></Button>
     </div>
-    <Diff uri={fs_path} rewritten={results[index].rewritten_source} diff={results[index].diff}/>
+    <div style={{height: '100%', overflowY: 'scroll'}}>
+      <Diff uri={fs_path} rewritten={results[index].rewritten_source} diff={results[index].diff}/>
+    </div>
   </div>
 }
 export default ResultsExplorer;
@@ -84,5 +86,10 @@ const Diff = ({uri, rewritten, diff}:{uri: string, rewritten: string, diff: stri
         oldValue={source}
         newValue={rewritten}
         splitView={true}
+        useDarkTheme={true}
+        styles={{
+          /* @ts-ignore */
+          height: '100%'
+        }}
       />
 }
