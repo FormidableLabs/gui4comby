@@ -43,6 +43,5 @@ export const mainSizeAtom = atom<MainSizeState>({
 
 export const appThemeAtom = atom({
   key: 'appTheme',
-  //default: 'ayu-ayu-mirage-bordered'
-  default: 'none'
+  default: 'dark'
 });

@@ -59,9 +59,14 @@ function App() {
   const theme = useRecoilValue(appThemeAtom);
 
   useEffect(() =>{
-     document.body.classList.add('default');
-     document.body.classList.add('dark');
-  }, [/* TODO reference theme state */]);
+    document.body.classList.remove('dark');
+    document.body.classList.remove('light');
+
+    document.body.classList.add(theme);
+    if(!document.body.classList.contains('theme')){
+      document.body.classList.add('theme');
+    }
+  }, [theme]);
 
   useEffect(() => {
     const unlisten = listen('server-log', (event) => {

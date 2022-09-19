@@ -12,6 +12,9 @@ import {useCallback, useEffect, useState} from "react";
 import ReactDiffViewer from 'react-diff-viewer'
 import {invoke} from "@tauri-apps/api/tauri";
 import useToaster, {ToastVariant} from "../Toaster/useToaster";
+import {useRecoilValue} from "recoil";
+import {app} from "@tauri-apps/api";
+import {appThemeAtom} from "../../App.recoil";
 
 type Props = {
   results: Array<CombyRewrite>;
@@ -30,7 +33,7 @@ const ResultsExplorer = ({results, path}:Props) => {
   const fs_path = results[index].uri!.replace('/mnt/source/', path);
 
   return <div style={{height: '100%', display: 'grid', gridTemplateRows: '42px auto'}}>
-    <div style={{display: 'flex', alignItems: 'center', borderBottom: 'solid 2px var(--border-color)', padding: '0.25em'}}>
+    <div style={{minWidth: 0, display: 'flex', alignItems: 'center', borderBottom: 'solid 2px var(--border-color)', padding: '0.25em'}}>
       <span style={{display: 'grid', columnGap: '0.25em', gridTemplateColumns: '1fr 1fr 1fr', alignItems: 'center', justifyItems: 'center'}}>
         <AiOutlineDiff/>
         <Button size={'sm'} variant={'default'} onClick={prev}><AiOutlineArrowLeft/></Button>
@@ -59,6 +62,7 @@ export default ResultsExplorer;
 
 
 const Diff = ({uri, rewritten, diff}:{uri: string, rewritten: string, diff: string}) => {
+  const theme = useRecoilValue(appThemeAtom);
   const {push} = useToaster();
   const [loading, setLoading] = useState(false);
   const [source, setSource] = useState('Loading ...');
@@ -86,7 +90,7 @@ const Diff = ({uri, rewritten, diff}:{uri: string, rewritten: string, diff: stri
         oldValue={source}
         newValue={rewritten}
         splitView={true}
-        useDarkTheme={true}
+        useDarkTheme={theme === 'dark'}
         styles={{
           /* @ts-ignore */
           height: '100%'

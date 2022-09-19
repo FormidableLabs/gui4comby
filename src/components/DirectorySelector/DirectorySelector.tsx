@@ -4,6 +4,8 @@ import {ReactNode, useCallback, useEffect, useRef, useState} from "react";
 import {invoke} from "@tauri-apps/api/tauri";
 import {useDebounce} from "usehooks-ts";
 import useToaster, {ToastVariant} from "../Toaster/useToaster";
+import "./DirectorySelector.scss";
+import {AiOutlineClose} from "react-icons/all";
 
 type DirInfoResult = {
   resolved_path: string;
@@ -123,10 +125,11 @@ const DirectorySelectorModal = ({handleClose, handleSelect, value}:DirectorySele
     handleSelect(selected);
   }
 
-  return (<Modal show={true} onHide={handleClose} size={'lg'}>
-    <Modal.Header closeButton>
+  return (<Modal show={true} onHide={handleClose} size={'lg'} className={'directory-selector-modal'}>
+    <Modal.Header>
       <AiOutlineFolderOpen style={{marginRight: '0.5em'}}/>
       <Form.Control value={input} onChange={e => setInput(e.target.value)} ref={inputRef} as="input" placeholder="" style={{padding: 0, border: 0}}/>
+      <span onClick={handleClose} style={{cursor: 'pointer'}}><AiOutlineClose/></span>
     </Modal.Header>
     {!loading && input === '' && <Modal.Body>
       <div>Type <code>~/</code> to browse your user folder.</div>
@@ -160,7 +163,7 @@ const Candidate = ({onClick, path, dirInfo}: {onClick: (path:string) => void, pa
   const shorten = (path:string) => path.replace(dirInfo.home_dir || '', '~/');
 
   return (
-    <Badge onClick={() => onClick(shorten(path)+dirInfo.path_separator)} style={{flexShrink: 0, textAlign: 'left', marginBottom: '0.25em', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap'}}>
+    <Badge className={'candidate'} onClick={() => onClick(shorten(path)+dirInfo.path_separator)}>
       {shorten(path).split(dirInfo.path_separator).filter(e => e !== '').reduce((prev: null | ReactNode, cur)=>{
         if (prev) {
           return <>{prev} <AiOutlineRight/> {cur}</>
