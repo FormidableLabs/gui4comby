@@ -1,12 +1,19 @@
 .docs {
-  color: var(--colors-editor-foreground);
-  background: var(--colors-editor-background);
+  color: var(--foreground-muted-color);
+  background: var(--panel-background-color);
 
-  code {
-    color: var(--scope-variable-language-foreground);
+  h1,h2,h3,h4,h5,h6 {
+    color: var(--foreground-color);
   }
+
   pre {
-    background: var(--colors-textBlockQuote-background);
+    background-color: var(--bg-step-4);
     padding: 1em;
   }
+
+  code {
+    color: var(--foreground-color);
+    background-color: var(--bg-step-4);
+  }
+
 }

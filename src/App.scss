@@ -1,65 +1,134 @@
-#app, #sidesheet {
-	height:100%;
-	display: -webkit-box;
-	-webkit-box-orient: vertical;
-	-webkit-box-align:stretch;
-	color: var(--colors-foreground);
-  	background: var(--colors-editor-background);
+.dark {
+  /* Theme */
+  --bg-step-1: #25252Dff;
+  --bg-step-2: #2D3037ff;
+  --bg-step-3: #373A43ff;
+  --bg-step-4: #454753ff;
+  --bg-step-5: #707078ff;
 
-	a {
-		color: var(--colors-textLink-foreground);
+  --contrast-color: #6c757d;
 
-		&:hover {
-			color: var(--colors-textLink-activeForeground);
-		}
-	}
+  --fg-color: #EBEFF2ff;
+  --fg-color-muted-1: #CFD2D9ff;
+  --fg-color-muted-2: #AEB1B8ff;
+  --fg-color-pop-1: #894EEEff;
+  --fg-color-pop-1-muted: #894EEE99;
+  --fg-color-pop-2: #F48494ff;
+  --fg-color-pop-2-muted: #F4849499;
+  --fg-color-pop-2-emphasis: #ff6377;
+}
 
-	blockquote {
-		background: var(--colors-textBlockQuote-background);
-		color: var(--colors-textPreformat-foreground);
-		border-left: 8px solid var(--colors-focusBorder);
-		padding: 1em;
+.light {
+  --bg-step-1: #F6F6F6ff;
+  --bg-step-2: #fff;
+  --bg-step-3: #f3f3f3;
+  --bg-step-4: #e0e0e0;
+  --bg-step-5: #d0d0d0;
 
-		p {
-			padding-bottom: 0;
-			margin-bottom: 0;
-		}
-	}
+  --contrast-color: #a8acaf;
 
-	.form-control, .form-select, .input-group-text {
-		background: var(--colors-editor-background);
-		border-color: var(--colors-input-border);
-		color: var(--colors-input-foreground);
-
-		&:focus {
-			outline: 0;
-		}
-	}
-
-
+  --fg-color: #444444;
+  --fg-color-muted-1: #565656;
+  --fg-color-muted-2: #6e6e6e;
+  --fg-color-pop-1: #EAA935ff;
+  --fg-color-pop-1-muted: #EAA93599;
+  --fg-color-pop-2: #DD3430ff;
+  --fg-color-pop-2-muted: #DD343099;
+  --fg-color-pop-2-emphasis: #ff6377;
 
 }
 
-#header {
-	height:42px;
-	overflow-y: hidden;
-	overflow-x: auto;
+.theme {
+  /* Theme Mapping */
+  --background-color: var(--bg-step-1);
+  --panel-background-color: var(--bg-step-2);
+  --panel-background-active-color: var(--bg-step-3);
+  --foreground-color: var(--fg-color);
+  --foreground-muted-color: var(--fg-color-muted-1);
+  --foreground-active-color: var(--fg-color-pop-1);
+  //--border-color: #00000055;
+  --border-color: var(--contrast-color);
+  --input-background-color: var(--bg-step-3);
+  --input-background-active-color: var(--bg-step-3);
+  --color-pop-1: var(--fg-color-pop-1);
 }
 
-#footer {
-	/*height:30px;*/
+html, body, #root {
+  background: var(--panel-background-color);
+  color: var(--foreground-color);
+  height: 100vh;
+  overflow: hidden;
+}
+#root {
+  padding-top: 42px;
 }
 
-#content {
-	-webkit-box-flex:1;
-	display: -webkit-box;
-	-webkit-box-orient: horizontal;
-	-webkit-box-align:stretch;
+.form-control, .form-select {
+  background-color: var(--input-background-color);
+  border-color: var(--border-color);
+  color: var(--foreground-muted-color);
+
+  &:focus {
+    background-color: var(--input-background-active-color);
+    color: var(--foreground-color);
+    box-shadow: none;
+    border-color: var(--border-color);
+  }
 }
 
-#sidebar { width:120px; }
+.input-group-text {
+  background-color: var(--input-background-color);
+  border-color: var(--border-color);
+  color: var(--foreground-muted-color);
+}
 
-#main {
-	-webkit-box-flex:1;
-	overflow: scroll;
+.modal {
+  .btn-close {
+    color: var(--foreground-color);
+  }
+  .modal-content {
+    background-color: var(--input-background-active-color);
+    //border-color: var(--border-color);
+    color: var(--foreground-muted-color);
+  }
+}
+
+
+.btn-default {
+  color: var(--colors-input-foreground);
+  &:hover, &:active {
+    border-color: var(--border-color);
+  }
+}
+
+.btn-outline-secondary {
+  border-color: var(--border-color);
+}
+
+.nav-link, a {
+  color: var(--fg-color-pop-2);
+  &:hover {
+    color: var(--fg-color-pop-2-emphasis);
+  }
+}
+
+pre {
+  background: var(--panel-background-color);
+}
+
+.offcanvas {
+  background: var(--background-color);
+}
+
+.list-group {
+  .list-group-item {
+  border-color: var(--border-color);
+    background: var(--background-color);
+    color: var(--foreground-color);
+
+  }
+}
+
+.badge {
+  color: var(--foreground-color);
 }

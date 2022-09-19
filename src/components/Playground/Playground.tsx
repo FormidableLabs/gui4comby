@@ -1,4 +1,4 @@
-import {Button, Form} from "react-bootstrap";
+import {Form} from "react-bootstrap";
 import {MutableRefObject, useCallback, useEffect, useLayoutEffect, useRef, useState} from "react";
 import {invoke} from "@tauri-apps/api/tauri";
 import useToaster, {ToastVariant} from "../Toaster/useToaster";
@@ -24,6 +24,7 @@ import {
   sourceFamily
 } from "./Playground.recoil";
 import {useDebounce} from "usehooks-ts";
+import {CombyMatch, CombyRewrite} from "./Comby";
 
 const useSize = (target: MutableRefObject<HTMLElement | null>) => {
   const [size, setSize] = useState<DOMRectReadOnly>()
@@ -37,39 +38,6 @@ const useSize = (target: MutableRefObject<HTMLElement | null>) => {
   // Where the magic happens
   useResizeObserver(target, (entry) => setSize(entry.contentRect))
   return size
-}
-
-type CombyPosition = {
-  offset: number;
-  line: number;
-  column: number;
-}
-type CombyRange = {
-  start: CombyPosition,
-  end: CombyPosition;
-}
-type CombyEnvironment = {
-  variable: string;
-  value: string;
-  range: CombyRange;
-}
-type CombyMatch = {
-  uri?: string;
-  matches: Array<{
-    matched: string;
-    range: CombyRange;
-    environment: Array<CombyEnvironment>
-  }>
-}
-type CombyRewrite = {
-  uri?: string;
-  rewritten_source: string;
-  in_place_substitutions: Array<{
-    range: CombyRange;
-    replacement_content: string;
-    environment: Array<CombyEnvironment>
-  }>;
-  diff: string;
 }
 
 enum PlaygroundResultType {

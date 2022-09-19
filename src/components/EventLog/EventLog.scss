@@ -1,0 +1,22 @@
+.eventlog.offcanvas {
+  background-color: var(--panel-background-color);
+  color: var(--fg-color-muted-1);
+
+  .offcanvas-header {
+    padding: 0.25rem 1rem;
+    background-color: var(--background-color);
+  }
+
+  .offcanvas-body {
+    padding: 0;
+
+    .event {
+      background-color: var(--panel-background-color);
+      &.alt {
+        background-color: var(--panel-background-active-color);
+      }
+    }
+  }
+
+
+}

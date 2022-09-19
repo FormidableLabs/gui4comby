@@ -113,7 +113,7 @@ const toCssVariables = (obj, label= null) => {
       let color = obj[key];
       let variable = `--${label ? `${label}-${key}`: key}`;
       // only generate variable if the color is defined and it is in our allow list
-      if(typeof color !== 'undefined' && variable_list.indexOf(variable) !== -1){
+      if(typeof color !== 'undefined' && color !== '' && color !== '#' && variable_list.indexOf(variable) !== -1){
         return [...prev, `--${label ? `${label}-${key}`: key}: ${color};`]
       } else {
         return prev;
@@ -152,15 +152,32 @@ glob.sync(path.resolve('themes/sources/*.json')).forEach(filename => {
       .replaceAll(/[^a-zA-Z0-9-]/g, '');
     const mapped = map(theme);
 
+    const cssClassName = className
+      // class names can't start w/ a number
+      .replaceAll(/^([0-9])/g, (d) => {
+      switch(d) {
+        case '1': return 'One';
+        case '2': return 'Two';
+        case '3': return 'Three';
+        case '4': return 'Four';
+        case '5': return 'Five';
+        case '6': return 'Six';
+        case '7': return 'Seven';
+        case '8': return 'Eight';
+        case '9': return 'Nine';
+        default: return 'Zero';
+      }
+    });
+
     const cssContent = `
-    .${className} {
+    .${cssClassName} {
   ${toCssVariables(mapped).map(variable => `    ${variable}`).join("\n")}
     }  
     `;
 
     themes.push({
       type: theme.type,
-      value: className,
+      value: cssClassName,
       label: className.replace(/(^[a-z]|-[a-z])/g, v => v.toUpperCase().replace('-',' ')) + ` (${theme.type})`
     });
 

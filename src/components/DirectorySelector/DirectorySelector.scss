@@ -1,0 +1,13 @@
+.candidate {
+  flex-shrink: 0;
+  text-align: left;
+  margin-bottom: 0.25em;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  background-color: var(--bg-step-4) !important;
+
+  &:hover, .active {
+    background-color: var(--color-pop-1) !important;
+  }
+}

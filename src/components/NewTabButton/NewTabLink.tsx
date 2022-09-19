@@ -1,8 +1,8 @@
-import {Button, Nav, Tab} from "react-bootstrap";
-import TabIcon, {TabType} from "../TabIcon/TabIcon";
 import {useRecoilState} from "recoil";
 import {getId, tabsState} from "../../App.recoil";
 import {useNavigate} from "react-router-dom";
+import TabIcon, {TabType} from "../TabIcon/TabIcon";
+import {Nav} from "react-bootstrap";
 import {CSSProperties} from "react";
 
 type Props = {
@@ -10,7 +10,7 @@ type Props = {
   text?: string;
   style?: CSSProperties;
 }
-const NewTabButton = ({type, text, style}:Props) => {
+export const NewTabLink = ({type, text, style}:Props) => {
   const [tabs, setTabs] = useRecoilState(tabsState);
   const navigate = useNavigate();
 
@@ -34,7 +34,7 @@ const NewTabButton = ({type, text, style}:Props) => {
   }
 
   return (
-    <Button onClick={add} style={style}><TabIcon type={type}/>{text ? ` ${text}` : null}</Button>
+    <Nav.Link onClick={add} style={style}><TabIcon type={type}/>{text ? ` ${text}` : null}</Nav.Link>
   )
 }
-export default NewTabButton;
+export default NewTabLink;
