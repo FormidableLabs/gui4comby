@@ -5,6 +5,7 @@ import NewTabButton from "../NewTabButton/NewTabButton";
 import {TabType} from "../TabIcon/TabIcon";
 import {Nav, Navbar} from "react-bootstrap";
 import NewDocTabButton from "../NewTabButton/NewDocTabButton";
+import NewTabLink from "../NewTabButton/NewTabLink";
 
 const GettingStarted = () => {
   const mainSizeState = useRecoilValue(mainSizeAtom);
@@ -20,10 +21,10 @@ const GettingStarted = () => {
           <Nav style={{marginRight: '1em'}} className={'flex-column'}>
             <Navbar.Brand><strong>Start</strong></Navbar.Brand>
             <Nav.Item>
-              <NewTabButton type={TabType.Playground} text={'Playground'} style={{padding: 0}}/>
+              <NewTabLink type={TabType.Playground} text={'Playground'} style={{padding: 0}}/>
             </Nav.Item>
             <Nav.Item>
-              <NewTabButton type={TabType.Filesystem} text={'Filesystem Find & Replace'} style={{padding: 0}}/>
+              <NewTabLink type={TabType.Filesystem} text={'Filesystem Find & Replace'} style={{padding: 0}}/>
             </Nav.Item>
           </Nav>
           <Nav className={'flex-column'}>
