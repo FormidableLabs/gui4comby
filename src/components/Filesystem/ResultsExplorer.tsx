@@ -7,30 +7,60 @@ import {
   AiOutlineDiff,
   RiLayoutBottom2Line
 } from "react-icons/all";
-import {Button} from "react-bootstrap";
+import {Button, Spinner} from "react-bootstrap";
 import {useCallback, useEffect, useState} from "react";
 import ReactDiffViewer from 'react-diff-viewer'
 import {invoke} from "@tauri-apps/api/tauri";
 import useToaster, {ToastVariant} from "../Toaster/useToaster";
 import {useRecoilValue} from "recoil";
-import {app} from "@tauri-apps/api";
 import {appThemeAtom} from "../../App.recoil";
+import {CombyRewriteStatus, FilesystemRewriteFileResult} from "./Filesystem.types";
 
 type Props = {
-  results: Array<CombyRewrite>;
+  results: Array<CombyRewriteStatus>;
   path: string;
+  applyFunc?: (uri:string) => Promise<void>;
+  skipFunc?: (uri:string) => Promise<void>;
 };
 
-const ResultsExplorer = ({results, path}:Props) => {
+const ResultsExplorer = ({applyFunc, path, results, skipFunc}:Props) => {
   const [index, setIndex] = useState(0);
+  const [applying, setApplying] = useState(false);
+
+  const onApplyClick = useCallback(async () => {
+    if(applyFunc) {
+      try {
+        setApplying(true);
+        await applyFunc(results[index].uri!);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setApplying(false)
+      }
+    }
+  },[applyFunc, index, setApplying, results]);
+
+  const onSkipClick = useCallback(async () => {
+    if(skipFunc){
+      try {
+        await skipFunc(results[index].uri!);
+      } catch (err) {
+       console.error(err);
+      }
+    }
+  }, [skipFunc, index, results]);
 
   const next = () => {
     setIndex(index + 1 >= results.length ? 0 : index+1);
   }
+
   const prev = () => {
     setIndex(index - 1 < 0 ? results.length-1 : index-1);
   }
+
   const fs_path = results[index].uri!.replace('/mnt/source/', path);
+  const applied = Boolean(results[index].applied);
+  const skipped = Boolean(results[index].skipped);
 
   return <div style={{height: '100%', display: 'grid', gridTemplateRows: '42px auto'}}>
     <div style={{minWidth: 0, display: 'flex', alignItems: 'center', borderBottom: 'solid 2px var(--border-color)', padding: '0.25em'}}>
@@ -47,11 +77,11 @@ const ResultsExplorer = ({results, path}:Props) => {
       </span>
       <span style={{marginLeft: 'auto'}}>
         <span style={{display: 'grid', columnGap: '0.25em', gridTemplateColumns: '1fr 1fr', alignItems: 'center', justifyItems: 'center'}}>
-          <Button size={'sm'} variant={'default'} style={{whiteSpace: 'nowrap'}}>Skip{' '}<AiOutlineCloseCircle/></Button>
-          <Button size={'sm'} variant={'success'} style={{whiteSpace: 'nowrap'}}>Apply{' '}<AiOutlineCheckCircle/></Button>
+          <Button size={'sm'} variant={'default'} style={{whiteSpace: 'nowrap'}} onClick={onSkipClick} disabled={applied || skipped}>{skipped ? 'Skipped':'Skip'}{' '}<AiOutlineCloseCircle/></Button>
+          {applying ? <Spinner animation="border" /> : <Button size={'sm'} variant={'success'} style={{whiteSpace: 'nowrap'}} onClick={onApplyClick} disabled={applied || skipped}>{applied ? 'Applied':'Apply'}{' '}<AiOutlineCheckCircle/></Button> }
         </span>
       </span>
-      <Button style={{marginLeft: '0.25em'}} variant={'default'} size={'sm'}><RiLayoutBottom2Line/></Button>
+      {/*<Button style={{marginLeft: '0.25em'}} variant={'default'} size={'sm'}><RiLayoutBottom2Line/></Button>*/}
     </div>
     <div style={{height: '100%', overflowY: 'scroll'}}>
       <Diff uri={fs_path} rewritten={results[index].rewritten_source} diff={results[index].diff}/>

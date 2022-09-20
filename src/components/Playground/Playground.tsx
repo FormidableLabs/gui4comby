@@ -199,11 +199,11 @@ const Playground = ({id}:{id:string}) => {
         </Form.Group>
         <Form.Group className="mb-3" controlId="matched" style={{gridColumn: 1}}>
           <Form.Label><strong><small>Matched</small></strong></Form.Label>
-          <Form.Control as="textarea" rows={3} placeholder="" value={matched} readOnly={true} disabled={loading}/>
+          <Form.Control as="textarea" rows={3} placeholder="" value={matched} readOnly={true}/>
         </Form.Group>
         <Form.Group className="mb-3" controlId="rewritten">
           <Form.Label><strong><small>Rewritten</small></strong></Form.Label>
-          <Form.Control as="textarea" rows={3} placeholder="" value={rewritten} readOnly={true} disabled={loading}/>
+          <Form.Control as="textarea" rows={3} placeholder="" value={rewritten} readOnly={true}/>
         </Form.Group>
       </div>
     </Form>
