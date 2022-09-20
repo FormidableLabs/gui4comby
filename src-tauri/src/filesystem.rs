@@ -186,16 +186,21 @@ pub async fn filesystem_rewrite<R: Runtime>(
     let exclude_dirs_param = exclude_dirs.join(",");
     let extensions_param = extensions.join(",");
     let docker = maybe::maybe_ref(&state.docker)?;
-    let result = docker_run::docker_run_mnt(docker, tab_id, host_path,vec![
+    let mut args = vec![
         "comby",
         match_template.as_str(),
         rewrite_template.as_str(),
         "-matcher", language.as_str(),
         "-d", mnt_path,
         "-exclude-dir", &exclude_dirs_param,
-        "-extension", &extensions_param,
         "-json-lines"
-    ], app_handle).await?;
+    ];
+    if ! &extensions_param.eq(".*") {
+        let mut added_args = vec!["-extension", &extensions_param];
+        &args.append(&mut added_args);
+    }
+
+    let result = docker_run::docker_run_mnt(docker, tab_id, host_path,args, app_handle).await?;
 
     Ok(FilesystemResult { result_type: FilesystemResultType::Rewrite, result: result.std_out, warning: result.std_err })
 }

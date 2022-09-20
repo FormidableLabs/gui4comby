@@ -1,173 +1,25 @@
-import {ChangeEvent, CSSProperties, useCallback, useEffect, useState} from "react";
-import {AiOutlineCode } from "react-icons/all";
-import { Form, InputGroup } from "react-bootstrap";
+import {ChangeEvent, CSSProperties, useCallback, useState} from "react";
+import {AiOutlineCode} from "react-icons/all";
+import {Form, InputGroup} from "react-bootstrap";
+import { LanguageOptions } from "./LanguageOptions";
 
 export type LanguageOption = {
-  value: string;
-  label: string;
-  extensions: string;
-  mode?: string;
+  value: string; // value sent to comby -matcher arg
+  label: string; // display value in form element
+  extensions: string; // File extension mask to use for searching
+  mode?: string; // ACE mode value
 }
 
 type Props = {
   style?: CSSProperties;
   onChange?: (value: string, option: LanguageOption) => void;
+  excludes?: Array<string>;
+  defaultValue?: string;
 }
-const LanguageSelect = ({onChange, ...rest}: Props) => {
-  const options = [
-    {
-      "value": ".generic",
-      "label": "Generic",
-      "extensions": ".*",
-    },
-    {
-      "value": ".s",
-      "label": "Assembly",
-      "extensions": ".s",
-    },
-    {
-      "value": ".sh",
-      "label": "Bash",
-      "extensions": ".sh",
-    },
-    {
-      "value": ".c",
-      "label": "C/C++",
-      "extensions": ".c,.h,.cpp",
-    },
-    {
-      "value": ".cs",
-      "label": "C#",
-      "extensions": ".cs",
-    },
-    {
-      "value": ".clj",
-      "label": "Clojure",
-      "extensions": ".clj",
-    },
-    {
-      "value": ".css",
-      "label": "CSS",
-      "extensions": ".css,.scss",
-    },
-    {
-      "value": ".dart",
-      "label": "Dart",
-      "extensions": ".dart",
-    },
-    {
-      "value": ".elm",
-      "label": "Elm",
-      "extensions": ".elm",
-    },
-    {
-      "value": ".erl",
-      "label": "Erlang",
-      "extensions": ".erl",
-    },
-    {
-      "value": ".ex",
-      "label": "Elixir",
-      "extensions": ".ex",
-    },
-    {
-      "value": ".html",
-      "label": "HTML/XML",
-      "extensions": ".html,.xml",
-    },
-    {
-      "value": ".hs",
-      "label": "Haskell",
-      "extensions": ".hs",
-    },
-    {
-      "value": ".go",
-      "label": "Go",
-      "extensions": ".go",
-    },
-    {
-      "value": ".java",
-      "label": "Java",
-      "extensions": ".java",
-    },
-    {
-      "value": ".js",
-      "label": "JS/Typescript",
-      "mode": "javascript",
-      "extensions": ".js,.ts,.jsx,.tsx",
-    },
-    {
-      "value": ".json",
-      "label": "JSON",
-      "extensions": ".json",
-    },
-    {
-      "value": ".jl",
-      "label": "Julia",
-      "extensions": ".jl",
-    },
-    {
-      "value": ".tex",
-      "label": "Latex",
-      "extensions": ".tex",
-    },
-    {
-      "value": ".ml",
-      "label": "OCaml",
-      "extensions": ".ml",
-    },
-    {
-      "value": ".php",
-      "label": "PHP",
-      "extensions": ".php",
-    },
-    {
-      "value": ".py",
-      "label": "Python",
-      "extensions": ".py",
-    },
-    {
-      "value": ".re",
-      "label": "Reason",
-      "extensions": ".re",
-    },
-    {
-      "value": ".rb",
-      "label": "Ruby",
-      "extensions": ".rb",
-    },
-    {
-      "value": ".rs",
-      "label": "Rust",
-      "extensions": ".rs",
-    },
-    {
-      "value": ".scala",
-      "label": "Scala",
-      "extensions": ".scala",
-    },
-    {
-      "value": ".sql",
-      "label": "SQL",
-      "extensions": ".sql",
-    },
-    {
-      "value": ".swift",
-      "label": "Swift",
-      "extensions": ".swift",
-    },
-    {
-      "value": ".xml",
-      "label": "XML",
-      "extensions": ".xml",
-    },
-    {
-      "value": ".txt",
-      "label": "Text",
-      "extensions": ".txt",
-    }
-];
-  const [selectedIndex, setSelectedIndex] = useState(0);
+
+const LanguageSelect = ({onChange, defaultValue, excludes, ...rest}: Props) => {
+  const options = LanguageOptions.filter(s => (excludes || []).indexOf(s.value) === -1);
+  const [selectedIndex, setSelectedIndex] = useState(Math.max(options.findIndex(o => o.value === defaultValue),0));
   const selected = options[selectedIndex];
 
   const onSelected = useCallback((e: ChangeEvent<HTMLSelectElement>) => {

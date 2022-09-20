@@ -64,7 +64,7 @@ const ResultsExplorer = ({applyFunc, path, results, skipFunc}:Props) => {
 
   return <div style={{height: '100%', display: 'grid', gridTemplateRows: '42px auto'}}>
     <div style={{minWidth: 0, display: 'flex', alignItems: 'center', borderBottom: 'solid 2px var(--border-color)', padding: '0.25em'}}>
-      <span style={{display: 'grid', columnGap: '0.25em', gridTemplateColumns: '1fr 1fr 1fr', alignItems: 'center', justifyItems: 'center'}}>
+      <span style={{display: 'grid', columnGap: '0.25em', gridTemplateColumns: '1fr 1fr 1fr', alignItems: 'center', justifyItems: 'center', flexShrink: 0}}>
         <AiOutlineDiff/>
         <Button size={'sm'} variant={'default'} onClick={prev}><AiOutlineArrowLeft/></Button>
         <Button size={'sm'} variant={'default'} onClick={next}><AiOutlineArrowRight/></Button>

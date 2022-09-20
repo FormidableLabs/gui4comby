@@ -1,8 +1,14 @@
 import {Button, Form, InputGroup, Spinner} from "react-bootstrap";
-import {useRecoilState} from "recoil";
-import {languageFamily, matchTemplateFamily, rewriteTemplateFamily, ruleFamily} from "../Playground/Playground.recoil";
+import {useRecoilState, useRecoilValue} from "recoil";
+import {
+  defaultExtensionFamily,
+  languageFamily,
+  matchTemplateFamily,
+  rewriteTemplateFamily,
+  ruleFamily
+} from "../Playground/Playground.recoil";
 import DirectorySelector, {DirectorySelection} from "../DirectorySelector/DirectorySelector";
-import {ChangeEvent, ChangeEventHandler, SyntheticEvent, useCallback, useState} from "react";
+import {ChangeEvent, useCallback, useEffect, useState} from "react";
 import {invoke} from "@tauri-apps/api/tauri";
 import useToaster, {ToastVariant} from "../Toaster/useToaster";
 import {useParams} from "react-router-dom";
@@ -16,6 +22,7 @@ import {CombyRewrite} from "../Playground/Comby";
 import {directorySelectionFamily} from "./Filesystem.recoil";
 import {VSizable} from "../VSizable/VSizable";
 import LanguageSelect, {LanguageOption} from "../LanguageSelect/LanguageSelect";
+import {useDebounce} from "usehooks-ts";
 
 
 const Filesystem = ({id}:{id:string})=> {
@@ -24,11 +31,24 @@ const Filesystem = ({id}:{id:string})=> {
   const [matchTemplate, setMatchTemplate] = useRecoilState(matchTemplateFamily(id));
   const [rewriteTemplate, setRewriteTemplate] = useRecoilState(rewriteTemplateFamily(id));
   const [rule, setRule] = useRecoilState(ruleFamily(id));
-  const [language, setLanguage] = useRecoilState(languageFamily(id));
   const [directorySelection, setDirectorySelection] = useRecoilState<DirectorySelection>(directorySelectionFamily(id));
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<Array<CombyRewriteStatus>|null>(null);
-  const [extensionMask, setExtensionMask] = useState<string>();
+  const [language, setLanguage] = useRecoilState(languageFamily(id));
+  const defaultExtension = useRecoilValue(defaultExtensionFamily(id));
+  const [extensionMask, setExtensionMask] = useState<string>(defaultExtension);
+  const [invalidExtensions, setInvalidExtensions] = useState(false);
+  const debouncedExtensionMask = useDebounce(extensionMask, 200);
+
+  useEffect(() => {
+    let re = /^\.[a-zA-Z]+(?:,\.[a-zA-Z]+)*$/;
+    if (!re.test(debouncedExtensionMask)){
+      setInvalidExtensions(true);
+    } else {
+      setInvalidExtensions(false);
+    }
+  }, [debouncedExtensionMask, setInvalidExtensions])
+
 
   const onLanguageChange = useCallback((value:string, selected: LanguageOption) => {
     setLanguage(_ => value);
@@ -45,8 +65,8 @@ const Filesystem = ({id}:{id:string})=> {
           language,
           tabId: params.tabId,
           hostPath: directorySelection.expanded,
-          extensions: [".md"],
-          excludeDirs: ["node_modules"],
+          extensions: (extensionMask||'').split(','),
+          excludeDirs: ["node_modules", "build", "dist", "target"],
         };
 
       const results = await invoke<FilesystemResult>("filesystem_rewrite", rewrite_args);
@@ -68,7 +88,7 @@ const Filesystem = ({id}:{id:string})=> {
       setLoading(false);
     }
   }, [
-    matchTemplate, rewriteTemplate, rule, directorySelection, params.tabId
+    matchTemplate, rewriteTemplate, rule, directorySelection, params.tabId, extensionMask, language
   ]);
 
   const apply = useCallback(async (filePath: string) => {
@@ -147,11 +167,11 @@ const Filesystem = ({id}:{id:string})=> {
             </Form.Group>
             <Form.Group style={{flexShrink: 1, width: '5em'}}>
               <Form.Label><strong><small>File ext</small></strong></Form.Label>
-                <Form.Control as="input" value={extensionMask} size={'sm'} onChange={onExtensionChanged}/>
+                <Form.Control as="input" value={extensionMask} size={'sm'} onChange={onExtensionChanged} isInvalid={invalidExtensions}/>
             </Form.Group>
             <Form.Group style={{flexShrink: 1, marginLeft: "1em"}}>
               <Form.Label><strong><small>Language</small></strong></Form.Label>
-                <LanguageSelect onChange={onLanguageChange}/>
+                <LanguageSelect defaultValue={language} excludes={['.generic']} onChange={onLanguageChange}/>
             </Form.Group>
           </div>
           <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: '1em'}}>
@@ -168,7 +188,7 @@ const Filesystem = ({id}:{id:string})=> {
               <Form.Control as="textarea" rows={1} placeholder="rule expression" value={rule} onChange={e => setRule(e.target.value)}/>
             </Form.Group>
           </div>
-          {loading ? <Spinner animation="border" /> : <Button onClick={run} disabled={loading || !Boolean(directorySelection.expanded) || !Boolean(matchTemplate) || !Boolean(rewriteTemplate)}>Run</Button>}
+          {loading ? <Spinner animation="border" /> : <Button onClick={run} disabled={invalidExtensions || loading || !Boolean(directorySelection.expanded) || !Boolean(matchTemplate) || !Boolean(rewriteTemplate)}>Run</Button>}
         </Form>
       </div>
     </VSizable>;

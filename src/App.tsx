@@ -2,7 +2,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import "./App.scss";
 import "./style.css";
 import "react-resizable/css/styles.css";
-import "./Ace.scss";
 import TabContent from "./components/TabContent/TabContent";
 import {useEffect, useLayoutEffect, useRef } from "react";
 import {Routes, Route, Outlet, useLocation } from "react-router-dom";
