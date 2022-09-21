@@ -1,11 +1,12 @@
-import {Badge, Button, Form, InputGroup, Modal} from "react-bootstrap";
+import {Badge, Button, Form, FormControl, InputGroup, Modal} from "react-bootstrap";
 import {AiOutlineFolderOpen, AiOutlineRight} from "react-icons/ai";
-import {ReactNode, useCallback, useEffect, useRef, useState} from "react";
+import {ChangeEvent, KeyboardEvent, ReactNode, useCallback, useEffect, useRef, useState} from "react";
 import {invoke} from "@tauri-apps/api/tauri";
 import {useDebounce} from "usehooks-ts";
 import useToaster, {ToastVariant} from "../Toaster/useToaster";
 import "./DirectorySelector.scss";
 import {AiOutlineClose} from "react-icons/all";
+
 
 type DirInfoResult = {
   resolved_path: string;
@@ -72,6 +73,8 @@ const DirectorySelectorModal = ({handleClose, handleSelect, value}:DirectorySele
   const inputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
   const [searchResults, setSearchResults] = useState<DirInfoResult>();
+  const [activeIndex, setActiveIndex] = useState<number>();
+  const candidatesRef = useRef<HTMLDivElement>(null);
 
   const getDirInfo = useCallback(async (path: string) => {
     setLoading(true);
@@ -85,7 +88,6 @@ const DirectorySelectorModal = ({handleClose, handleSelect, value}:DirectorySele
       setLoading(false);
     }
   }, [setLoading, setSearchResults, push]);
-
 
   // focus input on show
   useEffect(() => {
@@ -107,10 +109,29 @@ const DirectorySelectorModal = ({handleClose, handleSelect, value}:DirectorySele
     }
     getDirInfo(search).catch(console.error);
   }, [search]);
+  // when activeIndex changes, make sure selected candidate is on screen
+  useEffect(() => {
+    if(!candidatesRef.current || typeof activeIndex === 'undefined') { return }
+
+    let candidate = document.getElementById(`candidate-${activeIndex}`);
+    if(!candidate) { return }
+
+    let padding = 5;
+
+    let parent = candidatesRef.current;
+    if(candidate.offsetTop < parent.scrollTop) {
+      parent.scrollTo({behavior: 'smooth', top: candidate.offsetTop - padding});
+      console.log('scrolling', {behavior: 'smooth', top: candidate.offsetTop - padding});
+    } else if (candidate.offsetTop + candidate.clientHeight > parent.scrollTop + parent.clientHeight) {
+      parent.scrollTo({behavior: 'smooth', top: candidate.offsetTop + candidate.clientHeight + padding - parent.clientHeight});
+    }
+  }, [activeIndex, candidatesRef]);
 
   const drillDown = (path:string) => {
+    if(!path) { return }
     setInput(path);
     setSearch(path);
+    setActiveIndex(0);
 
     if(inputRef.current) inputRef.current.focus();
   };
@@ -125,10 +146,50 @@ const DirectorySelectorModal = ({handleClose, handleSelect, value}:DirectorySele
     handleSelect(selected);
   }
 
+  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setInput(e.target.value);
+    setActiveIndex(undefined);
+  }
+
+  const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    let candidates = searchResults?.candidates || searchResults?.children;
+    switch(e.key) {
+      case 'Tab':
+      case 'Enter':
+        e.preventDefault();
+        if(candidates) {
+          drillDown(candidates[activeIndex || 0]);
+        }
+        break;
+      case 'Down':
+      case 'ArrowDown':
+        e.preventDefault();
+        if(candidates) {
+          if(typeof activeIndex === 'undefined'){
+            setActiveIndex(0);
+          } else {
+            setActiveIndex(activeIndex < candidates.length-1 ? activeIndex + 1 : 0);
+          }
+        }
+        break;
+      case 'Up':
+      case 'ArrowUp':
+        e.preventDefault();
+        if(candidates) {
+          if(typeof activeIndex === 'undefined'){
+            setActiveIndex(candidates.length-1);
+          } else {
+            setActiveIndex(activeIndex > 0 ? activeIndex -1 : candidates.length-1);
+          }
+        }
+        break;
+    }
+  };
+
   return (<Modal show={true} onHide={handleClose} size={'lg'} className={'directory-selector-modal'}>
     <Modal.Header>
       <AiOutlineFolderOpen style={{marginRight: '0.5em'}}/>
-      <Form.Control value={input} onChange={e => setInput(e.target.value)} ref={inputRef} as="input" placeholder="" style={{padding: 0, border: 0}}/>
+      <Form.Control onKeyDown={onKeyDown} value={input} onChange={onChange} ref={inputRef} as="input" placeholder="" style={{padding: 0, border: 0}}/>
       <span onClick={handleClose} style={{cursor: 'pointer'}}><AiOutlineClose/></span>
     </Modal.Header>
     {!loading && input === '' && <Modal.Body>
@@ -141,9 +202,9 @@ const DirectorySelectorModal = ({handleClose, handleSelect, value}:DirectorySele
         Loading ...
     </Modal.Body>}
 
-    {!loading && searchResults && <Modal.Body style={{display: 'flex', flexDirection: 'column', minHeight: '120px', maxHeight: '120px', overflowY: 'scroll'}}>
+    {!loading && searchResults && <Modal.Body ref={candidatesRef} style={{display: 'flex', flexDirection: 'column', minHeight: '120px', maxHeight: '120px', overflowY: 'scroll'}}>
       {(searchResults.candidates || searchResults.children)?.map((path,i) => (
-        <Candidate key={i} onClick={drillDown} path={path} dirInfo={searchResults}/>
+        <Candidate id={`candidate-${i}`} key={i} onClick={drillDown} path={path} dirInfo={searchResults} active={i === activeIndex}/>
       ))}
     </Modal.Body>}
 
@@ -159,11 +220,18 @@ const DirectorySelectorModal = ({handleClose, handleSelect, value}:DirectorySele
 }
 export default DirectorySelector;
 
-const Candidate = ({onClick, path, dirInfo}: {onClick: (path:string) => void, path: string, dirInfo:DirInfoResult}) => {
+type CandidateProps = {
+  onClick: (path:string) => void;
+  path: string;
+  dirInfo:DirInfoResult;
+  active?: boolean;
+  id?: string;
+}
+const Candidate = ({id, onClick, path, dirInfo, active}: CandidateProps) => {
   const shorten = (path:string) => path.replace(dirInfo.home_dir || '', '~/');
 
   return (
-    <Badge className={'candidate'} onClick={() => onClick(shorten(path)+dirInfo.path_separator)}>
+    <Badge id={id} className={`candidate ${active ? 'active':''}`} onClick={() => onClick(shorten(path)+dirInfo.path_separator)}>
       {shorten(path).split(dirInfo.path_separator).filter(e => e !== '').reduce((prev: null | ReactNode, cur)=>{
         if (prev) {
           return <>{prev} <AiOutlineRight/> {cur}</>

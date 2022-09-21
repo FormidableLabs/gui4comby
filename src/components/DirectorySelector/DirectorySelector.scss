@@ -7,7 +7,7 @@
   white-space: nowrap;
   background-color: var(--bg-step-4) !important;
 
-  &:hover, .active {
+  &:hover, &.active {
     background-color: var(--color-pop-1) !important;
   }
 }
