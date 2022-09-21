@@ -7,7 +7,7 @@ import {
   AiOutlineDiff,
   RiLayoutBottom2Line
 } from "react-icons/all";
-import {Button, Spinner} from "react-bootstrap";
+import {Button, ButtonGroup, DropdownButton, Spinner, Dropdown} from "react-bootstrap";
 import {useCallback, useEffect, useState} from "react";
 import ReactDiffViewer from 'react-diff-viewer'
 import {invoke} from "@tauri-apps/api/tauri";
@@ -28,15 +28,14 @@ const ResultsExplorer = ({applyFunc, path, results, skipFunc}:Props) => {
   const [applying, setApplying] = useState(false);
 
   const onApplyClick = useCallback(async () => {
-    if(applyFunc) {
-      try {
-        setApplying(true);
-        await applyFunc(results[index].uri!);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setApplying(false)
-      }
+    if(!applyFunc) { return }
+    try {
+      setApplying(true);
+      await applyFunc(results[index].uri!);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setApplying(false)
     }
   },[applyFunc, index, setApplying, results]);
 
@@ -50,6 +49,22 @@ const ResultsExplorer = ({applyFunc, path, results, skipFunc}:Props) => {
     }
   }, [skipFunc, index, results]);
 
+  const onApplyAllClick = useCallback(async () => {
+    if(!applyFunc) { return }
+    let order = results.map((_,i) => i+index > results.length -1 ? i+index-results.length : i+index );
+
+    setApplying(true);
+    for(let i of order) {
+      try {
+        setIndex(i);
+        await applyFunc(results[i].uri!);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    setApplying(false);
+  }, [index, applyFunc, setApplying, results]);
+
   const next = () => {
     setIndex(index + 1 >= results.length ? 0 : index+1);
   }
@@ -61,6 +76,7 @@ const ResultsExplorer = ({applyFunc, path, results, skipFunc}:Props) => {
   const fs_path = results[index].uri!.replace('/mnt/source/', path);
   const applied = Boolean(results[index].applied);
   const skipped = Boolean(results[index].skipped);
+  const finished = results.filter(r => !r.applied && !r.skipped).length === 0;
 
   return <div style={{height: '100%', display: 'grid', gridTemplateRows: '42px auto'}}>
     <div style={{minWidth: 0, display: 'flex', alignItems: 'center', borderBottom: 'solid 2px var(--border-color)', padding: '0.25em'}}>
@@ -76,9 +92,10 @@ const ResultsExplorer = ({applyFunc, path, results, skipFunc}:Props) => {
         {fs_path}
       </span>
       <span style={{marginLeft: 'auto'}}>
-        <span style={{display: 'grid', columnGap: '0.25em', gridTemplateColumns: '1fr 1fr', alignItems: 'center', justifyItems: 'center'}}>
+        <span style={{display: 'grid', columnGap: '0.25em', gridTemplateColumns: '0.75fr 1fr 1fr', alignItems: 'center', justifyItems: 'center'}}>
           <Button size={'sm'} variant={'default'} style={{whiteSpace: 'nowrap'}} onClick={onSkipClick} disabled={applied || skipped}>{skipped ? 'Skipped':'Skip'}{' '}<AiOutlineCloseCircle/></Button>
           {applying ? <Spinner animation="border" /> : <Button size={'sm'} variant={'success'} style={{whiteSpace: 'nowrap'}} onClick={onApplyClick} disabled={applied || skipped}>{applied ? 'Applied':'Apply'}{' '}<AiOutlineCheckCircle/></Button> }
+          {<Button size={'sm'} variant={'success'} style={{whiteSpace: 'nowrap'}} onClick={onApplyAllClick} disabled={applying || finished}>{'Apply All'}{' '}<AiOutlineCheckCircle/></Button> }
         </span>
       </span>
       {/*<Button style={{marginLeft: '0.25em'}} variant={'default'} size={'sm'}><RiLayoutBottom2Line/></Button>*/}
@@ -117,13 +134,13 @@ const Diff = ({uri, rewritten, diff}:{uri: string, rewritten: string, diff: stri
   // TODO if failed to load source content, just render diff (w/ prismJS?)
 
   return <ReactDiffViewer
-        oldValue={source}
-        newValue={rewritten}
-        splitView={true}
-        useDarkTheme={theme === 'dark'}
-        styles={{
-          /* @ts-ignore */
-          height: '100%'
-        }}
-      />
+    oldValue={source}
+    newValue={rewritten}
+    splitView={true}
+    useDarkTheme={theme === 'dark'}
+    styles={{
+      /* @ts-ignore */
+      height: '100%'
+    }}
+  />
 }
