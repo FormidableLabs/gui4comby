@@ -2,7 +2,8 @@ import {CombyMatch, CombyRewrite} from "../Playground/Comby";
 
 export enum FilesystemResultType {
   Match = 'Match',
-  Rewrite = 'Rewrite'
+  Rewrite = 'Rewrite',
+  RewriteFile = 'RewriteFile'
 }
 
 export type FilesystemResult = {
@@ -20,3 +21,15 @@ export type FilesystemRewriteResult = {
   result: Array<CombyRewrite>;
   warning?: string;
 }
+export type FilesystemRewriteFileResult = {
+  result_type: FilesystemResultType.Rewrite;
+  result?: string;
+  warning?: string;
+}
+
+type RewriteStatus = {
+  applied?: boolean;
+  skipped?: boolean;
+}
+
+export type CombyRewriteStatus = CombyRewrite & RewriteStatus;

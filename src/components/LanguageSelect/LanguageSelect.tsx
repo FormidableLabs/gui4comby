@@ -1,157 +1,42 @@
-import {CSSProperties, useEffect, useState} from "react";
-import {AiOutlineCode } from "react-icons/all";
-import { Form, InputGroup } from "react-bootstrap";
+import {ChangeEvent, CSSProperties, useCallback, useState} from "react";
+import {AiOutlineCode} from "react-icons/all";
+import {Form, InputGroup} from "react-bootstrap";
+import { LanguageOptions } from "./LanguageOptions";
 
 export type LanguageOption = {
-  value: string;
-  label: string;
-  mode?: string;
+  value: string; // value sent to comby -matcher arg
+  label: string; // display value in form element
+  extensions: string; // File extension mask to use for searching
+  mode?: string; // ACE mode value
 }
 
 type Props = {
   style?: CSSProperties;
   onChange?: (value: string, option: LanguageOption) => void;
+  excludes?: Array<string>;
+  defaultValue?: string;
 }
-const LanguageSelect = ({onChange, ...rest}: Props) => {
-  const options = [
-    {
-        "value": ".generic",
-        "label": "Generic"
-    },
-    {
-        "value": ".s",
-        "label": "Assembly"
-    },
-    {
-        "value": ".sh",
-        "label": "Bash"
-    },
-    {
-        "value": ".c",
-        "label": "C/C++"
-    },
-    {
-        "value": ".cs",
-        "label": "C#"
-    },
-    {
-        "value": ".clj",
-        "label": "Clojure"
-    },
-    {
-        "value": ".css",
-        "label": "CSS"
-    },
-    {
-        "value": ".dart",
-        "label": "Dart"
-    },
-    {
-        "value": ".elm",
-        "label": "Elm"
-    },
-    {
-        "value": ".erl",
-        "label": "Erlang"
-    },
-    {
-        "value": ".ex",
-        "label": "Elixir"
-    },
-    {
-        "value": ".html",
-        "label": "HTML/XML"
-    },
-    {
-        "value": ".hs",
-        "label": "Haskell"
-    },
-    {
-        "value": ".go",
-        "label": "Go"
-    },
-    {
-        "value": ".java",
-        "label": "Java"
-    },
-    {
-        "value": ".js",
-        "label": "JS/Typescript",
-        "mode": "javascript"
-    },
-    {
-        "value": ".json",
-        "label": "JSON"
-    },
-    {
-        "value": ".jl",
-        "label": "Julia"
-    },
-    {
-        "value": ".tex",
-        "label": "Latex"
-    },
-    {
-        "value": ".ml",
-        "label": "OCaml"
-    },
-    {
-        "value": ".php",
-        "label": "PHP"
-    },
-    {
-        "value": ".py",
-        "label": "Python"
-    },
-    {
-        "value": ".re",
-        "label": "Reason"
-    },
-    {
-        "value": ".rb",
-        "label": "Ruby"
-    },
-    {
-        "value": ".rs",
-        "label": "Rust"
-    },
-    {
-        "value": ".scala",
-        "label": "Scala"
-    },
-    {
-        "value": ".sql",
-        "label": "SQL"
-    },
-    {
-        "value": ".swift",
-        "label": "Swift"
-    },
-    {
-        "value": ".xml",
-        "label": "XML"
-    },
-    {
-        "value": ".txt",
-        "label": "Text"
-    }
-];
-  const [selectedIndex, setSelectedIndex] = useState(0);
+
+const LanguageSelect = ({onChange, defaultValue, excludes, ...rest}: Props) => {
+  const options = LanguageOptions.filter(s => (excludes || []).indexOf(s.value) === -1);
+  const [selectedIndex, setSelectedIndex] = useState(Math.max(options.findIndex(o => o.value === defaultValue),0));
   const selected = options[selectedIndex];
 
-  useEffect(() => {
+  const onSelected = useCallback((e: ChangeEvent<HTMLSelectElement>) => {
+    let index = e.target.selectedIndex;
+    setSelectedIndex(index);
     if(onChange) {
-      onChange(selected.value, selected);
+      onChange(options[index].value, options[index]);
     }
-  }, [options, selected, onChange])
+  }, [onChange]);
 
 
   return (
     <InputGroup {...rest} size={'sm'}>
       <InputGroup.Text id="basic-addon1"><AiOutlineCode /></InputGroup.Text>
-      <Form.Select value={selected.value} onChange={e => setSelectedIndex(e.target.selectedIndex)} aria-label="language matcher">
+      <Form.Select value={selected.value} onChange={onSelected} aria-label="language matcher">
         {options.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-    </Form.Select>
+      </Form.Select>
     </InputGroup>
   );
 

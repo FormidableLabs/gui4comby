@@ -3,12 +3,6 @@ import {MutableRefObject, useCallback, useEffect, useLayoutEffect, useRef, useSt
 import {invoke} from "@tauri-apps/api/tauri";
 import useToaster, {ToastVariant} from "../Toaster/useToaster";
 import LanguageSelect, {LanguageOption} from "../LanguageSelect/LanguageSelect";
-import AceEditor from "react-ace";
-
-import "ace-builds/src-noconflict/mode-java";
-import "ace-builds/src-noconflict/mode-javascript";
-import "ace-builds/src-noconflict/theme-github";
-import "ace-builds/src-noconflict/ext-language_tools";
 
 import useResizeObserver from '@react-hook/resize-observer'
 import {useRecoilState} from "recoil";
@@ -25,6 +19,7 @@ import {
 } from "./Playground.recoil";
 import {useDebounce} from "usehooks-ts";
 import {CombyMatch, CombyRewrite} from "./Comby";
+import AceWrapper from "../AceWrapper/AceWrapper";
 
 const useSize = (target: MutableRefObject<HTMLElement | null>) => {
   const [size, setSize] = useState<DOMRectReadOnly>()
@@ -144,12 +139,13 @@ const Playground = ({id}:{id:string}) => {
     setAceMode(option.mode || '');
   }
 
-
-
   return <div style={{padding: '1em 1em'}}>
     <Form>
       <Form.Group className="mb-3" controlId="sourceSample">
-        <Form.Label style={{alignItems: 'center', display: 'flex', justifyContent: 'space-between'}}><strong><small>Source Code </small></strong><small><LanguageSelect onChange={onLanguageSelect}/></small></Form.Label>
+        <Form.Label style={{alignItems: 'center', display: 'flex', justifyContent: 'space-between'}}>
+          <strong><small>Source Code </small></strong>
+          <small><LanguageSelect defaultValue={language} onChange={onLanguageSelect}/></small>
+        </Form.Label>
         {/*<Form.Control as="textarea" rows={3} placeholder="Paste your source code here" value={source} onChange={e => setSource(e.target.value)}/>*/}
         <div ref={sourceBoxRef} className={'form-control'} style={{
           overflow: 'auto',
@@ -160,27 +156,13 @@ const Playground = ({id}:{id:string}) => {
           paddingBottom: '5px',
         }}>
           {size &&
-          <AceEditor
-            placeholder="Paste your source code here"
-            mode={aceMode}
-            width={`${size.width}px`}
-            height={`${size.height}px`}
-            theme=""
-            name="sourceSampleAce"
-            onChange={value => setSource(value)}
-            fontSize={14}
-            showPrintMargin={true}
-            showGutter={true}
-            highlightActiveLine={true}
-            value={source}
-            className={'themed'}
-            setOptions={{
-              enableBasicAutocompletion: false,
-              enableLiveAutocompletion: false,
-              enableSnippets: false,
-              showLineNumbers: true,
-              tabSize: 2,
-            }}/>}
+            <AceWrapper
+              language={aceMode}
+              width={size.width}
+              height={size.height}
+              onChange={value => setSource(value)}
+              value={source}/>
+          }
         </div>
 
       </Form.Group>
@@ -199,11 +181,11 @@ const Playground = ({id}:{id:string}) => {
         </Form.Group>
         <Form.Group className="mb-3" controlId="matched" style={{gridColumn: 1}}>
           <Form.Label><strong><small>Matched</small></strong></Form.Label>
-          <Form.Control as="textarea" rows={3} placeholder="" value={matched} readOnly={true} disabled={loading}/>
+          <Form.Control as="textarea" rows={3} placeholder="" value={matched} readOnly={true}/>
         </Form.Group>
         <Form.Group className="mb-3" controlId="rewritten">
           <Form.Label><strong><small>Rewritten</small></strong></Form.Label>
-          <Form.Control as="textarea" rows={3} placeholder="" value={rewritten} readOnly={true} disabled={loading}/>
+          <Form.Control as="textarea" rows={3} placeholder="" value={rewritten} readOnly={true}/>
         </Form.Group>
       </div>
     </Form>

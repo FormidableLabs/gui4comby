@@ -7,34 +7,81 @@ import {
   AiOutlineDiff,
   RiLayoutBottom2Line
 } from "react-icons/all";
-import {Button} from "react-bootstrap";
+import {Button, ButtonGroup, DropdownButton, Spinner, Dropdown} from "react-bootstrap";
 import {useCallback, useEffect, useState} from "react";
 import ReactDiffViewer from 'react-diff-viewer'
 import {invoke} from "@tauri-apps/api/tauri";
 import useToaster, {ToastVariant} from "../Toaster/useToaster";
 import {useRecoilValue} from "recoil";
-import {app} from "@tauri-apps/api";
 import {appThemeAtom} from "../../App.recoil";
+import {CombyRewriteStatus, FilesystemRewriteFileResult} from "./Filesystem.types";
 
 type Props = {
-  results: Array<CombyRewrite>;
+  results: Array<CombyRewriteStatus>;
   path: string;
+  applyFunc?: (uri:string) => Promise<void>;
+  skipFunc?: (uri:string) => Promise<void>;
 };
 
-const ResultsExplorer = ({results, path}:Props) => {
+const ResultsExplorer = ({applyFunc, path, results, skipFunc}:Props) => {
   const [index, setIndex] = useState(0);
+  const [applying, setApplying] = useState(false);
+
+  const onApplyClick = useCallback(async () => {
+    if(!applyFunc) { return }
+    try {
+      setApplying(true);
+      await applyFunc(results[index].uri!);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setApplying(false)
+    }
+  },[applyFunc, index, setApplying, results]);
+
+  const onSkipClick = useCallback(async () => {
+    if(skipFunc){
+      try {
+        await skipFunc(results[index].uri!);
+      } catch (err) {
+       console.error(err);
+      }
+    }
+  }, [skipFunc, index, results]);
+
+  const onApplyAllClick = useCallback(async () => {
+    if(!applyFunc) { return }
+    let order = results.map((_,i) => i+index > results.length -1 ? i+index-results.length : i+index );
+
+    setApplying(true);
+    for(let i of order) {
+      if(results[i].applied || results[i].skipped) { continue }
+      try {
+        setIndex(i);
+        await applyFunc(results[i].uri!);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    setApplying(false);
+  }, [index, applyFunc, setApplying, results]);
 
   const next = () => {
     setIndex(index + 1 >= results.length ? 0 : index+1);
   }
+
   const prev = () => {
     setIndex(index - 1 < 0 ? results.length-1 : index-1);
   }
+
   const fs_path = results[index].uri!.replace('/mnt/source/', path);
+  const applied = Boolean(results[index].applied);
+  const skipped = Boolean(results[index].skipped);
+  const finished = results.filter(r => !r.applied && !r.skipped).length === 0;
 
   return <div style={{height: '100%', display: 'grid', gridTemplateRows: '42px auto'}}>
     <div style={{minWidth: 0, display: 'flex', alignItems: 'center', borderBottom: 'solid 2px var(--border-color)', padding: '0.25em'}}>
-      <span style={{display: 'grid', columnGap: '0.25em', gridTemplateColumns: '1fr 1fr 1fr', alignItems: 'center', justifyItems: 'center'}}>
+      <span style={{display: 'grid', columnGap: '0.25em', gridTemplateColumns: '1fr 1fr 1fr', alignItems: 'center', justifyItems: 'center', flexShrink: 0}}>
         <AiOutlineDiff/>
         <Button size={'sm'} variant={'default'} onClick={prev}><AiOutlineArrowLeft/></Button>
         <Button size={'sm'} variant={'default'} onClick={next}><AiOutlineArrowRight/></Button>
@@ -46,12 +93,13 @@ const ResultsExplorer = ({results, path}:Props) => {
         {fs_path}
       </span>
       <span style={{marginLeft: 'auto'}}>
-        <span style={{display: 'grid', columnGap: '0.25em', gridTemplateColumns: '1fr 1fr', alignItems: 'center', justifyItems: 'center'}}>
-          <Button size={'sm'} variant={'default'} style={{whiteSpace: 'nowrap'}}>Skip{' '}<AiOutlineCloseCircle/></Button>
-          <Button size={'sm'} variant={'success'} style={{whiteSpace: 'nowrap'}}>Apply{' '}<AiOutlineCheckCircle/></Button>
+        <span style={{display: 'grid', columnGap: '0.25em', gridTemplateColumns: '0.75fr 1fr 1fr', alignItems: 'center', justifyItems: 'center'}}>
+          <Button size={'sm'} variant={'default'} style={{whiteSpace: 'nowrap'}} onClick={onSkipClick} disabled={applied || skipped}>{skipped ? 'Skipped':'Skip'}{' '}<AiOutlineCloseCircle/></Button>
+          {applying ? <Spinner animation="border" /> : <Button size={'sm'} variant={'success'} style={{whiteSpace: 'nowrap'}} onClick={onApplyClick} disabled={applied || skipped}>{applied ? 'Applied':'Apply'}{' '}<AiOutlineCheckCircle/></Button> }
+          {<Button size={'sm'} variant={'success'} style={{whiteSpace: 'nowrap'}} onClick={onApplyAllClick} disabled={applying || finished}>{'Apply All'}{' '}<AiOutlineCheckCircle/></Button> }
         </span>
       </span>
-      <Button style={{marginLeft: '0.25em'}} variant={'default'} size={'sm'}><RiLayoutBottom2Line/></Button>
+      {/*<Button style={{marginLeft: '0.25em'}} variant={'default'} size={'sm'}><RiLayoutBottom2Line/></Button>*/}
     </div>
     <div style={{height: '100%', overflowY: 'scroll'}}>
       <Diff uri={fs_path} rewritten={results[index].rewritten_source} diff={results[index].diff}/>
@@ -87,13 +135,13 @@ const Diff = ({uri, rewritten, diff}:{uri: string, rewritten: string, diff: stri
   // TODO if failed to load source content, just render diff (w/ prismJS?)
 
   return <ReactDiffViewer
-        oldValue={source}
-        newValue={rewritten}
-        splitView={true}
-        useDarkTheme={theme === 'dark'}
-        styles={{
-          /* @ts-ignore */
-          height: '100%'
-        }}
-      />
+    oldValue={source}
+    newValue={rewritten}
+    splitView={true}
+    useDarkTheme={theme === 'dark'}
+    styles={{
+      /* @ts-ignore */
+      height: '100%'
+    }}
+  />
 }

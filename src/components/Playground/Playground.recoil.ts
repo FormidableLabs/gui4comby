@@ -1,4 +1,5 @@
-import {atomFamily} from "recoil";
+import {atomFamily, selectorFamily} from "recoil";
+import { LanguageOptions } from "../LanguageSelect/LanguageOptions";
 
 export const sourceFamily = atomFamily({
   key: 'playgroundSource',
@@ -30,10 +31,28 @@ export const rewrittenFamily = atomFamily({
   default: '',
 });
 
-export const languageFamily = atomFamily({
-  key: 'playgroundLanguage',
-  default: '.generic',
+export const defaultLanguageFamily = atomFamily({
+  key: 'playgroundDefaultLanguageFamily',
+  default: '.js'
 });
+
+export const languageFamily = atomFamily({
+  key: 'playgroundLanguageFamily',
+  default: selectorFamily({
+    key: 'playgroundLanguage/Default',
+    get: param => ({get}) => {
+      return get(defaultLanguageFamily(param));
+    },
+  }),
+});
+
+export const defaultExtensionFamily = selectorFamily({
+  key: 'playgroundDefaultExtensionFamily',
+  get: param => ({get}) => {
+    let language = get(languageFamily(param));
+    return LanguageOptions.find(o => o.value === language)?.extensions || '';
+  }
+})
 
 export const loadingFamily = atomFamily({
   key: 'playgroundLoading',
@@ -42,6 +61,12 @@ export const loadingFamily = atomFamily({
 
 export const aceModeFamily = atomFamily({
   key: 'playgroundAceMode',
-  default: '',
+  default: selectorFamily({
+    key: 'playgroundAceMode/Default',
+    get: param => ({get}) => {
+      let language = get(defaultLanguageFamily(param));
+      return LanguageOptions.find(o => o.value === language)?.mode || ''
+    },
+  }),
 });
 

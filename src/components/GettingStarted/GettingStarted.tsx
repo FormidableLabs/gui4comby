@@ -1,7 +1,6 @@
 import {useRecoilValue} from "recoil";
 import {mainSizeAtom} from "../../App.recoil";
 import './GettingStarted.css';
-import NewTabButton from "../NewTabButton/NewTabButton";
 import {TabType} from "../TabIcon/TabIcon";
 import {Nav, Navbar} from "react-bootstrap";
 import NewDocTabButton from "../NewTabButton/NewDocTabButton";
