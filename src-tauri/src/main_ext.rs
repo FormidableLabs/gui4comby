@@ -47,3 +47,14 @@ unsafe fn make_toolbar(id: cocoa::base::id) {
     new_toolbar.init_();
     id.setToolbar_(new_toolbar);
 }
+
+#[cfg(target_os = "macos")]
+pub fn setup_window<R: Runtime>(win: &Window<R>){
+    //win.set_transparent_titlebar(ToolbarThickness::Thick);
+}
+
+// TODO: Win & Nix Custome window treatment
+#[cfg(not(target_os = "macos"))]
+pub fn setup_window<R: Runtime>(win: &Window<R>){
+    // no-op
+}

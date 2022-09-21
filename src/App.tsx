@@ -3,7 +3,7 @@ import "./App.scss";
 import "./style.css";
 import "react-resizable/css/styles.css";
 import TabContent from "./components/TabContent/TabContent";
-import {useEffect, useLayoutEffect, useRef } from "react";
+import {Suspense, useEffect, useLayoutEffect, useRef } from "react";
 import {Routes, Route, Outlet, useLocation } from "react-router-dom";
 import Toaster from "./components/Toaster/Toaster";
 import TimeAgo from 'javascript-time-ago';
@@ -93,7 +93,7 @@ function App() {
       <Routes location={state?.backgroundLocation || location}>
         <Route path={"/"} element={
           <>
-            <TitleBar/>
+            <Suspense fallback={null}><TitleBar/></Suspense>
             <div ref={ref} style={{height: '100%', display: 'grid', gridTemplateRows: 'auto 28px'}}>
               {sized && <div id={'main'} style={{height: '100%', overflowY: 'scroll'}}><Outlet/></div>}
               <EventLog id={'footer'}/>

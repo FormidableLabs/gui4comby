@@ -1,6 +1,5 @@
 .titlebar {
   white-space: nowrap;
-  //height: 42px;
   background: var(--background-color);
   user-select: none;
   display: flex;
@@ -11,8 +10,26 @@
   left: 0;
   right: 0;
   //border-bottom: solid 1px var(--border-color);
-  // padding left is for when using transparent window title to allow room for window controls
-  //padding-left: 75px;
+
+  /* Custom Title bar is too flaky to support currently
+  &.Darwin {
+    // Make room for window decorations
+    padding-left: 82px;
+    //padding-top: 10px;
+  }
+
+  &.Windows_NT {
+    // Make room for window decorations
+    padding-right: 82px;
+    padding-top: 10px;
+  }
+
+  &.Linux {
+    // Make room for window decorations
+    padding-right: 82px;
+    padding-top: 10px;
+  }
+  */
 
   .nav-tabs {
     margin-left: 0.5em;

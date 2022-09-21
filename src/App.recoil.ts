@@ -1,5 +1,6 @@
 import {atom, atomFamily, selector} from "recoil";
 import {TabType} from "./components/TabIcon/TabIcon";
+import { type } from '@tauri-apps/api/os';
 
 let id = 0;
 export function getId() {
@@ -45,3 +46,8 @@ export const appThemeAtom = atom({
   key: 'appTheme',
   default: 'dark'
 });
+
+export const platformSelector = selector({
+  key: 'appPlatform',
+  get: type
+})

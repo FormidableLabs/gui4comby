@@ -26,7 +26,7 @@ use docker_run::DockerState;
 use playground::{playground_match, playground_rewrite};
 use image::{comby_image, download_comby_image, docker_version};
 use filesystem::{dir_info, filesystem_content, filesystem_match, filesystem_rewrite, filesystem_rewrite_file};
-use crate::main_ext::{ToolbarThickness, WindowExt};
+use crate::main_ext::{ToolbarThickness, WindowExt, setup_window};
 
 
 #[tauri::command]
@@ -56,7 +56,7 @@ fn main() {
         .setup(|app| {
             let win = app.get_window("main").unwrap();
             // This is buggy when chrome toolbar is opened and window is resized
-            //win.set_transparent_titlebar(ToolbarThickness::Medium);
+            setup_window(&win);
             Ok(())
         })
         .manage(DockerState { docker })

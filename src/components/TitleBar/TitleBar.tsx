@@ -1,15 +1,14 @@
 import './TitleBar.scss';
 import {AiOutlineSetting} from "react-icons/ai";
 import {Nav} from "react-bootstrap";
-import {useEffect, useState} from "react";
+import {DragEventHandler, useEffect, useState} from "react";
 import TabIcon, {TabType} from "../TabIcon/TabIcon";
 import NewTabButton from "../NewTabButton/NewTabButton";
 import PreserveBackgroundLocationButton from '../PreserveBackgroundLocationLink/PreserveBackgroundLocationButton';
 import {AiOutlineClose} from "react-icons/all";
-import {useRecoilState} from "recoil";
-import {getId, tabsState} from "../../App.recoil";
+import {useRecoilState, useRecoilValue} from "recoil";
+import {getId, platformSelector, tabsState} from "../../App.recoil";
 import {useNavigate, useParams} from "react-router-dom";
-
 
 const TitleBar = () => {
   const [tabs, setTabs] = useRecoilState(tabsState);
@@ -17,6 +16,7 @@ const TitleBar = () => {
   const navigate = useNavigate();
   const [position, setPosition] = useState(tabs.findIndex(tab => tab.id === params.tabId));
   const [activeKey, setActiveKey] = useState('get-started');
+  const platform = useRecoilValue(platformSelector);
 
   // // if there are no tabs, add a default tab
   useEffect(() => {
@@ -65,16 +65,22 @@ const TitleBar = () => {
     });
   }
 
+  const dragOverride = (event:unknown) => {
+    // @ts-ignore
+    event.preventDefault();
+    // @ts-ignore
+    event.stopPropagation();
+  }
+
   return (
-    <div data-tauri-drag-region className="titlebar">
-      {/*<strong>GUI 4 Comby</strong>*/}
+    <div className={`titlebar ${platform}`}>
       <Nav variant="tabs" activeKey={activeKey} style={{flexGrow: 1}} id={'titlebar-tabs'}>
         {tabs.map((tab, idx) => {
           return (
-            <Nav.Item key={idx + '-' + tab.id} id={tab.id} style={{flexShrink: 0}}>
-                <Nav.Link className={params.tabId === tab.id ? 'active':''} onClick={() => navigate(tab.path)}>
+            <Nav.Item key={idx + '-' + tab.id} id={tab.id} style={{flexShrink: 0, zIndex: 10}}>
+                <Nav.Link className={params.tabId === tab.id ? 'active':''} onClick={(e) => {navigate(tab.path);}}>
                   <TabIcon type={tab.type}/>{' '}{tab.title}
-                  <AiOutlineClose size={14} style={{marginLeft: '0.5em'}} onClick={(e) => {close(tab.id); e.stopPropagation()}}/>
+                  <AiOutlineClose size={14} style={{marginLeft: '0.5em'}} onClick={(e) => {close(tab.id); e.stopPropagation();}}/>
                 </Nav.Link>
             </Nav.Item>
           )
