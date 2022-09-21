@@ -55,6 +55,7 @@ const ResultsExplorer = ({applyFunc, path, results, skipFunc}:Props) => {
 
     setApplying(true);
     for(let i of order) {
+      if(results[i].applied || results[i].skipped) { continue }
       try {
         setIndex(i);
         await applyFunc(results[i].uri!);
