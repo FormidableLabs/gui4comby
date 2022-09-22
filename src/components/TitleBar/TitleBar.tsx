@@ -1,7 +1,7 @@
 import './TitleBar.scss';
 import {AiOutlineSetting} from "react-icons/ai";
 import {Nav} from "react-bootstrap";
-import {DragEventHandler, useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import TabIcon, {TabType} from "../TabIcon/TabIcon";
 import NewTabButton from "../NewTabButton/NewTabButton";
 import PreserveBackgroundLocationButton from '../PreserveBackgroundLocationLink/PreserveBackgroundLocationButton';
@@ -9,8 +9,11 @@ import {AiOutlineClose} from "react-icons/all";
 import {useRecoilState, useRecoilValue} from "recoil";
 import {getId, platformSelector, tabsState} from "../../App.recoil";
 import {useNavigate, useParams} from "react-router-dom";
+import {invoke} from "@tauri-apps/api/tauri";
+import useToaster, {ToastVariant} from "../Toaster/useToaster";
 
 const TitleBar = () => {
+  const {push} = useToaster();
   const [tabs, setTabs] = useRecoilState(tabsState);
   const params = useParams() as {tabId: string};
   const navigate = useNavigate();
@@ -58,11 +61,20 @@ const TitleBar = () => {
   }, [params.tabId])
 
   // remove tab from list
-  const close = (id: string) => {
+  const close = async (id: string) => {
+    let tab = tabs.find(t => t.id === id);
     setTabs((oldState) => {
       let newState = oldState.filter(tab => tab.id !== id);
       return newState;
     });
+    // trigger container cleanup
+    if(tab && tab.type === TabType.Filesystem) {
+      try {
+        await invoke("filesystem_cleanup", {tabId: id});
+      } catch (err) {
+        push('Container Cleanup Error', err as string, ToastVariant.info);
+      }
+    }
   }
 
   const dragOverride = (event:unknown) => {

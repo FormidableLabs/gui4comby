@@ -2,6 +2,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import "./App.scss";
 import "./style.css";
 import "react-resizable/css/styles.css";
+import { appWindow } from "@tauri-apps/api/window";
 import TabContent from "./components/TabContent/TabContent";
 import {Suspense, useEffect, useLayoutEffect, useRef } from "react";
 import {Routes, Route, Outlet, useLocation } from "react-router-dom";
@@ -10,7 +11,7 @@ import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en.json';
 TimeAgo.addDefaultLocale(en);
 
-import { listen } from '@tauri-apps/api/event'
+import { listen  } from '@tauri-apps/api/event'
 import {
   LocationState
 } from "./components/PreserveBackgroundLocationLink/PreserveBackgroundLocationLink";
@@ -22,10 +23,12 @@ import {eventLogState} from "./components/EventLog/EventLog.recoil";
 import Docs from "./components/Docs/Docs";
 import DocPage from "./components/Docs/DocPage";
 import useResizeObserver from "@react-hook/resize-observer";
-import {appThemeAtom, mainSizeAtom, MainSizeState} from "./App.recoil";
+import {appThemeAtom, mainSizeAtom, MainSizeState, tabsState} from "./App.recoil";
 import ThemeSettings from "./components/ThemeSettings/ThemeSettings";
 import SettingsIndex from "./components/SettingsIndex/SettingsIndex";
 import TitleBar from "./components/TitleBar/TitleBar";
+import {invoke} from "@tauri-apps/api/tauri";
+import {ToastVariant} from "./components/Toaster/Toaster.recoil";
 
 
 export const useMainSizeObserver = () => {
@@ -56,6 +59,7 @@ function App() {
   const [_, setEventLog] = useRecoilState(eventLogState);
   const {sized, ref} = useMainSizeObserver();
   const theme = useRecoilValue(appThemeAtom);
+  const [tabs, setTabs] = useRecoilState(tabsState);
 
   useEffect(() =>{
     document.body.classList.remove('dark');
@@ -87,13 +91,30 @@ function App() {
     }
   }, [])
 
+  useEffect(() => {
+    const unlisten = appWindow.listen('tauri://close-requested', async () => {
+      for(let tab of tabs) {
+        try {
+          await invoke("filesystem_cleanup", {tabId: tab.id});
+        } catch (err) {
+          console.error(err);
+        }
+      }
+      appWindow.close();
+    });
+    return () => {
+      (async()=>{
+        (await unlisten)();
+      })()
+    }
+  }, [tabs]);
 
   return (
     <>
       <Routes location={state?.backgroundLocation || location}>
         <Route path={"/"} element={
           <>
-            <Suspense fallback={null}><TitleBar/></Suspense>
+            <Suspense fallback={<div>Loading</div>}><TitleBar/></Suspense>
             <div ref={ref} style={{height: '100%', display: 'grid', gridTemplateRows: 'auto 28px'}}>
               {sized && <div id={'main'} style={{height: '100%', overflowY: 'scroll'}}><Outlet/></div>}
               <EventLog id={'footer'}/>

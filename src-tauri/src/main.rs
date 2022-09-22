@@ -25,7 +25,7 @@ use tauri::regex::Regex;
 use docker_run::DockerState;
 use playground::{playground_match, playground_rewrite};
 use image::{comby_image, download_comby_image, docker_version};
-use filesystem::{dir_info, filesystem_content, filesystem_match, filesystem_rewrite, filesystem_rewrite_file};
+use filesystem::{dir_info, filesystem_cleanup, filesystem_content, filesystem_match, filesystem_rewrite, filesystem_rewrite_file};
 use crate::main_ext::{ToolbarThickness, WindowExt, setup_window};
 
 
@@ -66,6 +66,7 @@ fn main() {
             docker_version,
             comby_image,
             download_comby_image,
+            filesystem_cleanup,
             filesystem_content,
             filesystem_match,
             filesystem_rewrite,

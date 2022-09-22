@@ -3,6 +3,7 @@ use std::path::MAIN_SEPARATOR;
 use resolve_path::PathResolveExt;
 use tauri::Runtime;
 use crate::{docker_run, DockerState, maybe, Regex};
+use crate::docker_run::docker_run_cleanup;
 
 
 #[derive(Clone, serde::Serialize)]
@@ -231,4 +232,11 @@ pub async fn filesystem_rewrite_file<R: Runtime>(
         result: result.std_out,
         warning: result.std_err
     })
+}
+
+#[tauri::command]
+pub async fn filesystem_cleanup(state: tauri::State<'_, DockerState>, tab_id: String) -> Result<(), String> {
+    let docker = maybe::maybe_ref(&state.docker)?;
+    docker_run_cleanup(docker, tab_id).await?;
+    Ok(())
 }
