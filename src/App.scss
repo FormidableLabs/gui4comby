@@ -16,6 +16,9 @@
   --fg-color-pop-2: #F48494ff;
   --fg-color-pop-2-muted: #F4849499;
   --fg-color-pop-2-emphasis: #ff6377;
+
+  --bs-success: #00f081;
+  --bs-primary: #2d82ff;
 }
 
 .light {
@@ -135,4 +138,16 @@ pre {
 
 .toast-body {
   background-color: var(--background-color);
+}
+
+.popover {
+  border-color: var(--border-color);
+  .popover-header {
+    background-color: var(--background-color);
+    color: var(--foreground-color);
+  }
+  .popover-body {
+    background-color: var(--background-color);
+    color: var(--foreground-color);
+  }
 }

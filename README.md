@@ -22,7 +22,7 @@ This template should help get you started developing with Tauri, React and Types
 
 ## Todo
 - [x] App: Support tabs to accommodate multiple work streams
-- [ ] App: Docker credentials
+- [x] App: Docker credentials
 - [x] Playground: Functional
 - [x] Playground: Language selection
 - [x] Playground: Ace editor for source code

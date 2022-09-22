@@ -240,10 +240,19 @@ pub async fn docker_run_mnt<R: Runtime>(docker: &Docker, tab_id: String, host_pa
 
 pub async fn docker_run_cleanup(docker: &Docker, tab_id: String) -> Result<(), String> {
     let container_name = format!("gui4comby-server-{}", tab_id);
-    maybe::maybe(docker.remove_container(&container_name, Some(RemoveContainerOptions{
-        v: true,
-        force: true,
-        link: false
+    let existing_container = maybe::maybe(docker.list_containers(Some(ListContainersOptions::<String> {
+        all: true,
+        filters: HashMap::from([
+            ("name".to_string(), vec![container_name.clone()])
+        ]),
+        ..Default::default()
     })).await)?;
+    if existing_container.len() > 0 {
+        maybe::maybe(docker.remove_container(&container_name, Some(RemoveContainerOptions{
+            v: true,
+            force: true,
+            link: false
+        })).await)?;
+    }
     Ok(())
 }
