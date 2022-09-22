@@ -27,32 +27,33 @@ This template should help get you started developing with Tauri, React and Types
 - [x] Playground: Language selection
 - [x] Playground: Ace editor for source code
 - [ ] Playground: Matched/Rewritten color highlighting or diff
-- [ ] Playground: Auto "run" when source, matcher, rewrite or rule changes (debounced)
-- [ ] Filesystem: Dry-run Functional
-- [ ] Filesystem: Language selection
-- [ ] Filesystem: Reject All Functional 
-- [ ] Filesystem: Accept All Functional
-- [ ] Filesystem: Interactive Accept / Reject
-- [ ] Filesystem: Matched/Rewritten color highlighting or diff
+- [x] Playground: Auto "run" when source, matcher, rewrite or rule changes (debounced)
+- [x] Filesystem: Dry-run Functional
+- [x] Filesystem: Language selection
+- [ ] ~Filesystem: Reject All Functional~ 
+- [x] Filesystem: Accept All Functional
+- [x] Filesystem: Interactive Accept / Reject
+- [x] Filesystem: Matched/Rewritten color highlighting or diff
 - [x] Docs: Basic import & display of comby.dev docs
 - [ ] Docs: Replace playground links w/ open in app (new playground tab auto-filled)
 - [ ] Library: Save and Manage match, rewrite and rule patterns
 - [ ] Library: Default collection - Samples
 - [ ] App State: Persist across program termination
 - [x] Themes: Map vscode themes to css variable overrides (POC)
-- [ ] Themes: Map vscode themes to css variable overrides
-- [ ] Themes: Ability to switch between available themes
-- [ ] Themes: Support any theme from https://vscodethemes.com/
+- [x] Themes: Map vscode themes to css variable overrides
+- [x] Themes: Ability to switch between available themes
+- [x] ~Themes: Support any theme from https://vscodethemes.com/~ (turned out unreliable) 
 - [x] App Tabs: Close all tabs shows Getting Started splash
 - [x] App Toaster: Provide Feedback on success/failure messages using toasts
-- [ ] App Event Log: History of time, action, success or failure messages
-- [ ] Docs: Enhance styling of elements like tables, blockquotes, etc
+- [x] App Event Log: History of time, action
+- [ ] App Event Log: include toaster messages
+- [x] Docs: Enhance styling of elements like tables, blockquotes, etc
 - 
-- [ ] Bug: Too many tabs pushes new tab buttons off the screen
+- [x] Bug: Too many tabs pushes new tab buttons off the screen
 - [x] Bug: Execing docker: Docker Container Error: Docker responded with status code 409: Conflict. The container name "/gui4comby-server" is already in use by container
 - [x] Bug: If no matches from comby, stdOut is empty resulting in JSON Parse error: Unexpected EOF on the frontend
 - [x] Bug: State is shared between playground tabs
-- [ ] Bug: Docs tab lose scroll position on tab changes (they revert to tab path which is usually top, or a section header)
+- [x] Bug: Docs tab lose scroll position on tab changes (they revert to tab path which is usually top, or a section header)
 
 ## Todo Edge Cases
 ### Edge Case: comby/comby image not available locally, and not signed into docker

@@ -1,8 +1,7 @@
 import {atomFamily, selectorFamily} from "recoil";
 import {DirectorySelection} from "../DirectorySelector/DirectorySelector";
 import {CombyRewriteStatus} from "./Filesystem.types";
-import {LanguageOptions} from "../LanguageSelect/LanguageOptions";
-import {defaultExtensionFamily, defaultLanguageFamily} from "../Playground/Playground.recoil";
+import {defaultExtensionFamily} from "../Playground/Playground.recoil";
 
 export const directorySelectionFamily = atomFamily<DirectorySelection, string>({
   key: 'filesystemDirectorySelection',
