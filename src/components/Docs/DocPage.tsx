@@ -4,7 +4,6 @@ import {useRecoilState} from "recoil";
 import {tabsState} from "../../App.recoil";
 import {useEffect} from "react";
 import {H1, H2, H3, H4, H5, H6} from "./Headings";
-import VerticalExpander from "../VerticalExpander/verticalExpander";
 import {BiWindowOpen} from "react-icons/all";
 import {docPageScrollFamily} from "./Docs.recoil";
 

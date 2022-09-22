@@ -19,7 +19,12 @@ import {
 } from "./Filesystem.types";
 import ResultsExplorer from "./ResultsExplorer";
 import {CombyRewrite} from "../Playground/Comby";
-import {directorySelectionFamily} from "./Filesystem.recoil";
+import {
+  directorySelectionFamily,
+  filesystemExtensionMask, filesystemInvalidExtensionFamily,
+  filesystemLoadingFamily,
+  filesystemResultFamily
+} from "./Filesystem.recoil";
 import {VSizable} from "../VSizable/VSizable";
 import LanguageSelect, {LanguageOption} from "../LanguageSelect/LanguageSelect";
 import {useDebounce} from "usehooks-ts";
@@ -32,12 +37,11 @@ const Filesystem = ({id}:{id:string})=> {
   const [rewriteTemplate, setRewriteTemplate] = useRecoilState(rewriteTemplateFamily(id));
   const [rule, setRule] = useRecoilState(ruleFamily(id));
   const [directorySelection, setDirectorySelection] = useRecoilState<DirectorySelection>(directorySelectionFamily(id));
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<Array<CombyRewriteStatus>|null>(null);
+  const [loading, setLoading] = useRecoilState(filesystemLoadingFamily(id));
+  const [result, setResult] = useRecoilState<Array<CombyRewriteStatus>|null>(filesystemResultFamily(id));
   const [language, setLanguage] = useRecoilState(languageFamily(id));
-  const defaultExtension = useRecoilValue(defaultExtensionFamily(id));
-  const [extensionMask, setExtensionMask] = useState<string>(defaultExtension);
-  const [invalidExtensions, setInvalidExtensions] = useState(false);
+  const [extensionMask, setExtensionMask] = useRecoilState<string>(filesystemExtensionMask(id));
+  const [invalidExtensions, setInvalidExtensions] = useRecoilState(filesystemInvalidExtensionFamily(id));
   const debouncedExtensionMask = useDebounce(extensionMask, 200);
 
   useEffect(() => {
@@ -53,7 +57,7 @@ const Filesystem = ({id}:{id:string})=> {
   const onLanguageChange = useCallback((value:string, selected: LanguageOption) => {
     setLanguage(_ => value);
     setExtensionMask(_ => selected.extensions);
-  }, []);
+  }, [setLanguage, setExtensionMask]);
 
   const run = useCallback(async () => {
     console.log('invoking rpc', {matchTemplate, rewriteTemplate, rule, directorySelection, tabId: params.tabId});
@@ -155,7 +159,7 @@ const Filesystem = ({id}:{id:string})=> {
       and set default height to match available space
   */
 
-  return <VSizable defaultHeight={result ? 200 : 0} sizable={result ? <ResultsExplorer applyFunc={apply} skipFunc={skip} results={result} path={directorySelection.path}/> : null}>
+  return <VSizable key={id} defaultHeight={result ? 200 : 0} sizable={result ? <ResultsExplorer applyFunc={apply} skipFunc={skip} results={result} path={directorySelection.path}/> : null}>
       <div style={{padding: '1em 1em', height: '100%', overflowY: 'scroll'}}>
         <Form>
           <div  style={{alignItems: 'center', display: 'flex'}} className={'mb-3'}>
