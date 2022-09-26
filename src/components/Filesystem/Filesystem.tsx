@@ -1,10 +1,9 @@
-import {Button, Form, InputGroup, Spinner} from "react-bootstrap";
-import {useRecoilState, useRecoilValue} from "recoil";
+import {Button, Form, InputGroup, OverlayTrigger, Spinner, Tooltip} from "react-bootstrap";
+import {useRecoilState} from "recoil";
 import {
-  defaultExtensionFamily,
   languageFamily,
   matchTemplateFamily,
-  rewriteTemplateFamily,
+  rewriteTemplateFamily, ruleErrorFamily,
   ruleFamily
 } from "../Playground/Playground.recoil";
 import DirectorySelector, {DirectorySelection} from "../DirectorySelector/DirectorySelector";
@@ -28,6 +27,7 @@ import {
 import {VSizable} from "../VSizable/VSizable";
 import LanguageSelect, {LanguageOption} from "../LanguageSelect/LanguageSelect";
 import {useDebounce} from "usehooks-ts";
+import {AiOutlineWarning} from "react-icons/all";
 
 
 const Filesystem = ({id}:{id:string})=> {
@@ -43,6 +43,7 @@ const Filesystem = ({id}:{id:string})=> {
   const [extensionMask, setExtensionMask] = useRecoilState<string>(filesystemExtensionMask(id));
   const [invalidExtensions, setInvalidExtensions] = useRecoilState(filesystemInvalidExtensionFamily(id));
   const debouncedExtensionMask = useDebounce(extensionMask, 200);
+  const [ruleError, setRuleError] = useRecoilState(ruleErrorFamily(id));
 
   useEffect(() => {
     let re = /^\.[a-zA-Z]+(?:,\.[a-zA-Z]+)*$/;
@@ -67,6 +68,7 @@ const Filesystem = ({id}:{id:string})=> {
           matchTemplate,
           rewriteTemplate,
           language,
+          rule,
           tabId: params.tabId,
           hostPath: directorySelection.expanded,
           extensions: (extensionMask||'').split(','),
@@ -75,7 +77,13 @@ const Filesystem = ({id}:{id:string})=> {
 
       const results = await invoke<FilesystemResult>("filesystem_rewrite", rewrite_args);
       if(results.warning) {
-        push('Rewriter Warning', results.warning, ToastVariant.warning)
+        if(results.warning.indexOf('Match rule parse error: :') !== -1) {
+          setRuleError(results.warning.replace('Match rule parse error: : ', ''));
+        } else {
+          push('Rewriter Warning', results.warning, ToastVariant.warning)
+        }
+      } else {
+        setRuleError(null);
       }
       setResult(results.result?.split("\n").map(r => {
         try {
@@ -104,6 +112,7 @@ const Filesystem = ({id}:{id:string})=> {
           matchTemplate,
           rewriteTemplate,
           language,
+          rule,
           tabId: params.tabId,
           hostPath: directorySelection.expanded
         };
@@ -169,13 +178,13 @@ const Filesystem = ({id}:{id:string})=> {
               </Form.Label>
               <DirectorySelector defaultValue={directorySelection} onSelect={onSelect}/>
             </Form.Group>
+            <Form.Group style={{flexShrink: 1, marginRight: "1em"}}>
+              <Form.Label><strong><small>Language</small></strong></Form.Label>
+                <LanguageSelect defaultValue={language} excludes={['.generic']} onChange={onLanguageChange}/>
+            </Form.Group>
             <Form.Group style={{flexShrink: 1, width: '5em'}}>
               <Form.Label><strong><small>File ext</small></strong></Form.Label>
                 <Form.Control as="input" value={extensionMask} size={'sm'} onChange={onExtensionChanged} isInvalid={invalidExtensions}/>
-            </Form.Group>
-            <Form.Group style={{flexShrink: 1, marginLeft: "1em"}}>
-              <Form.Label><strong><small>Language</small></strong></Form.Label>
-                <LanguageSelect defaultValue={language} excludes={['.generic']} onChange={onLanguageChange}/>
             </Form.Group>
           </div>
           <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: '1em'}}>
@@ -189,7 +198,21 @@ const Filesystem = ({id}:{id:string})=> {
             </Form.Group>
             <Form.Group className="mb-3" controlId="rule">
               <Form.Label><strong><small>Rule</small></strong></Form.Label>
-              <Form.Control as="textarea" rows={1} placeholder="rule expression" value={rule} onChange={e => setRule(e.target.value)}/>
+              <InputGroup>
+                <Form.Control as="textarea" rows={1} placeholder="rule expression" value={rule} onChange={e => setRule(e.target.value)} className={`${ruleError ? 'text-warning':''}`}/>
+                {ruleError &&
+                <OverlayTrigger
+                  placement="right"
+                  delay={{ show: 250, hide: 400 }}
+                  overlay={(props) => (
+                    <Tooltip id="button-tooltip" {...props}>
+                      {ruleError}
+                    </Tooltip>
+                  )}
+                >
+                  <InputGroup.Text className={'text-warning'}><AiOutlineWarning/></InputGroup.Text>
+                </OverlayTrigger>}
+              </InputGroup>
             </Form.Group>
           </div>
           {loading ? <Spinner animation="border" /> : <Button onClick={run} disabled={invalidExtensions || loading || !Boolean(directorySelection.expanded) || !Boolean(matchTemplate) || !Boolean(rewriteTemplate)}>Run</Button>}

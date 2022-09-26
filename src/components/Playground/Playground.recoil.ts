@@ -18,7 +18,12 @@ export const rewriteTemplateFamily = atomFamily({
 
 export const ruleFamily = atomFamily({
   key: 'playgroundRule',
-  default: '',
+  default: 'where true',
+});
+
+export const ruleErrorFamily = atomFamily<string|null, string>({
+  key: 'playgroundRuleError',
+  default: null
 });
 
 export const matchedFamily = atomFamily({

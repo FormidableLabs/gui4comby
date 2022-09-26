@@ -17,11 +17,14 @@ mod main_ext;
 
 use std::fs;
 use std::path::MAIN_SEPARATOR;
+use std::sync::{Arc};
+use tokio::sync::Mutex;
 use bollard::Docker;
 use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::{Manager, Runtime};
 use resolve_path::PathResolveExt;
 use tauri::regex::Regex;
+use tokio::sync::RwLock;
 use docker_run::DockerState;
 use playground::{playground_match, playground_rewrite};
 use image::{comby_image, download_comby_image, docker_version};
@@ -48,6 +51,7 @@ fn server_log<R: Runtime>(app_handle: &tauri::AppHandle<R>, message: String) {
     }
 }
 
+pub struct ThreadSafe(Arc<Mutex<bool>>);
 
 fn main() {
     let docker = Docker::connect_with_local_defaults();
@@ -60,6 +64,7 @@ fn main() {
             Ok(())
         })
         .manage(DockerState { docker })
+        .manage(ThreadSafe(Arc::new(Mutex::new(true))))
         .invoke_handler(tauri::generate_handler![
             greet,
             dir_info,

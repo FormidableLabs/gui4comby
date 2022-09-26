@@ -180,7 +180,8 @@ pub async fn filesystem_rewrite<R: Runtime>(
     exclude_dirs: Vec<String>,
     match_template: String,
     rewrite_template: String,
-    language: String
+    language: String,
+    rule: String,
 ) -> Result<FilesystemResult,String> {
 
     let mnt_path = "/mnt/source";
@@ -191,6 +192,7 @@ pub async fn filesystem_rewrite<R: Runtime>(
         "comby",
         match_template.as_str(),
         rewrite_template.as_str(),
+        "-rule", rule.as_str(),
         "-matcher", language.as_str(),
         "-d", mnt_path,
         "-exclude-dir", &exclude_dirs_param,
@@ -215,13 +217,15 @@ pub async fn filesystem_rewrite_file<R: Runtime>(
     file_path: String,
     match_template: String,
     rewrite_template: String,
-    language: String
+    language: String,
+    rule: String,
 ) -> Result<FilesystemResult,String> {
     let docker = maybe::maybe_ref(&state.docker)?;
     let result = docker_run::docker_run_mnt(docker, tab_id, host_path,vec![
         "comby",
         match_template.as_str(),
         rewrite_template.as_str(),
+        "-rule", rule.as_str(),
         "-matcher", language.as_str(),
         "-in-place",
         &file_path
