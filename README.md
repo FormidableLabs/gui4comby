@@ -34,7 +34,7 @@ This project is a https://tauri.app/ and uses Tauri, React and Typescript in Vit
 * rust docker library https://crates.io/crates/bollard
 * Docker credentials - application passwords: [Manage access tokens | Docker Documentation](https://docs.docker.com/docker-hub/access-tokens/)
 * https://github.com/ydeshayes/react-highlight for highlighting matches/rewrites
-
+* ace editor range highlight https://stackoverflow.com/questions/27531860/how-to-highlight-a-certain-line-in-ace-editor
 
 ## Todo
 - [x] App: Support tabs to accommodate multiple work streams

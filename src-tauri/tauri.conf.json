@@ -58,7 +58,9 @@
         "height": 600,
         "resizable": true,
         "title": "gui4comby",
-        "width": 800
+        "width": 800,
+        "minWidth": 800,
+        "minHeight": 600
       }
     ]
   }

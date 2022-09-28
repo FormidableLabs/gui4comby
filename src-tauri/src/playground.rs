@@ -33,6 +33,7 @@ pub async fn playground_match<R: Runtime>(
         "-matcher", language.as_str(),
         "-stdin",
         "-match-only",
+        "-match-newline-at-toplevel",
         "-json-lines"
     ], Some(source), app_handle).await?;
 
@@ -58,6 +59,7 @@ pub async fn playground_rewrite<R: Runtime>(
         "-rule", rule.as_str(),
         "-matcher", language.as_str(),
         "-stdin",
+        "-match-newline-at-toplevel",
         "-json-lines"
     ], Some(source), app_handle).await?;
 

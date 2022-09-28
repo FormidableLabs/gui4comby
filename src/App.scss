@@ -1,10 +1,11 @@
 .dark {
   /* Theme */
-  --bg-step-1: #25252Dff;
-  --bg-step-2: #2D3037ff;
-  --bg-step-3: #373A43ff;
-  --bg-step-4: #454753ff;
-  --bg-step-5: #707078ff;
+  --bg-step-1: #25252D;
+  --bg-step-2: #2D3037;
+  --bg-step-3: #373A43;
+  --bg-step-4: #454753;
+  --bg-step-5: #707078;
+  --bg-step-5-muted: #70707855;
 
   --contrast-color: #6c757d;
 
@@ -27,6 +28,7 @@
   --bg-step-3: #f3f3f3;
   --bg-step-4: #e0e0e0;
   --bg-step-5: #d0d0d0;
+  --bg-step-5-muted: #d0d0d055;
 
   --contrast-color: #a8acaf;
 
@@ -54,6 +56,7 @@
   --input-background-color: var(--bg-step-3);
   --input-background-active-color: var(--bg-step-3);
   --color-pop-1: var(--fg-color-pop-1);
+  --code-marker-bg: var(--bg-step-5-muted);
 }
 
 html, body, #root {
@@ -150,4 +153,9 @@ pre {
     background-color: var(--background-color);
     color: var(--foreground-color);
   }
+}
+
+.matched, .matched-hole, .rewritten, .rewritten-hole {
+  background: var(--code-marker-bg);
+  position: absolute;
 }

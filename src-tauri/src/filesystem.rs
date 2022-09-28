@@ -196,6 +196,7 @@ pub async fn filesystem_rewrite<R: Runtime>(
         "-matcher", language.as_str(),
         "-d", mnt_path,
         "-exclude-dir", &exclude_dirs_param,
+        "-match-newline-at-toplevel",
         "-json-lines"
     ];
     if ! &extensions_param.eq(".*") {
@@ -227,6 +228,7 @@ pub async fn filesystem_rewrite_file<R: Runtime>(
         rewrite_template.as_str(),
         "-rule", rule.as_str(),
         "-matcher", language.as_str(),
+        "-match-newline-at-toplevel",
         "-in-place",
         &file_path
     ], app_handle).await?;

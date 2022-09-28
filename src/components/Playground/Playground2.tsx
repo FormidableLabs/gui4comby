@@ -10,8 +10,8 @@ import {
   aceModeFamily,
   languageFamily,
   loadingFamily,
-  matchedFamily,
-  matchTemplateFamily,
+  matchedFamily, matchesFamily,
+  matchTemplateFamily, rewritesFamily,
   rewriteTemplateFamily,
   rewrittenFamily, ruleErrorFamily,
   ruleFamily,
@@ -22,6 +22,7 @@ import {CombyMatch, CombyRewrite} from "./Comby";
 import AceWrapper from "../AceWrapper/AceWrapper";
 import {AiOutlineWarning} from "react-icons/all";
 import sanitize from "./Sanitize";
+import {IMarker} from "react-ace";
 
 const useSize = (target: MutableRefObject<HTMLElement | null>) => {
   const [size, setSize] = useState<DOMRectReadOnly>()
@@ -58,14 +59,16 @@ type PlaygroundRewriteResult = {
   warning?: string;
 }
 
-const Playground = ({id}:{id:string}) => {
+const Playground2 = ({id}:{id:string}) => {
   const {push} = useToaster();
   const [source, setSource] = useRecoilState(sourceFamily(id));
   const [matchTemplate, setMatchTemplate] = useRecoilState(matchTemplateFamily(id));
   const [rewriteTemplate, setRewriteTemplate] = useRecoilState(rewriteTemplateFamily(id));
   const [rule, setRule] = useRecoilState(ruleFamily(id));
   const [matched, setMatched] = useRecoilState(matchedFamily(id));
+  const [matches, setMatches] = useRecoilState(matchesFamily(id));
   const [rewritten, setRewritten] = useRecoilState(rewrittenFamily(id));
+  const [rewrites, setRewrites] = useRecoilState(rewritesFamily(id));
   const [language, setLanguage] = useRecoilState(languageFamily(id));
   const [loading, setLoading] = useRecoilState(loadingFamily(id));
   const [aceMode, setAceMode] = useRecoilState(aceModeFamily(id));
@@ -76,8 +79,10 @@ const Playground = ({id}:{id:string}) => {
   const debouncedRule = useDebounce(rule, debounceTime);
   const [ruleError, setRuleError] = useRecoilState(ruleErrorFamily(id));
 
-  const sourceBoxRef = useRef(null)
-  const size = useSize(sourceBoxRef);
+  const sourceBoxRef = useRef(null);
+  const rewrittenBoxRef = useRef(null);
+  const sourceSize = useSize(sourceBoxRef);
+  const rewrittenSize = useSize(rewrittenBoxRef);
 
   const run = useCallback(
   async () => {
@@ -125,8 +130,9 @@ const Playground = ({id}:{id:string}) => {
           push('Rewriter Warning', rewrite_results.warning, ToastVariant.warning)
         }
       }
-
+      setMatches(match_results.result.matches);
       setMatched(match_results.result.matches.map((match: Record<string, unknown>) => match.matched).join("\n"));
+      setRewrites(rewrite_results.result.in_place_substitutions);
       setRewritten(rewrite_results.result.rewritten_source);
     } catch (error) {
       // @ts-ignore
@@ -148,15 +154,73 @@ const Playground = ({id}:{id:string}) => {
     setAceMode(option.mode || '');
   }
 
-  console.log('playground render');
+  const offsetToRowCol = (source:string, offset:number) => {
+    let head = source.substring(0, offset);
+    let row = (head.match(/\n/g) || []).length;
+    let lastNewlineIndex = head.lastIndexOf("\n") || 0;
+    let col = head.length - lastNewlineIndex -1;
+    return {row, col};
+  }
 
-  return <div style={{padding: '1em 1em'}}>
-    <Form>
-      <Form.Group className="mb-3" controlId="sourceSample">
+  const matchedMarkers:IMarker[] = matches.reduce((prev, cur) => ([
+    ...prev,
+    {
+      startCol: cur.range.start.column-1,
+      endCol: cur.range.end.column-1,
+      startRow: cur.range.start.line-1,
+      endRow: cur.range.end.line-1,
+      className: 'matched',
+      type: 'text',
+    },
+    ...(cur.environment.map(env => {
+      return {
+        startRow: env.range.start.line-1,
+        startCol: env.range.start.column-1,
+        endRow: env.range.end.line-1,
+        endCol: env.range.end.column-1,
+        className: 'matched-hole',
+        type: 'text'
+      }
+    }))
+  ]) as IMarker[], [] as IMarker[]);
+
+  const rewrittenMarkers: IMarker[] = rewrites.reduce((prev, cur) => {
+    let start = offsetToRowCol(rewritten, cur.range.start.offset);
+    let end = offsetToRowCol(rewritten, cur.range.end.offset);
+    return [
+    ...prev,
+    {
+        startRow: start.row,
+        startCol: start.col,
+        endRow: end.row,
+        endCol: end.col,
+        className: 'rewritten',
+        type: 'text'
+    },
+    ...(cur.environment.map(env => {
+      const offset = cur.range.start.offset;
+      let start = offsetToRowCol(rewritten, offset + env.range.start.offset);
+      let end = offsetToRowCol(rewritten, offset + env.range.end.offset);
+      return {
+        startRow: start.row,
+        startCol: start.col,
+        endRow: end.row,
+        endCol: end.col,
+        className: 'rewritten-hole',
+        type: 'text'
+      }
+    }))
+  ] as IMarker[]}, [] as IMarker[]);
+
+
+  return <div style={{padding: '1em 1em', height: '100%'}}>
+    <Form  style={{display: 'flex', flexDirection: 'column', height: '100%'}}>
+      <Form.Group style={{flexGrow: 1, height: '100%', display: 'grid', gridTemplateColumns: '1fr 1fr', rowGap: '0.5em', columnGap: '1em', gridTemplateRows: '24px auto'}}>
         <Form.Label style={{alignItems: 'center', display: 'flex', justifyContent: 'space-between'}}>
           <strong><small>Source Code </small></strong>
           <small><LanguageSelect defaultValue={language} onChange={onLanguageSelect}/></small>
         </Form.Label>
+        <Form.Label><strong><small>Rewritten</small></strong></Form.Label>
         <div ref={sourceBoxRef} className={'form-control'} style={{
           overflow: 'auto',
           resize: 'vertical',
@@ -165,30 +229,49 @@ const Playground = ({id}:{id:string}) => {
           width: '100%',
           paddingBottom: '5px',
         }}>
-          {size &&
+          {sourceSize &&
             <AceWrapper
               language={aceMode}
-              width={size.width}
-              height={size.height}
+              width={sourceSize.width}
+              height={sourceSize.height}
               onChange={value => setSource(value)}
-              value={source}/>
+              value={source}
+              markers={matchedMarkers}/>
           }
         </div>
-
+        <div ref={rewrittenBoxRef} className={'form-control'} style={{
+          overflow: 'auto',
+          resize: 'vertical',
+          padding: 0,
+          minHeight: 'calc(3em + 0.5em)',
+          width: '100%',
+          paddingBottom: '5px',
+        }}>
+          {rewrittenSize &&
+            <AceWrapper
+              language={aceMode}
+              width={rewrittenSize.width}
+              height={rewrittenSize.height}
+              readOnly={true}
+              value={rewritten}
+              markers={rewrittenMarkers}
+            />
+          }
+        </div>
       </Form.Group>
-      <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: '1em'}}>
+      <div style={{flexShrink: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: '1em'}}>
         <Form.Group className="mb-3" controlId="matchTemplate">
           <Form.Label><strong><small>Match Template</small></strong></Form.Label>
-          <Form.Control as="textarea" rows={3} placeholder="Match template" value={matchTemplate} onChange={e => setMatchTemplate(sanitize(e.target.value))}/>
+          <Form.Control as="textarea" rows={3} placeholder="Match template" value={matchTemplate} onChange={e => setMatchTemplate(sanitize(e.target.value))} autoCapitalize={"off"} autoCorrect={"off"}/>
         </Form.Group>
         <Form.Group className="mb-3" controlId="rewriteTemplate">
           <Form.Label><strong><small>Rewrite Template</small></strong></Form.Label>
-          <Form.Control as="textarea" rows={3} placeholder="Rewrite template" value={rewriteTemplate} onChange={e => setRewriteTemplate(sanitize(e.target.value))}/>
+          <Form.Control as="textarea" rows={3} placeholder="Rewrite template" value={rewriteTemplate} onChange={e => setRewriteTemplate(sanitize(e.target.value))} autoCapitalize={"off"} autoCorrect={"off"}/>
         </Form.Group>
         <Form.Group className="mb-3" controlId="rule">
           <Form.Label><strong><small>Rule</small></strong></Form.Label>
           <InputGroup>
-            <Form.Control as="textarea" rows={1} placeholder="rule expression" value={rule} onChange={e => setRule(sanitize(e.target.value))} className={`${ruleError ? 'text-warning':''}`}/>
+            <Form.Control as="textarea" rows={1} placeholder="rule expression" value={rule} onChange={e => setRule(sanitize(e.target.value))} className={`${ruleError ? 'text-warning':''}`} autoCapitalize={"off"} autoCorrect={"off"}/>
             {ruleError &&
             <OverlayTrigger
               placement="right"
@@ -203,16 +286,8 @@ const Playground = ({id}:{id:string}) => {
             </OverlayTrigger>}
           </InputGroup>
         </Form.Group>
-        <Form.Group className="mb-3" controlId="matched" style={{gridColumn: 1}}>
-          <Form.Label><strong><small>Matched</small></strong></Form.Label>
-          <Form.Control as="textarea" rows={3} placeholder="" value={matched} readOnly={true}/>
-        </Form.Group>
-        <Form.Group className="mb-3" controlId="rewritten">
-          <Form.Label><strong><small>Rewritten</small></strong></Form.Label>
-          <Form.Control as="textarea" rows={3} placeholder="" value={rewritten} readOnly={true}/>
-        </Form.Group>
       </div>
     </Form>
   </div>
 }
-export default Playground;
+export default Playground2;

@@ -32,16 +32,19 @@ import "ace-builds/src-noconflict/theme-one_dark";
 import "ace-builds/src-noconflict/theme-dawn";
 import {useRecoilValue} from "recoil";
 import {appThemeAtom} from "../../App.recoil";
+import {IMarker} from "react-ace/src/types";
 
 
 type AceWrapperProps = {
   width: number;
   height: number;
   value: string;
-  onChange: (value: string) => void;
+  onChange?: (value: string) => void;
   language: string;
+  readOnly?: boolean;
+  markers?: IMarker[];
 };
-const AceWrapper = ({width, height, language, onChange, value}:AceWrapperProps) => {
+const AceWrapper = ({width, height, language, onChange, value, readOnly, markers}:AceWrapperProps) => {
   const theme = useRecoilValue(appThemeAtom);
   return (
     <AceEditor
@@ -57,7 +60,9 @@ const AceWrapper = ({width, height, language, onChange, value}:AceWrapperProps) 
       showGutter={true}
       highlightActiveLine={true}
       value={value}
+      readOnly={readOnly}
       className={'themed'}
+      markers={markers}
       setOptions={{
         enableBasicAutocompletion: false,
         enableLiveAutocompletion: false,

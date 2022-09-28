@@ -28,6 +28,7 @@ import {VSizable} from "../VSizable/VSizable";
 import LanguageSelect, {LanguageOption} from "../LanguageSelect/LanguageSelect";
 import {useDebounce} from "usehooks-ts";
 import {AiOutlineWarning} from "react-icons/all";
+import sanitize from "../Playground/Sanitize";
 
 
 const Filesystem = ({id}:{id:string})=> {
@@ -190,16 +191,16 @@ const Filesystem = ({id}:{id:string})=> {
           <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: '1em'}}>
             <Form.Group className="mb-3" controlId="matchTemplate">
               <Form.Label><strong><small>Match Template</small></strong></Form.Label>
-              <Form.Control as="textarea" rows={3} placeholder="Match template" value={matchTemplate} onChange={e => setMatchTemplate(e.target.value)}/>
+              <Form.Control as="textarea" rows={3} placeholder="Match template" value={matchTemplate} onChange={e => setMatchTemplate(sanitize(e.target.value))}/>
             </Form.Group>
             <Form.Group className="mb-3" controlId="rewriteTemplate">
               <Form.Label><strong><small>Rewrite Template</small></strong></Form.Label>
-              <Form.Control as="textarea" rows={3} placeholder="Rewrite template" value={rewriteTemplate} onChange={e => setRewriteTemplate(e.target.value)}/>
+              <Form.Control as="textarea" rows={3} placeholder="Rewrite template" value={rewriteTemplate} onChange={e => setRewriteTemplate(sanitize(e.target.value))}/>
             </Form.Group>
             <Form.Group className="mb-3" controlId="rule">
               <Form.Label><strong><small>Rule</small></strong></Form.Label>
               <InputGroup>
-                <Form.Control as="textarea" rows={1} placeholder="rule expression" value={rule} onChange={e => setRule(e.target.value)} className={`${ruleError ? 'text-warning':''}`}/>
+                <Form.Control as="textarea" rows={1} placeholder="rule expression" value={rule} onChange={e => setRule(sanitize(e.target.value))} className={`${ruleError ? 'text-warning':''}`}/>
                 {ruleError &&
                 <OverlayTrigger
                   placement="right"
