@@ -5,7 +5,7 @@ import useToaster, {ToastVariant} from "../Toaster/useToaster";
 import LanguageSelect, {LanguageOption} from "../LanguageSelect/LanguageSelect";
 
 import useResizeObserver from '@react-hook/resize-observer'
-import {useRecoilState, useRecoilValue} from "recoil";
+import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
 import {
   aceModeFamily,
   languageFamily,
@@ -20,7 +20,7 @@ import {
 import {useDebounce} from "usehooks-ts";
 import {CombyMatch, CombyRewrite} from "./Comby";
 import AceWrapper from "../AceWrapper/AceWrapper";
-import {AiOutlineWarning} from "react-icons/all";
+import {AiOutlineImport, AiOutlineWarning} from "react-icons/all";
 import sanitize from "./Sanitize";
 import {IMarker} from "react-ace";
 import { useSize } from "../../hooks/useSize";
@@ -146,7 +146,7 @@ const Playground2 = ({id}:{id:string}) => {
     })().catch((err) => {
       push("Match Run Error", err.message ? err.message : err, ToastVariant.danger);
     });
-  }, [debouncedSource, rewriteTemplate, language, debouncedRule]);
+  }, [debouncedSource, matchTemplate, rewriteTemplate, language, debouncedRule]);
 
   const run = useCallback(async () => {
     if(!rewriteTemplate) { return }
@@ -279,7 +279,10 @@ const Playground2 = ({id}:{id:string}) => {
           <strong><small>Source Code </small></strong>
           <small><LanguageSelect defaultValue={language} onChange={onLanguageSelect}/></small>
         </Form.Label>
-        <Form.Label><strong><small>Rewritten</small></strong></Form.Label>
+        <Form.Label style={{alignItems: 'center', display: 'flex', justifyContent: 'space-between'}}>
+          <strong><small>Rewritten</small></strong>
+          <ImportButton id={id}/>
+        </Form.Label>
         <div ref={sourceBoxRef} className={'form-control'} style={{
           overflow: 'auto',
           resize: 'vertical',
@@ -350,3 +353,24 @@ const Playground2 = ({id}:{id:string}) => {
   </div>
 }
 export default Playground2;
+
+const ImportButton = ({id}:{id:string}) => {
+  const setSource = useSetRecoilState(sourceFamily(id));
+  const rewritten = useRecoilValue(rewrittenFamily(id));
+
+  const renderTooltip = (props:Record<string, unknown>) => (
+    <Tooltip id="button-tooltip" {...props}>
+      Click import to copy the results of the rewrite to your source code.
+    </Tooltip>
+  );
+
+  return (
+    <OverlayTrigger
+      placement="left"
+      delay={{ show: 250, hide: 400 }}
+      overlay={renderTooltip}
+    >
+      <span style={{cursor: 'pointer'}} onClick={() => setSource(rewritten)}><AiOutlineImport/></span>
+    </OverlayTrigger>
+  );
+}
