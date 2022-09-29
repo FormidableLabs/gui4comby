@@ -5,7 +5,7 @@ import useToaster, {ToastVariant} from "../Toaster/useToaster";
 import LanguageSelect, {LanguageOption} from "../LanguageSelect/LanguageSelect";
 
 import useResizeObserver from '@react-hook/resize-observer'
-import {useRecoilState} from "recoil";
+import {useRecoilState, useRecoilValue} from "recoil";
 import {
   aceModeFamily,
   languageFamily,
@@ -23,20 +23,8 @@ import AceWrapper from "../AceWrapper/AceWrapper";
 import {AiOutlineWarning} from "react-icons/all";
 import sanitize from "./Sanitize";
 import {IMarker} from "react-ace";
-
-const useSize = (target: MutableRefObject<HTMLElement | null>) => {
-  const [size, setSize] = useState<DOMRectReadOnly>()
-
-  useLayoutEffect(() => {
-    if(target.current){
-      setSize(target.current.getBoundingClientRect())
-    }
-  }, [target])
-
-  // Where the magic happens
-  useResizeObserver(target, (entry) => setSize(entry.contentRect))
-  return size
-}
+import { useSize } from "../../hooks/useSize";
+import Textarea from "../Textarea";
 
 enum PlaygroundResultType {
   Match = 'Match',
@@ -62,15 +50,15 @@ type PlaygroundRewriteResult = {
 const Playground2 = ({id}:{id:string}) => {
   const {push} = useToaster();
   const [source, setSource] = useRecoilState(sourceFamily(id));
-  const [matchTemplate, setMatchTemplate] = useRecoilState(matchTemplateFamily(id));
-  const [rewriteTemplate, setRewriteTemplate] = useRecoilState(rewriteTemplateFamily(id));
-  const [rule, setRule] = useRecoilState(ruleFamily(id));
+  const matchTemplate = useRecoilValue(matchTemplateFamily(id));
+  const rewriteTemplate = useRecoilValue(rewriteTemplateFamily(id));
+  const rule = useRecoilValue(ruleFamily(id));
   const [matched, setMatched] = useRecoilState(matchedFamily(id));
   const [matches, setMatches] = useRecoilState(matchesFamily(id));
   const [rewritten, setRewritten] = useRecoilState(rewrittenFamily(id));
   const [rewrites, setRewrites] = useRecoilState(rewritesFamily(id));
   const [language, setLanguage] = useRecoilState(languageFamily(id));
-  const [loading, setLoading] = useRecoilState(loadingFamily(id));
+  //const [loading, setLoading] = useRecoilState(loadingFamily(id));
   const [aceMode, setAceMode] = useRecoilState(aceModeFamily(id));
   const debounceTime = 200;
   const debouncedSource = useDebounce(source,debounceTime);
@@ -78,17 +66,93 @@ const Playground2 = ({id}:{id:string}) => {
   const debouncedRewriteTemplate = useDebounce(rewriteTemplate, debounceTime);
   const debouncedRule = useDebounce(rule, debounceTime);
   const [ruleError, setRuleError] = useRecoilState(ruleErrorFamily(id));
+  const [invokingMatch, setInvokingMatch] = useState(false);
+  const [invokingRewrite, setInvokingRewrite] = useState(false);
+  const loading = invokingMatch || invokingRewrite;
 
   const sourceBoxRef = useRef(null);
   const rewrittenBoxRef = useRef(null);
   const sourceSize = useSize(sourceBoxRef);
   const rewrittenSize = useSize(rewrittenBoxRef);
 
-  const run = useCallback(
-  async () => {
+  // invoke match rpc whenever match related input fields change
+  useEffect(() => {
+    (async () => {
+      console.log('invoking match rpc');
+      setInvokingMatch(true);
+      try {
+        let result = await invoke<PlaygroundResult>("playground_match", {
+            source,
+            matchTemplate,
+            language,
+            rule,
+          });
+        let match_results = {
+          ...result,
+          result: result.result ? JSON.parse(result.result) :  {uri: null, matches: [], in_place_substitutions: [], rewritten_source: '', diff: ''}
+        }
+        if(match_results.warning) {
+          // only have to handle non rule parse errors since those are handled in rewrite warning handling
+          if(match_results.warning.indexOf('Match rule parse error: :') === -1) {
+              push('Matcher Warning', match_results.warning, ToastVariant.warning);
+          }
+        }
+        setMatches(match_results.result.matches);
+        setMatched(match_results.result.matches.map((match: Record<string, unknown>) => match.matched).join("\n"));
+      } catch (err) {
+        console.error(err)
+      }
+      setInvokingMatch(false);
+    })().catch((err) => {
+      push("Match Run Error", err.message ? err.message : err, ToastVariant.danger);
+    });
+  }, [debouncedSource, matchTemplate, language]);
+
+  // invoke rewrite rpc whenever rewrite related input fields change
+  useEffect(() => {
+    (async () => {
+      console.log('invoking rewrite rpc');
+      setInvokingMatch(true);
+      try {
+        let result = await invoke<PlaygroundResult>("playground_rewrite", {
+          source,
+          language,
+          matchTemplate,
+          rewriteTemplate,
+          rule
+        });
+        let rewrite_results = {
+          ...result,
+          result: result.result ? JSON.parse(result.result) :  {uri: null, matches: [], in_place_substitutions: [], rewritten_source: '', diff: ''}
+        }
+        if(rewrite_results.warning) {
+          // we only handle non-rule parse error in rewriter as it will already be handled by match_results.warning handling
+          if (rewrite_results.warning.indexOf('Match rule parse error: :') !== -1) {
+            setRuleError(rewrite_results.warning.replace('Match rule parse error: : ', ''));
+          } else {
+            push('Rewriter Warning', rewrite_results.warning, ToastVariant.warning);
+            setRuleError(null);
+          }
+        } else {
+          setRuleError(null);
+        }
+        setRewrites(rewrite_results.result.in_place_substitutions);
+        setRewritten(rewrite_results.result.rewritten_source);
+      } catch (err) {
+        console.error(err)
+      } finally {
+        setInvokingMatch(false);
+      }
+    })().catch((err) => {
+      push("Match Run Error", err.message ? err.message : err, ToastVariant.danger);
+    });
+  }, [debouncedSource, rewriteTemplate, language, debouncedRule]);
+
+  const run = useCallback(async () => {
+    if(!rewriteTemplate) { return }
     console.log('invoking rpc');
     try {
-      setLoading(true);
+    //  setLoading(true);
       let results = (await Promise.all([
         invoke<PlaygroundResult>("playground_match", {
           source,
@@ -138,16 +202,10 @@ const Playground2 = ({id}:{id:string}) => {
       // @ts-ignore
       push('App Error', error.message || error, ToastVariant.danger);
     }
-    setLoading(false);
+    //setLoading(false);
   },
   [debouncedSource, debouncedMatchTemplate, debouncedRewriteTemplate, debouncedRule, language],
 );
-
-  useEffect(() => {
-    run().catch(err => {
-      push("Run Error", err.message ? err.message : err, ToastVariant.danger);
-    });
-  }, [run]);
 
   const onLanguageSelect = (value: string, option: LanguageOption) => {
     setLanguage(value);
@@ -212,6 +270,7 @@ const Playground2 = ({id}:{id:string}) => {
     }))
   ] as IMarker[]}, [] as IMarker[]);
 
+  console.log('playground render', {ruleError, rule});
 
   return <div style={{padding: '1em 1em', height: '100%'}}>
     <Form  style={{display: 'flex', flexDirection: 'column', height: '100%'}}>
@@ -262,16 +321,16 @@ const Playground2 = ({id}:{id:string}) => {
       <div style={{flexShrink: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: '1em'}}>
         <Form.Group className="mb-3" controlId="matchTemplate">
           <Form.Label><strong><small>Match Template</small></strong></Form.Label>
-          <Form.Control as="textarea" rows={3} placeholder="Match template" value={matchTemplate} onChange={e => setMatchTemplate(sanitize(e.target.value))} autoCapitalize={"off"} autoCorrect={"off"}/>
+          <Textarea state={matchTemplateFamily(id)} rows={3} placeholder="Match template" autoCapitalize={"off"} autoCorrect={"off"}/>
         </Form.Group>
         <Form.Group className="mb-3" controlId="rewriteTemplate">
           <Form.Label><strong><small>Rewrite Template</small></strong></Form.Label>
-          <Form.Control as="textarea" rows={3} placeholder="Rewrite template" value={rewriteTemplate} onChange={e => setRewriteTemplate(sanitize(e.target.value))} autoCapitalize={"off"} autoCorrect={"off"}/>
+          <Textarea state={rewriteTemplateFamily(id)} rows={3} placeholder="Rewrite template" autoCapitalize={"off"} autoCorrect={"off"}/>
         </Form.Group>
         <Form.Group className="mb-3" controlId="rule">
           <Form.Label><strong><small>Rule</small></strong></Form.Label>
           <InputGroup>
-            <Form.Control as="textarea" rows={1} placeholder="rule expression" value={rule} onChange={e => setRule(sanitize(e.target.value))} className={`${ruleError ? 'text-warning':''}`} autoCapitalize={"off"} autoCorrect={"off"}/>
+            <Textarea state={ruleFamily(id)} name={'rule'} rows={1} placeholder="rule expression" className={`${ruleError ? 'text-warning':''}`} autoCapitalize={"off"} autoCorrect={"off"}/>
             {ruleError &&
             <OverlayTrigger
               placement="right"
