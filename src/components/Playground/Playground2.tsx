@@ -25,6 +25,7 @@ import sanitize from "./Sanitize";
 import {IMarker} from "react-ace";
 import { useSize } from "../../hooks/useSize";
 import Textarea from "../Textarea";
+import ImportButton from "./ImportButton";
 
 enum PlaygroundResultType {
   Match = 'Match',
@@ -270,8 +271,6 @@ const Playground2 = ({id}:{id:string}) => {
     }))
   ] as IMarker[]}, [] as IMarker[]);
 
-  console.log('playground render', {ruleError, rule});
-
   return <div style={{padding: '1em 1em', height: '100%'}}>
     <Form  style={{display: 'flex', flexDirection: 'column', height: '100%'}}>
       <Form.Group style={{flexGrow: 1, height: '100%', display: 'grid', gridTemplateColumns: '1fr 1fr', rowGap: '0.5em', columnGap: '1em', gridTemplateRows: '24px auto'}}>
@@ -330,7 +329,7 @@ const Playground2 = ({id}:{id:string}) => {
           <Form.Label><strong><small>Rewrite Template</small></strong></Form.Label>
           <Textarea state={rewriteTemplateFamily(id)} rows={3} placeholder="Rewrite template" autoCapitalize={"off"} autoCorrect={"off"}/>
         </Form.Group>
-        <Form.Group className="mb-3" controlId="rule">
+        <Form.Group className="mb-3" controlId="rule" style={{gridColumnStart: 'span 2'}}>
           <Form.Label><strong><small>Rule</small></strong></Form.Label>
           <InputGroup>
             <Textarea state={ruleFamily(id)} name={'rule'} rows={1} placeholder="rule expression" className={`${ruleError ? 'text-warning':''}`} autoCapitalize={"off"} autoCorrect={"off"}/>
@@ -353,24 +352,3 @@ const Playground2 = ({id}:{id:string}) => {
   </div>
 }
 export default Playground2;
-
-const ImportButton = ({id}:{id:string}) => {
-  const setSource = useSetRecoilState(sourceFamily(id));
-  const rewritten = useRecoilValue(rewrittenFamily(id));
-
-  const renderTooltip = (props:Record<string, unknown>) => (
-    <Tooltip id="button-tooltip" {...props}>
-      Click import to copy the results of the rewrite to your source code.
-    </Tooltip>
-  );
-
-  return (
-    <OverlayTrigger
-      placement="left"
-      delay={{ show: 250, hide: 400 }}
-      overlay={renderTooltip}
-    >
-      <span style={{cursor: 'pointer'}} onClick={() => setSource(rewritten)}><AiOutlineImport/></span>
-    </OverlayTrigger>
-  );
-}
