@@ -1,8 +1,9 @@
 use bollard::image::{CreateImageOptions, ListImagesOptions};
 use std::time::{SystemTime, UNIX_EPOCH};
+use bollard::auth::DockerCredentials;
 use futures_util::{future, TryStreamExt};
 use bollard::Docker;
-use tauri::Manager;
+use tauri::{Manager, Runtime};
 use crate::{DockerState, Payload};
 
 pub async fn get_latest_downloaded_comby_image(docker: &Docker) -> Result<String, String> {
@@ -36,7 +37,7 @@ pub async fn comby_image(state: tauri::State<'_, DockerState>) -> Result<String,
 }
 
 #[tauri::command]
-pub async fn download_comby_image(state: tauri::State<'_, DockerState>, credentials: Option<Credentials>, app_handle: tauri::AppHandle) -> Result<String, String> {
+pub async fn download_comby_image<R: Runtime>(state: tauri::State<'_, DockerState>, credentials: Option<Credentials>, app_handle: tauri::AppHandle<R>) -> Result<String, String> {
     let docker = match &state.docker {
         Ok(docker) => docker,
         Err(error) => return Err(format!("Docker Error: {}", error.to_string())),
@@ -48,7 +49,14 @@ pub async fn download_comby_image(state: tauri::State<'_, DockerState>, credenti
             ..Default::default()
         }),
         None,
-        None,
+        match credentials {
+            None => None,
+            Some(creds) => Some(DockerCredentials{
+                username: Some(creds.username),
+                password: Some(creds.secret),
+                ..Default::default()
+            })
+        },
     ).and_then(move |result| {
         format!("create info: {:?}", &result);
         // TODO use bespoke message

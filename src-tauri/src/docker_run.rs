@@ -4,11 +4,14 @@ use bollard::container::{Config, CreateContainerOptions, InspectContainerOptions
 use std::collections::HashMap;
 use bollard::exec::{CreateExecOptions, StartExecResults};
 use std::cmp::Ordering;
+use std::sync::{Arc};
+use tokio::sync::Mutex;
 use bollard::models::HostConfig;
 use tokio::io::AsyncWriteExt;
 use futures_util::StreamExt;
 use tauri::Runtime;
-use crate::maybe;
+use tokio::sync::RwLock;
+use crate::{maybe, ThreadSafe};
 
 pub struct DockerState {
     pub docker: Result<Docker, Error>,
@@ -19,7 +22,7 @@ pub struct DockerRunResult {
     pub std_err: Option<String>,
 }
 
-pub async fn docker_run<R: Runtime>(docker: &Docker, cmd: Vec<&str>, std_in: Option<String>, app_handle: tauri::AppHandle<R>) -> Result<DockerRunResult, String> {
+pub async fn docker_run<R: Runtime>(thread_safe: &ThreadSafe, docker: &Docker, cmd: Vec<&str>, std_in: Option<String>, app_handle: tauri::AppHandle<R>) -> Result<DockerRunResult, String> {
     let image = crate::image::get_latest_downloaded_comby_image(docker).await?;
 
     let container_config = Config {
@@ -30,6 +33,10 @@ pub async fn docker_run<R: Runtime>(docker: &Docker, cmd: Vec<&str>, std_in: Opt
         entrypoint: Some(vec!["tail", "-f", "/dev/null"]), // keep container running
         ..Default::default()
     };
+
+    let lock = thread_safe.0.lock().await;
+    println!("thread_safe start");
+
     println!("checking for existing container");
     let container_name = "/gui4comby-server".to_string();
     let existing_container = maybe::maybe(docker.list_containers(Some(ListContainersOptions::<String> {
@@ -44,6 +51,7 @@ pub async fn docker_run<R: Runtime>(docker: &Docker, cmd: Vec<&str>, std_in: Opt
 
     let id = match existing_container.len() {
         0 => {
+
             println!("creating a container for use");
             crate::server_log(&app_handle, format!("Creating container {} to run commands with", container_name));
             maybe::maybe(docker
@@ -56,6 +64,8 @@ pub async fn docker_run<R: Runtime>(docker: &Docker, cmd: Vec<&str>, std_in: Opt
             existing_container.get(0).unwrap().id.as_ref().unwrap().to_string()
         }
     };
+    drop(lock);
+    println!("thread_safe end");
 
     if container_started == false {
         crate::server_log(&app_handle, "Starting container".to_string())
@@ -236,4 +246,23 @@ pub async fn docker_run_mnt<R: Runtime>(docker: &Docker, tab_id: String, host_pa
         }
     })
 
+}
+
+pub async fn docker_run_cleanup(docker: &Docker, tab_id: String) -> Result<(), String> {
+    let container_name = format!("gui4comby-server-{}", tab_id);
+    let existing_container = maybe::maybe(docker.list_containers(Some(ListContainersOptions::<String> {
+        all: true,
+        filters: HashMap::from([
+            ("name".to_string(), vec![container_name.clone()])
+        ]),
+        ..Default::default()
+    })).await)?;
+    if existing_container.len() > 0 {
+        maybe::maybe(docker.remove_container(&container_name, Some(RemoveContainerOptions{
+            v: true,
+            force: true,
+            link: false
+        })).await)?;
+    }
+    Ok(())
 }

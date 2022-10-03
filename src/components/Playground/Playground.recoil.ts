@@ -1,5 +1,6 @@
 import {atomFamily, selectorFamily} from "recoil";
 import { LanguageOptions } from "../LanguageSelect/LanguageOptions";
+import {CombyMatch, CombyRewrite} from "./Comby";
 
 export const sourceFamily = atomFamily({
   key: 'playgroundSource',
@@ -18,7 +19,12 @@ export const rewriteTemplateFamily = atomFamily({
 
 export const ruleFamily = atomFamily({
   key: 'playgroundRule',
-  default: '',
+  default: 'where true',
+});
+
+export const ruleErrorFamily = atomFamily<string|null, string>({
+  key: 'playgroundRuleError',
+  default: null
 });
 
 export const matchedFamily = atomFamily({
@@ -26,10 +32,20 @@ export const matchedFamily = atomFamily({
   default: '',
 });
 
+export const matchesFamily = atomFamily<CombyMatch["matches"], string>({
+  key: 'playgroundMatches',
+  default: []
+});
+
 export const rewrittenFamily = atomFamily({
   key: 'playgroundRewritten',
   default: '',
 });
+
+export const rewritesFamily = atomFamily<CombyRewrite["in_place_substitutions"],string>({
+  key: 'playgroundRewrites',
+  default: []
+})
 
 export const defaultLanguageFamily = atomFamily({
   key: 'playgroundDefaultLanguageFamily',

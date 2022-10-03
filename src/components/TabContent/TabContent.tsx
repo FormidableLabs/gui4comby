@@ -9,6 +9,7 @@ import {tabsState} from "../../App.recoil";
 import Docs from "../Docs/Docs";
 import GettingStarted from "../GettingStarted/GettingStarted";
 import Filesystem from "../Filesystem/Filesystem";
+import Playground2 from "../Playground/Playground2";
 
 type Props = {
 
@@ -29,7 +30,7 @@ const TabContent = ({}:Props) => {
   let Component  = <div>Todo</div>;
   switch(tab.type){
     case TabType.Index: Component = <GettingStarted/>; break;
-    case TabType.Playground: Component = <Playground id={params.tabId!}/>; break;
+    case TabType.Playground: Component = <Playground2 id={params.tabId!}/>; break;
     case TabType.Filesystem: Component = <Filesystem id={params.tabId!}/>; break;
     case TabType.Docs: Component = <Docs/>; break;
     case TabType.Settings: Component = <div>Settings Placeholder <DockerVersion/></div>; break;

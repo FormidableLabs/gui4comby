@@ -139,9 +139,10 @@ const DirectorySelectorModal = ({handleClose, handleSelect, value}:DirectorySele
   const onSelectClick = ()=> {
     if(!search) { return }
     const homePrefix = `~${searchResults?.path_separator}`;
+    let withSeparator = search + (search[search.length-1] === searchResults?.path_separator ? '' : searchResults?.path_separator);
     let selected = {
-      path: search,
-      expanded: searchResults?.home_dir ? search.replace(homePrefix, searchResults.home_dir) : search
+      path: withSeparator,
+      expanded: searchResults?.home_dir ? withSeparator.replace(homePrefix, searchResults.home_dir) : withSeparator
     };
     handleSelect(selected);
   }
@@ -151,6 +152,8 @@ const DirectorySelectorModal = ({handleClose, handleSelect, value}:DirectorySele
     setActiveIndex(undefined);
   }
 
+  const shorten = (path:string) => path.replace(searchResults?.home_dir || '', '~/');
+
   const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     let candidates = searchResults?.candidates || searchResults?.children;
     switch(e.key) {
@@ -158,7 +161,7 @@ const DirectorySelectorModal = ({handleClose, handleSelect, value}:DirectorySele
       case 'Enter':
         e.preventDefault();
         if(candidates) {
-          drillDown(candidates[activeIndex || 0]);
+          drillDown(shorten(candidates[activeIndex || 0]) + searchResults?.path_separator);
         }
         break;
       case 'Down':

@@ -3,6 +3,7 @@ use std::path::MAIN_SEPARATOR;
 use resolve_path::PathResolveExt;
 use tauri::Runtime;
 use crate::{docker_run, DockerState, maybe, Regex};
+use crate::docker_run::docker_run_cleanup;
 
 
 #[derive(Clone, serde::Serialize)]
@@ -179,7 +180,8 @@ pub async fn filesystem_rewrite<R: Runtime>(
     exclude_dirs: Vec<String>,
     match_template: String,
     rewrite_template: String,
-    language: String
+    language: String,
+    rule: String,
 ) -> Result<FilesystemResult,String> {
 
     let mnt_path = "/mnt/source";
@@ -190,9 +192,11 @@ pub async fn filesystem_rewrite<R: Runtime>(
         "comby",
         match_template.as_str(),
         rewrite_template.as_str(),
+        "-rule", rule.as_str(),
         "-matcher", language.as_str(),
         "-d", mnt_path,
         "-exclude-dir", &exclude_dirs_param,
+        "-match-newline-at-toplevel",
         "-json-lines"
     ];
     if ! &extensions_param.eq(".*") {
@@ -214,14 +218,17 @@ pub async fn filesystem_rewrite_file<R: Runtime>(
     file_path: String,
     match_template: String,
     rewrite_template: String,
-    language: String
+    language: String,
+    rule: String,
 ) -> Result<FilesystemResult,String> {
     let docker = maybe::maybe_ref(&state.docker)?;
     let result = docker_run::docker_run_mnt(docker, tab_id, host_path,vec![
         "comby",
         match_template.as_str(),
         rewrite_template.as_str(),
+        "-rule", rule.as_str(),
         "-matcher", language.as_str(),
+        "-match-newline-at-toplevel",
         "-in-place",
         &file_path
     ], app_handle).await?;
@@ -231,4 +238,11 @@ pub async fn filesystem_rewrite_file<R: Runtime>(
         result: result.std_out,
         warning: result.std_err
     })
+}
+
+#[tauri::command]
+pub async fn filesystem_cleanup(state: tauri::State<'_, DockerState>, tab_id: String) -> Result<(), String> {
+    let docker = maybe::maybe_ref(&state.docker)?;
+    docker_run_cleanup(docker, tab_id).await?;
+    Ok(())
 }

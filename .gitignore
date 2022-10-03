@@ -28,3 +28,6 @@ themes/ayu-light-bordered.tsx
 themes/marketplace.results
 themes/manifests
 themes/sources
+
+# sensitive
+osx-sign.sh

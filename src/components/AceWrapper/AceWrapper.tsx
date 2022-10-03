@@ -32,16 +32,24 @@ import "ace-builds/src-noconflict/theme-one_dark";
 import "ace-builds/src-noconflict/theme-dawn";
 import {useRecoilValue} from "recoil";
 import {appThemeAtom} from "../../App.recoil";
+import {IMarker} from "react-ace/src/types";
+import {CSSProperties} from "react";
 
 
 type AceWrapperProps = {
   width: number;
   height: number;
   value: string;
-  onChange: (value: string) => void;
+  onChange?: (value: string) => void;
   language: string;
+  readOnly?: boolean;
+  markers?: IMarker[];
+  className?: string;
+  style?: CSSProperties;
+  showLineNumber?: boolean;
+  showGutter?: boolean;
 };
-const AceWrapper = ({width, height, language, onChange, value}:AceWrapperProps) => {
+const AceWrapper = ({width, height, language, onChange, value, readOnly, markers, className, style, showLineNumber, showGutter}:AceWrapperProps) => {
   const theme = useRecoilValue(appThemeAtom);
   return (
     <AceEditor
@@ -49,20 +57,23 @@ const AceWrapper = ({width, height, language, onChange, value}:AceWrapperProps) 
       mode={language}
       width={`${width}px`}
       height={`${height}px`}
+      style={style}
       theme={theme === 'dark' ? 'one_dark':'dawn'}
       name="sourceSampleAce"
       onChange={onChange}
       fontSize={14}
       showPrintMargin={true}
-      showGutter={true}
+      showGutter={typeof showGutter !== 'undefined' ? showGutter : true}
       highlightActiveLine={true}
       value={value}
-      className={'themed'}
+      readOnly={readOnly}
+      className={className}
+      markers={markers}
       setOptions={{
         enableBasicAutocompletion: false,
         enableLiveAutocompletion: false,
         enableSnippets: false,
-        showLineNumbers: true,
+        showLineNumbers: typeof showLineNumber !== 'undefined' ? showLineNumber : true,
         tabSize: 2,
       }}/>
   )

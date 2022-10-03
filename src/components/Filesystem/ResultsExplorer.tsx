@@ -1,20 +1,18 @@
-import {CombyRewrite} from "../Playground/Comby";
 import {
   AiOutlineArrowLeft,
   AiOutlineArrowRight,
   AiOutlineCheckCircle,
   AiOutlineCloseCircle,
   AiOutlineDiff,
-  RiLayoutBottom2Line
 } from "react-icons/all";
-import {Button, ButtonGroup, DropdownButton, Spinner, Dropdown} from "react-bootstrap";
+import {Button, Spinner} from "react-bootstrap";
 import {useCallback, useEffect, useState} from "react";
 import ReactDiffViewer from 'react-diff-viewer'
 import {invoke} from "@tauri-apps/api/tauri";
 import useToaster, {ToastVariant} from "../Toaster/useToaster";
 import {useRecoilValue} from "recoil";
 import {appThemeAtom} from "../../App.recoil";
-import {CombyRewriteStatus, FilesystemRewriteFileResult} from "./Filesystem.types";
+import {CombyRewriteStatus} from "./Filesystem.types";
 
 type Props = {
   results: Array<CombyRewriteStatus>;
