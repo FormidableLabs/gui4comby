@@ -1,22 +1,22 @@
 # GUI 4 Comby
 
 ## Screenshots
-![Splash screen - jump to docs or start rewriting](docs/Screen Shot 2022-09-26 at 2.13.49 PM.png)
+![Splash screen - jump to docs or start rewriting](https://raw.githubusercontent.com/FormidableLabs/gui4comby/8f459ee2f4f4a809b113cce75b83c6857cb55418/docs/Screen%20Shot%202022-09-26%20at%202.13.49%20PM.png)
 
 Paste in some source code to start playing around with match and rewrite templates.
-![Playground tab - explore match and rewrite patterns](docs/Screen Shot 2022-09-26 at 2.27.27 PM.png)
+![Playground tab - explore match and rewrite patterns](https://raw.githubusercontent.com/FormidableLabs/gui4comby/8f459ee2f4f4a809b113cce75b83c6857cb55418/docs/Screen%20Shot%202022-09-26%20at%202.27.27%20PM.png)
 
 Once you've perfected your templates, run them against your project files.
-![Filesystem tab - run match and rewrite patterns on your files](docs/Screen Shot 2022-09-26 at 2.28.29 PM.png)
+![Filesystem tab - run match and rewrite patterns on your files](https://raw.githubusercontent.com/FormidableLabs/gui4comby/8f459ee2f4f4a809b113cce75b83c6857cb55418/docs/Screen%20Shot%202022-09-26%20at%202.28.29%20PM.png)
 
 Easy access to comby documentation right in the application.
-![Docs tab - view the comby docs in app](docs/Screen Shot 2022-09-26 at 2.31.20 PM.png)
+![Docs tab - view the comby docs in app](https://raw.githubusercontent.com/FormidableLabs/gui4comby/8f459ee2f4f4a809b113cce75b83c6857cb55418/docs/Screen%20Shot%202022-09-26%20at%202.31.20%20PM.png)
 
 Switch between light and dark mode themes.
-![Theme Options - choose between light and dark](docs/Screen Shot 2022-09-26 at 2.33.39 PM.png)
+![Theme Options - choose between light and dark](https://raw.githubusercontent.com/FormidableLabs/gui4comby/8f459ee2f4f4a809b113cce75b83c6857cb55418/docs/Screen%20Shot%202022-09-26%20at%202.33.39%20PM.png)
 
 The application uses docker behind the scenes to do all the magic, use docker settings to download or update your comby image.
-![Docker Setup - download and update the comby image](docs/Screen Shot 2022-09-26 at 2.33.52 PM.png)
+![Docker Setup - download and update the comby image](https://raw.githubusercontent.com/FormidableLabs/gui4comby/8f459ee2f4f4a809b113cce75b83c6857cb55418/docs/Screen%20Shot%202022-09-26%20at%202.33.52%20PM.png)
 
 
 ## Development
