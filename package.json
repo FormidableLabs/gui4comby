@@ -8,6 +8,7 @@
     "docs": "node scripts/generateDocsIndex.js",
     "build": "tsc && vite build",
     "preview": "vite preview",
+    "prettier": "prettier --write vite.config.ts 'src/**/*.{js,jsx,ts,tsx}'",
     "tauri": "tauri",
     "themes": "node scripts/vsthemes2css.js",
     "themes:get": "node scripts/downloadThemes.js"
@@ -46,6 +47,7 @@
     "@types/react-dom": "^18.0.6",
     "@vitejs/plugin-react": "^2.0.0",
     "chroma-js": "^2.4.2",
+    "prettier": "^2.8.3",
     "typescript": "^4.6.4",
     "vite": "^3.0.2"
   }
