@@ -1,6 +1,6 @@
-import {atomFamily} from "recoil";
+import { atomFamily } from "recoil";
 
 export const docPageScrollFamily = atomFamily({
-  key: 'docPageScroll',
+  key: "docPageScroll",
   default: 0,
 });

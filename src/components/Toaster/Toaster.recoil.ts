@@ -1,14 +1,14 @@
-import {atom} from "recoil";
+import { atom } from "recoil";
 export enum ToastVariant {
-  primary='primary',
-  secondary='secondary',
-  success='success',
-  warning='warning',
-  danger='danger',
-  info='info',
-  light='light',
-  dark='dark',
-  default='default'
+  primary = "primary",
+  secondary = "secondary",
+  success = "success",
+  warning = "warning",
+  danger = "danger",
+  info = "info",
+  light = "light",
+  dark = "dark",
+  default = "default",
 }
 //export type ToastVariant = 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info' | 'light' | 'dark' | 'default';
 export type ToastInfo = {
@@ -17,9 +17,9 @@ export type ToastInfo = {
   title: string;
   message: string;
   time: number;
-}
+};
 
 export const toasterState = atom<ToastInfo[]>({
-  key: 'toasterToasts',
+  key: "toasterToasts",
   default: [],
 });
