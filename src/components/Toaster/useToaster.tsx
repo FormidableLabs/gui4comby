@@ -1,44 +1,43 @@
-import {useRecoilState} from "recoil";
-import {toasterState, ToastInfo, ToastVariant} from "./Toaster.recoil";
-import {getId} from "../../App.recoil";
+import { useRecoilState } from "recoil";
+import { toasterState, ToastInfo, ToastVariant } from "./Toaster.recoil";
+import { getId } from "../../App.recoil";
 
-export { ToastVariant } from './Toaster.recoil';
+export { ToastVariant } from "./Toaster.recoil";
 
-const useToaster = ()=> {
+const useToaster = () => {
   const [toasts, setToasts] = useRecoilState(toasterState);
 
-  const pushOverride = (toast: Pick<ToastInfo, 'title' | 'message'> & Partial<Omit<ToastInfo, 'title' | 'message'>>) => {
-    const newToast: ToastInfo = Object.assign({}, {
+  const pushOverride = (
+    toast: Pick<ToastInfo, "title" | "message"> &
+      Partial<Omit<ToastInfo, "title" | "message">>
+  ) => {
+    const newToast: ToastInfo = Object.assign(
+      {},
+      {
         id: `toast-${getId()}`,
-        variant: 'default',
+        variant: "default",
         time: Date.now(),
-      }, toast);
-    setToasts(oldState => [
-      ...oldState,
-      newToast
-    ])
-  }
+      },
+      toast
+    );
+    setToasts((oldState) => [...oldState, newToast]);
+  };
 
   const push = (title: string, message: string, variant?: ToastVariant) => {
     const newToast: ToastInfo = {
-        title,
-        message,
-        id: `toast-${getId()}`,
-        variant: variant || ToastVariant.default,
-        time: Date.now(),
-      };
-    setToasts(oldState => [
-      ...oldState,
-      newToast
-    ])
-  }
+      title,
+      message,
+      id: `toast-${getId()}`,
+      variant: variant || ToastVariant.default,
+      time: Date.now(),
+    };
+    setToasts((oldState) => [...oldState, newToast]);
+  };
 
   const close = (id: string) => {
-    setToasts(oldState => [
-      ...oldState.filter(toast => toast.id !== id)
-    ])
-  }
+    setToasts((oldState) => [...oldState.filter((toast) => toast.id !== id)]);
+  };
 
-  return {toasts, push, pushOverride, close};
-}
+  return { toasts, push, pushOverride, close };
+};
 export default useToaster;

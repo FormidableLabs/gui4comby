@@ -1,5 +1,10 @@
-import {AiOutlineExperiment, AiOutlineFileSearch, AiOutlineRead, AiOutlineSetting} from "react-icons/ai";
-import {IconType} from "react-icons/lib";
+import {
+  AiOutlineExperiment,
+  AiOutlineFileSearch,
+  AiOutlineRead,
+  AiOutlineSetting,
+} from "react-icons/ai";
+import { IconType } from "react-icons/lib";
 
 export enum TabType {
   Index,
@@ -11,18 +16,28 @@ export enum TabType {
 
 type Props = {
   type: TabType;
-}
-const TabIcon = ({type}:Props) => {
+};
+const TabIcon = ({ type }: Props) => {
   let Icon: IconType = AiOutlineRead;
 
-  switch(type){
-    case TabType.Playground: Icon = AiOutlineExperiment; break;
-    case TabType.Filesystem: Icon = AiOutlineFileSearch; break;
-    case TabType.Settings: Icon = AiOutlineSetting; break;
-    case TabType.Docs: Icon = AiOutlineRead; break;
-    case TabType.Index: Icon = AiOutlineRead; break;
+  switch (type) {
+    case TabType.Playground:
+      Icon = AiOutlineExperiment;
+      break;
+    case TabType.Filesystem:
+      Icon = AiOutlineFileSearch;
+      break;
+    case TabType.Settings:
+      Icon = AiOutlineSetting;
+      break;
+    case TabType.Docs:
+      Icon = AiOutlineRead;
+      break;
+    case TabType.Index:
+      Icon = AiOutlineRead;
+      break;
   }
 
-  return <Icon/>
-}
+  return <Icon />;
+};
 export default TabIcon;

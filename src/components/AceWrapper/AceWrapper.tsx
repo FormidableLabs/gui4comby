@@ -30,10 +30,9 @@ import "ace-builds/src-noconflict/mode-xml";
 
 import "ace-builds/src-noconflict/theme-one_dark";
 import "ace-builds/src-noconflict/theme-dawn";
-import {useRecoilValue} from "recoil";
-import {appThemeAtom} from "../../App.recoil";
-import {ComponentPropsWithoutRef, CSSProperties} from "react";
-
+import { useRecoilValue } from "recoil";
+import { appThemeAtom } from "../../App.recoil";
+import { ComponentPropsWithoutRef, CSSProperties } from "react";
 
 type AceWrapperProps = {
   width: number;
@@ -42,13 +41,25 @@ type AceWrapperProps = {
   onChange?: (value: string) => void;
   language: string;
   readOnly?: boolean;
-  markers?: ComponentPropsWithoutRef<typeof AceEditor>['markers'];
+  markers?: ComponentPropsWithoutRef<typeof AceEditor>["markers"];
   className?: string;
   style?: CSSProperties;
   showLineNumber?: boolean;
   showGutter?: boolean;
 };
-const AceWrapper = ({width, height, language, onChange, value, readOnly, markers, className, style, showLineNumber, showGutter}:AceWrapperProps) => {
+const AceWrapper = ({
+  width,
+  height,
+  language,
+  onChange,
+  value,
+  readOnly,
+  markers,
+  className,
+  style,
+  showLineNumber,
+  showGutter,
+}: AceWrapperProps) => {
   const theme = useRecoilValue(appThemeAtom);
   return (
     <AceEditor
@@ -57,12 +68,12 @@ const AceWrapper = ({width, height, language, onChange, value, readOnly, markers
       width={`${width}px`}
       height={`${height}px`}
       style={style}
-      theme={theme === 'dark' ? 'one_dark':'dawn'}
+      theme={theme === "dark" ? "one_dark" : "dawn"}
       name="sourceSampleAce"
       onChange={onChange}
       fontSize={14}
       showPrintMargin={true}
-      showGutter={typeof showGutter !== 'undefined' ? showGutter : true}
+      showGutter={typeof showGutter !== "undefined" ? showGutter : true}
       highlightActiveLine={true}
       value={value}
       readOnly={readOnly}
@@ -72,9 +83,11 @@ const AceWrapper = ({width, height, language, onChange, value, readOnly, markers
         enableBasicAutocompletion: false,
         enableLiveAutocompletion: false,
         enableSnippets: false,
-        showLineNumbers: typeof showLineNumber !== 'undefined' ? showLineNumber : true,
+        showLineNumbers:
+          typeof showLineNumber !== "undefined" ? showLineNumber : true,
         tabSize: 2,
-      }}/>
-  )
-}
+      }}
+    />
+  );
+};
 export default AceWrapper;
