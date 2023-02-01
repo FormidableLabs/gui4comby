@@ -32,8 +32,7 @@ import "ace-builds/src-noconflict/theme-one_dark";
 import "ace-builds/src-noconflict/theme-dawn";
 import {useRecoilValue} from "recoil";
 import {appThemeAtom} from "../../App.recoil";
-import {IMarker} from "react-ace/src/types";
-import {CSSProperties} from "react";
+import {ComponentPropsWithoutRef, CSSProperties} from "react";
 
 
 type AceWrapperProps = {
@@ -43,7 +42,7 @@ type AceWrapperProps = {
   onChange?: (value: string) => void;
   language: string;
   readOnly?: boolean;
-  markers?: IMarker[];
+  markers?: ComponentPropsWithoutRef<typeof AceEditor>['markers'];
   className?: string;
   style?: CSSProperties;
   showLineNumber?: boolean;
