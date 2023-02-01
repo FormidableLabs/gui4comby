@@ -18,7 +18,7 @@ type Props = {
   results: Array<CombyRewriteStatus>;
   path: string;
   applyFunc?: (uri: string) => Promise<void>;
-  skipFunc?: (uri: string) => Promise<void>;
+  skipFunc?: (uri: string, skipped: boolean) => Promise<void>;
 };
 
 const ResultsExplorer = ({ applyFunc, path, results, skipFunc }: Props) => {
@@ -42,7 +42,7 @@ const ResultsExplorer = ({ applyFunc, path, results, skipFunc }: Props) => {
   const onSkipClick = useCallback(async () => {
     if (skipFunc) {
       try {
-        await skipFunc(results[index].uri!);
+        await skipFunc(results[index].uri!, !results[index].skipped);
       } catch (err) {
         console.error(err);
       }
@@ -149,7 +149,7 @@ const ResultsExplorer = ({ applyFunc, path, results, skipFunc }: Props) => {
               variant={"default"}
               style={{ whiteSpace: "nowrap" }}
               onClick={onSkipClick}
-              disabled={applied || skipped}
+              disabled={applied}
             >
               {skipped ? "Skipped" : "Skip"} <AiOutlineCloseCircle />
             </Button>

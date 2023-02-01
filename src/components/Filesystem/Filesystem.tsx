@@ -208,14 +208,13 @@ const Filesystem = ({ id }: { id: string }) => {
   );
 
   const skip = useCallback(
-    async (uri: string) => {
+    async (uri: string, skipped: boolean) => {
       setResult((current): Array<CombyRewriteStatus> => {
         return (current || []).map((r) =>
           r.uri === uri
             ? {
                 ...r,
-                applied: false,
-                skipped: true,
+                skipped,
               }
             : r
         );
