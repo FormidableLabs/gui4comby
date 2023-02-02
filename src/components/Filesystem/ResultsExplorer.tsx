@@ -7,7 +7,7 @@ import {
 } from "react-icons/all";
 import { Button, Spinner } from "react-bootstrap";
 import { useCallback, useEffect, useState } from "react";
-import ReactDiffViewer from "react-diff-viewer";
+import ReactDiffViewer, { DiffMethod } from "react-diff-viewer";
 import { invoke } from "@tauri-apps/api/tauri";
 import useToaster, { ToastVariant } from "../Toaster/useToaster";
 import { useRecoilValue } from "recoil";
@@ -63,7 +63,6 @@ const ResultsExplorer = ({ applyFunc, path, results, skipFunc }: Props) => {
         continue;
       }
       try {
-        setIndex(i);
         await applyFunc(results[i].uri!);
       } catch (err) {
         console.error(err);
@@ -238,11 +237,13 @@ const Diff = ({
       oldValue={source}
       newValue={rewritten}
       splitView={true}
+      compareMethod={DiffMethod.LINES}
       useDarkTheme={theme === "dark"}
-      styles={{
-        /* @ts-ignore */
-        height: "100%",
-      }}
+      styles={
+        {
+          height: "100%",
+        } as any
+      }
     />
   );
 };
