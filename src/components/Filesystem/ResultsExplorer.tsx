@@ -36,6 +36,20 @@ const ResultsExplorer = ({ applyFunc, path, results, skipFunc }: Props) => {
       console.error(err);
     } finally {
       setApplying(false);
+
+      // The results starting after this index, looping back to the start and
+      // continuing back to this index
+      const upcomingResults = [
+        ...results.slice(index + 1), // omit the current result
+        ...results.slice(0, index),
+      ];
+
+      const nextUnhandledResultOffset =
+        upcomingResults.findIndex((r) => !r.applied && !r.skipped) + 1;
+      if (nextUnhandledResultOffset > 0) {
+        // Advance to the next unhandled result if one exists
+        setIndex((index + nextUnhandledResultOffset) % results.length);
+      }
     }
   }, [applyFunc, index, setApplying, results]);
 
