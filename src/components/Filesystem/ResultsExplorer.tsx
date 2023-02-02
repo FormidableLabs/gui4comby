@@ -7,7 +7,7 @@ import {
 } from "react-icons/all";
 import { Button, Spinner } from "react-bootstrap";
 import { useCallback, useEffect, useState } from "react";
-import ReactDiffViewer from "react-diff-viewer";
+import ReactDiffViewer, { DiffMethod } from "react-diff-viewer";
 import { invoke } from "@tauri-apps/api/tauri";
 import useToaster, { ToastVariant } from "../Toaster/useToaster";
 import { useRecoilValue } from "recoil";
@@ -18,7 +18,7 @@ type Props = {
   results: Array<CombyRewriteStatus>;
   path: string;
   applyFunc?: (uri: string) => Promise<void>;
-  skipFunc?: (uri: string) => Promise<void>;
+  skipFunc?: (uri: string, skipped: boolean) => Promise<void>;
 };
 
 const ResultsExplorer = ({ applyFunc, path, results, skipFunc }: Props) => {
@@ -36,13 +36,27 @@ const ResultsExplorer = ({ applyFunc, path, results, skipFunc }: Props) => {
       console.error(err);
     } finally {
       setApplying(false);
+
+      // The results starting after this index, looping back to the start and
+      // continuing back to this index
+      const upcomingResults = [
+        ...results.slice(index + 1), // omit the current result
+        ...results.slice(0, index),
+      ];
+
+      const nextUnhandledResultOffset =
+        upcomingResults.findIndex((r) => !r.applied && !r.skipped) + 1;
+      if (nextUnhandledResultOffset > 0) {
+        // Advance to the next unhandled result if one exists
+        setIndex((index + nextUnhandledResultOffset) % results.length);
+      }
     }
   }, [applyFunc, index, setApplying, results]);
 
   const onSkipClick = useCallback(async () => {
     if (skipFunc) {
       try {
-        await skipFunc(results[index].uri!);
+        await skipFunc(results[index].uri!, !results[index].skipped);
       } catch (err) {
         console.error(err);
       }
@@ -63,7 +77,6 @@ const ResultsExplorer = ({ applyFunc, path, results, skipFunc }: Props) => {
         continue;
       }
       try {
-        setIndex(i);
         await applyFunc(results[i].uri!);
       } catch (err) {
         console.error(err);
@@ -149,7 +162,7 @@ const ResultsExplorer = ({ applyFunc, path, results, skipFunc }: Props) => {
               variant={"default"}
               style={{ whiteSpace: "nowrap" }}
               onClick={onSkipClick}
-              disabled={applied || skipped}
+              disabled={applied}
             >
               {skipped ? "Skipped" : "Skip"} <AiOutlineCloseCircle />
             </Button>
@@ -238,11 +251,13 @@ const Diff = ({
       oldValue={source}
       newValue={rewritten}
       splitView={true}
+      compareMethod={DiffMethod.LINES}
       useDarkTheme={theme === "dark"}
-      styles={{
-        /* @ts-ignore */
-        height: "100%",
-      }}
+      styles={
+        {
+          height: "100%",
+        } as any
+      }
     />
   );
 };
